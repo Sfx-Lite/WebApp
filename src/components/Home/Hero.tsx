@@ -1,5 +1,5 @@
 export default function Hero() {
   return (
-    <div>Hero</div>
+    <div className="text-red-700">Hero</div>
   );
 }
