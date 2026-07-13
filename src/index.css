@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "DM Sans Bold";
+  src: url("./assets/fonts/DMSans-Bold.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@theme {
+  --primary-color: #000;
+  --secondary-color: #fff;
+
+  --font-dmsans-b: "DM Sans Bold";
+
+  --breakpoints-sm: 480px;
+}
+
+body {
+  font-family: var(--font-dmsans-b);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
