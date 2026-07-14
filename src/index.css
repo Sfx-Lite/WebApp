@@ -1,17 +1,70 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "DM Sans Bold";
-  src: url("./assets/fonts/DMSans-Bold.ttf") format("truetype");
-  font-weight: 500;
+  font-family: "RedHat Display Regular";
+  src: url("./assets/fonts/RedHatDisplay-Regular.woff2") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "RedHat Display Medium";
+  src: url("./assets/fonts/RedHatDisplay-Medium.woff2") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "RedHat Display Semibold";
+  src: url("./assets/fonts/RedHatDisplay-SemiBold.woff2") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "RedHat Display Bold";
+  src: url("./assets/fonts/RedHatDisplay-Bold.woff2") format("truetype");
+  font-weight: 800;
   font-style: normal;
 }
 
 @theme {
-  --primary-color: #000;
-  --secondary-color: #fff;
+  /* Colors */
+  --color-sfx-primary: #8c52ff;
+  --color-sfx-primary-strong: #6e35e8;
+  --color-sfx-primary-soft: #cdb3ff;
+  --color-sfx-primary-tint: #f1e9ff;
+  --color-sfx-bg: #f6f2ff;
+  --color-sfx-card: #ffffff;
+  --color-sfx-ink: #201640;
+  --color-sfx-muted: #756c8e;
+  --color-sfx-success: #00bf63;
+  --color-sfx-danger: #dc2626;
+  --color-sfx-danger-bg: #fdebec;
+  --color-sfx-amber: #d97706;
 
-  --font-dmsans-b: "DM Sans Bold";
+  /* Fonts */
+  --font-rh-r: "RedHat Display Regular";
+  --font-rh-m: "RedHat Display Medium";
+  --font-rh-sb: "RedHat Display Semibold";
+  --font-rh-b: "RedHat Display Bold";
+
+  /* Shape & Spacing */
+  --radius-button: 999px;
+  --radius-pill: 999px;
+  --radius-card: 18px;
+  --radius-input: 14px;
+  --radius-field: 14px;
+  --radius-sheet: 26px;
+  --radius-panel: 26px;
+
+  --spacing-screen-x: 18px;
+  --spacing-gutter: 8px;
+  --spacing-card-pad: 14px;
+  --spacing-button-h: 52px;
+
+  /* Shadows */
+  --shadow-brand: 0 2px 10px rgba(34, 26, 56, 0.05);
 
   --breakpoints-sm: 480px;
 }
