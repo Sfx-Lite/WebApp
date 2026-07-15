@@ -11,7 +11,7 @@ function App() {
   return (
     <Routes>
       <Route element={<HomeLayout />}>
-        <Route path="home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="rates" element={<Rates />} />
         <Route path="history" element={<History />} />
         <Route path="settings" element={<Settings />} />
