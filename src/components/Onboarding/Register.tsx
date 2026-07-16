@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { MdOutlineRemoveRedEye, MdOutlineVisibilityOff } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Register() {
   // Stores what the user types
@@ -91,6 +93,11 @@ export default function Register() {
                   bg-white
                   text-sfx-ink
                   placeholder:text-sfx-muted
+                  mt-2
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-sfx-primary-tint
+                  focus:border-transparent
                 "
             />
           </div>
@@ -116,6 +123,11 @@ export default function Register() {
                 bg-white
                 text-sfx-ink
                 placeholder:text-sfx-muted
+                mt-2
+                focus:outline-none
+                focus:ring-2
+                focus:ring-sfx-primary-tint
+                focus:border-transparent
               "
             />
           </div>
@@ -141,10 +153,15 @@ export default function Register() {
                 bg-white
                 text-sfx-ink
                 placeholder:text-sfx-muted
+                mt-2
+                focus:outline-none
+                focus:ring-2
+                focus:ring-sfx-primary-tint
+                focus:border-transparent
               "
             />
           </div>
-          {/* Fix: Install Select component from shadcn ,and replace here */}
+          {/* selecy home country */}
           <div className="space-y-2">
             <label
               htmlFor="home-country"
@@ -152,22 +169,21 @@ export default function Register() {
             >
               Home Country
             </label>
-            <Input
-              id="home-country"
-              name="homeCountry"
-              value={country}
-              placeholder="Select your country"
-              onChange={e => setCountry(e.target.value)}
-              required
-              className="
-                h-12
-                rounded-input
-                border-[1.5px]
-                bg-white
-                text-sfx-ink
-                placeholder:text-sfx-muted
-                "
-            />
+            <Select value={country} onValueChange={setCountry} required>
+              <SelectTrigger
+                id="home-country"
+                className="h-12 rounded-input border-[2px] bg-white text-sfx-ink data-placeholder:text-sfx-muted w-full mt-2"
+              >
+                <SelectValue placeholder="Select your country" />
+              </SelectTrigger>
+              <SelectContent className="bg-white" side="bottom">
+                <SelectItem value="United States">United States</SelectItem>
+                <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                <SelectItem value="Canada">Canada</SelectItem>
+                <SelectItem value="Australia">Australia</SelectItem>
+                <SelectItem value="Nigeria">Nigeria</SelectItem>
+              </SelectContent>
+            </Select>
             <div>
               <div className="relative">
                 <label
@@ -178,7 +194,6 @@ export default function Register() {
                 </label>
                 <Input
                   className="
-                  mt-1
                   bg-white
                   h-12
                   py-4
@@ -190,6 +205,7 @@ export default function Register() {
                   focus:ring-2
                   focus:ring-sfx-primary-tint
                   focus:border-transparent
+                  mt-2
                   "
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -209,10 +225,15 @@ export default function Register() {
                   -translate-y-3
                   text-xs
                   text-sfx-primary
-                  hover:text-sfx-ink
                   "
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword
+                    ? (
+                        <MdOutlineVisibilityOff size="20px" />
+                      )
+                    : (
+                        <MdOutlineRemoveRedEye size="20px" />
+                      )}
                 </button>
               </div>
 

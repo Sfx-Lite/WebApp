@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
+import { MdOutlineRemoveRedEye, MdOutlineVisibilityOff } from "react-icons/md";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,10 +132,15 @@ export default function Login() {
                   -translate-y-1/2
                   text-xs
                   text-sfx-primary
-                  hover:text-sfx-ink
                   "
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword
+                    ? (
+                        <MdOutlineVisibilityOff size="20px" />
+                      )
+                    : (
+                        <MdOutlineRemoveRedEye size="20px" />
+                      )}
                 </button>
               </div>
 
@@ -183,6 +190,7 @@ export default function Login() {
               hover:bg-sfx-ink hover:text-sfx-primary
               "
             >
+              <FcGoogle />
               Continue with Google
             </Button>
             <div className="p-2 text-center text-sm text-sfx-muted">
