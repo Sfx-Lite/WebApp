@@ -1,21 +1,78 @@
+import axios from "axios";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+
 import { MdOutlineRemoveRedEye, MdOutlineVisibilityOff } from "react-icons/md";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 
+const LOGIN_URL = "/api/v1/auth/login";
+
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [userIdentifier, setUserIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const usernameRegex = /^\w{3,20}$/;
+  const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
+
+  // Validating the login creds
+  const isValidIdentifier
+    = emailRegex.test(userIdentifier) || usernameRegex.test(userIdentifier);
+
+  const isPasswordValid = password.length >= 8;
+  const isUserLoginComplete = isValidIdentifier && isPasswordValid;
+
+  const identifierError
+    = userIdentifier && !isValidIdentifier
+      ? "Enter a valid email or username."
+      : "";
+
+  const passwordError
+    = password && !isPasswordValid
+      ? "Password must be at least 8 characters."
+      : "";
+
+  const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setIsLoading(true);
+
+    // data objects according to backend
+
+    try {
+      const response = await api.post(LOGIN_URL, {
+        emailOrUsername: userIdentifier,
+        password,
+      });
+      console.warn("Login succesful", response.data);
+
+      toast.success("Logged in successfully!");
+      navigate("/");
+    }
+    catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Login failed"
+        : "Something went wrong with login.";
+
+      toast.error(message);
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen w-full bg-[#0d091a] p-0 sm:p-4 md:p-6 select-none">
+    <div
+      className="relative flex items-center justify-center min-h-screen w-full bg-[#2e2c36]
+       p-0 sm:p-4 md:p-6 select-none"
+    >
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-30%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
 
@@ -42,16 +99,12 @@ export default function Login() {
         "
       >
         <div className="p-8 mt-6">
-          <span className="text-3xl font-bold text-sfx-primary font-rh-b">
-            SFx Lite
-          </span>
+          <span className="text-3xl text-sfx-primary font-rh-b">SFx Lite</span>
         </div>
 
         <div className="flex-1 px-8 pt-10">
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-sfx-ink">
-              Welcome back
-            </h1>
+            <h1 className="text-2xl font-rh-sb text-sfx-ink">Welcome back</h1>
 
             <p className="text-sm text-sfx-muted mt-1">
               Log in to your SFx Lite Account
@@ -62,7 +115,7 @@ export default function Login() {
             <div className="space-y-2">
               <label
                 className="font-rh-r text-sm text-sfx-muted"
-                htmlFor="email"
+                htmlFor="identifier"
               >
                 Email or Username
               </label>
@@ -81,14 +134,18 @@ export default function Login() {
                 focus:ring-2
                 focus:ring-sfx-primary-tint
                 focus:border-transparent
-                "
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+              "
+                id="identifier"
+                type="text"
+                placeholder="Enter your email or username"
+                value={userIdentifier}
+                onChange={e => setUserIdentifier(e.target.value)}
                 required
               />
+
+              {identifierError && (
+                <p className="text-red-500 text-sm mt-1">{identifierError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -116,11 +173,17 @@ export default function Login() {
                   focus:border-transparent
                   "
                   id="password"
+                  autoComplete="off"
                   type={showPassword ? "text" : "password"}
                   value={password}
+                  placeholder="Enter your password"
                   onChange={e => setPassword(e.target.value)}
                   required
                 />
+
+                {passwordError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                )}
 
                 <button
                   type="button"
@@ -156,6 +219,7 @@ export default function Login() {
 
             <Button
               type="submit"
+              disabled={isLoading || !isUserLoginComplete}
               className="
               font-rh-sb
               w-full
@@ -172,15 +236,16 @@ export default function Login() {
             <div className="relative flex items-center justify-center py-2">
               <div className="w-full border-t border-sfx-muted/30" />
 
-              <span className="absolute bg-sfx-primary-tint px-3 text-xs font-rh-m text-sfx-muted font-semibold">
+              <span className="absolute bg-sfx-primary-tint px-3 text-xs font-rh-m text-sfx-muted font-rh-sb">
                 or
               </span>
             </div>
 
             <Button
               type="button"
+              variant="outline"
               className="
-              font-semibold
+              font-rh-sb
               w-full
               h-(--spacing-button-h)
               rounded-button
@@ -198,7 +263,7 @@ export default function Login() {
               {" "}
               <Link
                 to="/register"
-                className="font-medium text-sfx-primary hover:underline"
+                className="font-rh-r text-sfx-primary hover:underline"
               >
                 Sign up
               </Link>
