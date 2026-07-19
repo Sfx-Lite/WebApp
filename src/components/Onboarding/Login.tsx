@@ -1,14 +1,13 @@
 import axios from "axios";
-import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-
+import { useEffect, useState } from "react";
 import { MdOutlineRemoveRedEye, MdOutlineVisibilityOff } from "react-icons/md";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
+import GoogleOAuth from "../GoogleAuth/GoogleOAuth";
 
 const LOGIN_URL = "/api/v1/auth/login";
 
@@ -17,6 +16,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const usernameRegex = /^\w{3,20}$/;
@@ -38,6 +38,16 @@ export default function Login() {
     = password && !isPasswordValid
       ? "Password must be at least 8 characters."
       : "";
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+
+    if (token) {
+      localStorage.setItem("token", token);
+      toast.success("Logged in with Google succesfully!");
+      navigate("/");
+    }
+  }, [searchParams, navigate]);
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -241,23 +251,7 @@ export default function Login() {
               </span>
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="
-              font-rh-sb
-              w-full
-              h-(--spacing-button-h)
-              rounded-button
-              bg-sfx-primary-tint
-              text-sfx-primary
-              border-sfx-primary-soft
-              hover:bg-sfx-ink hover:text-sfx-primary
-              "
-            >
-              <FcGoogle />
-              Continue with Google
-            </Button>
+            <GoogleOAuth />
             <div className="p-2 text-center text-sm text-sfx-muted">
               Don"t have an account?
               {" "}
