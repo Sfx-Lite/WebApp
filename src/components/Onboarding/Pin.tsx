@@ -1,13 +1,53 @@
-import { useState } from "react";
+import { Shield } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { IoIosArrowBack } from "react-icons/io";
+import { useNavigate } from "react-router";
 
 const CORRECT_PIN = 1234;
 
 export default function Pin() {
   const [pin, setPin] = useState<number[]>([]);// saving the state as an array of numbers
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [lockoutEndsAt, setLockoutEndsAt] = useState<number | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const isLocked = lockoutEndsAt !== null;
+
+  useEffect (() => {
+    if (!lockoutEndsAt)
+      return;
+
+    intervalRef.current = setInterval(() => {
+      const secondsLeft = Math.ceil((lockoutEndsAt - Date.now()) / 1000);
+
+      if (secondsLeft <= 0) {
+        setLockoutEndsAt(null);
+        setWrongAttempts(0);
+        setError("");
+        if (intervalRef.current)
+          clearInterval(intervalRef.current);
+      }
+      else {
+        setRemainingSeconds(secondsLeft);
+      }
+    }, 1000);
+    return () => {
+      if (intervalRef.current)
+        clearInterval(intervalRef.current);
+    };
+  }, [lockoutEndsAt]);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const s = (secs % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   const handleNumberClick = (num: number) => {
-    if (pin.length < 4) {
+    if (isLocked || pin.length < 4) {
       const newPin = [...pin, num]; // returns the numbers that are already in the pin array , then  adds the new number to the end of the array
       setPin(newPin);
       setError("");
@@ -19,9 +59,22 @@ export default function Pin() {
           }, 250);
         }
         else {
+          const attempts = wrongAttempts + 1;
+          setWrongAttempts(attempts);
           setTimeout(() => {
-            setError("Incorrect security PIN. Please try again.");
             setPin([]);
+
+            if (attempts >= 5) {
+              const lockDurationMs = 15 * 60 * 1000;
+              setLockoutEndsAt(Date.now() + lockDurationMs);
+              setRemainingSeconds(15 * 60);
+              setError("Too many incorrect attempts. Try again later.");
+            }
+            else {
+              setError(
+                `Incorrect security PIN. Please try again. (${5 - attempts} attempt${5 - attempts === 1 ? "" : "s"} left)`,
+              );
+            }
           }, 400);
         }
       }
@@ -63,13 +116,24 @@ export default function Pin() {
           duration-300
           "
       >
-        <div className="p-8 mt-6">
-          <h1 className="text-sfx-ink text-2xl font-rh-m mb-2">
+        <div className="p-8 mt-6 flex items-center">
+          <button
+            onClick={() =>
+              navigate("/register")}
+            className="flex items-center justify-center w-10 h-10 bg-white rounded-full cursor-pointer hover:bg-gray-100 transition-colors shadow-sm"
+          >
+            <IoIosArrowBack className="w-6 h-6 text-black" />
+          </button>
+          <h1 className="text-sfx-ink text-xl font-rh-m ml-4">
             Transaction PIN
           </h1>
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-24">
+        <div className="flex flex-col items-center justify-center mt-1">
+          <div className="flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-sm mb-8">
+            <Shield className="w-10 h-10 text-sfx-primary-strong" />
+          </div>
+
           <h2 className="mb-2 font-rh-sb text-2xl ">Set your 4-digit PIN</h2>
           <p className="text-sfx-muted text-sm text-center mb-8">
             You'll confirm every transfer with this PIN.
@@ -92,8 +156,15 @@ export default function Pin() {
 
           <div className="h-6">
             {error && (
-              <p className="text-sfx-danger text-sm font-rh-r text-center ">
+              <p className="text-sfx-danger text-sm font-rh-r text-center">
                 {error}
+              </p>
+            )}
+            {isLocked && (
+              <p className="text-sfx-danger text-sm font-rh-sb text-center mt-1">
+                Locked out — try again in
+                {" "}
+                {formatTime(remainingSeconds)}
               </p>
             )}
           </div>
@@ -105,8 +176,9 @@ export default function Pin() {
             <button
               key={num}
               type="button"
+              disabled={isLocked}
               onClick={() => handleNumberClick(num)}
-              className="w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none"
+              className={`w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none ${isLocked ? "opacity-30 cursor-not-allowed " : "cursor-pointer hover:bg-sfx-muted/50"}`}
             >
               {num}
             </button>
@@ -116,8 +188,9 @@ export default function Pin() {
 
           <button
             type="button"
+            disabled={isLocked}
             onClick={() => handleNumberClick(0)}
-            className="w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none"
+            className={`w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none ${isLocked ? "opacity-30 cursor-not-allowed " : "cursor-pointer hover:bg-sfx-muted/50"}`}
           >
             0
           </button>

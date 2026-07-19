@@ -21,6 +21,7 @@ export default function Register() {
     setIsLoading(true);
 
     // API calls - placement
+
     console.warn("Registering user...");
     console.warn({
       password,
