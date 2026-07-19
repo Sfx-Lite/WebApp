@@ -1,64 +1,38 @@
 import { MdLogout } from "react-icons/md";
 import { useNavigate } from "react-router";
+import BottomNavbar from "@/components/Home/BottomNavbar";
 
 export default function Home() {
   const navigate = useNavigate();
 
   return (
     <div
-      className="
-      relative
-      min-h-screen
-      w-full
-      bg-[#2e2c36]
-      flex
-      justify-center
-      p-4
-      "
+      className="relative flex items-center justify-center min-h-screen w-full bg-[#2e2c36]
+       p-0 sm:p-4 md:p-6 select-none"
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="
-          absolute
-          -top-40
-          -left-20
-          w-[60vw]
-          h-[60vw]
-          rounded-full
-          bg-sfx-primary
-          opacity-20
-          blur-[150px]
-          "
-        />
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-30%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
 
-        <div
-          className="
-          absolute
-          -bottom-40
-          -right-20
-          w-[50vw]
-          h-[50vw]
-          rounded-full
-          bg-sfx-primary
-          opacity-20
-          blur-[150px]
-          "
-        />
+        <div className="absolute bottom-[-30%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
       </div>
 
       <div
         className="
         relative
         w-full
-        max-w-[390px]
         h-screen
         sm:h-[844px]
+        sm:w-[390px]
         bg-sfx-primary-tint
         sm:rounded-[44px]
+        shadow-brand
         sm:border-[10px]
         sm:border-[#221a38]
-        shadow-brand
+        flex
+        flex-col
         overflow-hidden
+        transition-all
+        duration-300
         "
       >
         <div
@@ -142,6 +116,7 @@ export default function Home() {
             <MdLogout size={22} />
           </button>
         </div>
+        <BottomNavbar />
       </div>
     </div>
   );
