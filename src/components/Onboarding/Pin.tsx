@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { MdArrowBack } from "react-icons/md";
+import { Link } from "react-router";
 
 const CORRECT_PIN = 1234;
 
@@ -36,7 +38,9 @@ export default function Pin() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen w-full bg-[#0d091a] p-0 sm:p-4 md:p-6 select-none">
+    <div className="relative flex items-center justify-center min-h-screen w-full      bg-[#2e2c36]
+       p-0 sm:p-4 md:p-6 select-none"
+    >
       {/* Background */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-[30%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
@@ -64,9 +68,14 @@ export default function Pin() {
           "
       >
         <div className="p-8 mt-6">
-          <h1 className="text-sfx-ink text-2xl font-rh-m mb-2">
-            Transaction PIN
-          </h1>
+          <div className="flex items-center gap-2">
+            <Link to="/register" className="text-sfx-muted hover:text-sfx-ink transition-colors">
+              <MdArrowBack className="size-6" />
+            </Link>
+            <h1 className="font-rh-sb text-xl">
+              Transaction PIN
+            </h1>
+          </div>
         </div>
 
         <div className="flex flex-col items-center justify-center mt-24">
