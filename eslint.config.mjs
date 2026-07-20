@@ -10,7 +10,7 @@ export default antfu({
     semi: true,
     quotes: "double",
   },
-  ignores: ["**/node_modules"],
+  ignores: ["**/node_modules", "**/dev-dist/*"],
 }, {
   rules: {
     "ts/no-redeclare": "off",
@@ -24,7 +24,7 @@ export default antfu({
       cases: {
         pascalCase: true,
         camelCase: true,
-        // kebabCase: true,
+        kebabCase: true,
       },
       ignore: [/README\.md$/],
     }],
