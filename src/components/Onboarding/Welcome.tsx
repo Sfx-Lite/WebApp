@@ -1,48 +1,19 @@
 import { useNavigate } from "react-router";
+import logowhite from "@/assets/imgs/sfx-logo-white.png";
 import { Button } from "@/components/ui/button";
 
 export default function Welcome() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen w-full bg-[#0d091a] p-0 sm:p-4 md:p-6 select-none">
-
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[30%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
-
-        <div className="absolute -bottom-[30%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
+    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary">
+      <div className="py-2 mt-4">
+        <img src={logowhite} className="w-[150px]" />
       </div>
 
-      <div
-        className="
-        relative
-        w-full
-        h-screen
-        sm:h-[844px]
-        sm:w-[390px]
-        bg-sfx-primary
-        sm:rounded-[44px]
-        shadow-brand
-        sm:border-[10px]
-        sm:border-[#221a38]
-        flex
-        flex-col
-        overflow-hidden
-        transition-all
-        duration-300
-        "
-      >
-
-        <div className="p-8 mt-8">
-          <span className="text-3xl font-bold text-white font-rh-b">
-            SFx Lite
-          </span>
-        </div>
-
-        <div className="mt-auto p-6">
-
-          <h1
-            className="
+      <div className="p-2">
+        <h1
+          className="
             text-[34px]
             leading-[1.1]
             font-bold
@@ -50,14 +21,14 @@ export default function Welcome() {
             text-white
             font-rh-b
             "
-          >
-            Money that moves
-            <br />
-            like a message.
-          </h1>
+        >
+          Money that moves
+          <br />
+          like a message.
+        </h1>
 
-          <p
-            className="
+        <p
+          className="
             mt-4
             text-white/80
             text-[15px]
@@ -65,17 +36,16 @@ export default function Welcome() {
             max-w-sm
             font-rh-r
             "
-          >
-            Deposit, send and receive test USDC instantly —
-            <br />
-            built by Cohort 1 on Polygon Amoy.
-          </p>
+        >
+          Deposit, send and receive test USDC instantly —
+          <br />
+          built by Cohort 1 on Polygon Amoy.
+        </p>
 
-          <div className="mt-8 space-y-3">
-
-            <Button
-              onClick={() => navigate("/register")}
-              className="
+        <div className="mt-8 space-y-3">
+          <Button
+            onClick={() => navigate("/register")}
+            className="
               w-full
               h-(--spacing-button-h)
               rounded-button
@@ -83,17 +53,17 @@ export default function Welcome() {
               text-sfx-primary
               hover:bg-white/90
               text-base
-              font-semibold
+              font-rh-sb
               shadow-brand
               "
-            >
-              Get started
-            </Button>
+          >
+            Get started
+          </Button>
 
-            <Button
-              onClick={() => navigate("/login")}
-              variant="outline"
-              className="
+          <Button
+            onClick={() => navigate("/login")}
+            variant="outline"
+            className="
               w-full
               h-(--spacing-button-h)
               rounded-button
@@ -105,16 +75,11 @@ export default function Welcome() {
               text-base
               font-bold
               "
-            >
-              Log in
-            </Button>
-
-          </div>
-
+          >
+            Log in
+          </Button>
         </div>
-
       </div>
-
     </div>
   );
 }
