@@ -1,3 +1,5 @@
 export default function Rates() {
-  return <div>Rates</div>;
+  return (
+    <div>Rates</div>
+  );
 }

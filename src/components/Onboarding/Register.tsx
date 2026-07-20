@@ -1,35 +1,35 @@
-import type { SelectOption } from "@/components/Form/CustomSelect";
 import axios from "axios";
-import { useEffect, useState } from "react";
 
-import { MdArrowBack, MdCancel, MdCheck } from "react-icons/md";
+import { useEffect, useState } from "react";
+import {
+  MdArrowBack,
+  MdCancel,
+  MdCheck,
+  MdOutlineRemoveRedEye,
+  MdOutlineVisibilityOff,
+} from "react-icons/md";
 import { Link, useNavigate } from "react-router";
+
 import { toast } from "sonner";
 import api from "@/api/axios";
 
-import FormInput from "@/components/Form/CustomInput";
-import CustomSelect from "@/components/Form/CustomSelect";
 import { Button } from "@/components/ui/button";
-import { useAppDispatch } from "@/hooks/reduxHooks";
 
-import { registerSchema } from "@/lib/schemas/register-schema";
-import { credentialsSet } from "@/store/authSlice";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const REGISTER_URL = "/auth/register";
+const USER_REGEX = /^[a-z][\w-]{3,23}$/i;
 
-const COUNTRY_OPTIONS: SelectOption[] = [
-  { value: "United States", label: "United States", tag: "US" },
-  { value: "United Kingdom", label: "United Kingdom", tag: "GB" },
-  { value: "Canada", label: "Canada", tag: "CA" },
-  { value: "Australia", label: "Australia", tag: "AU" },
-  { value: "Nigeria", label: "Nigeria", tag: "NG" },
-  { value: "South Korea", label: "South Korea", tag: "KR" },
-  { value: "United Arab Emirates", label: "United Arab Emirates", tag: "AE" },
-];
+const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%]).{8,24}$/;
 
-type FieldErrors = Partial<
-  Record<"firstName" | "lastName" | "email" | "username" | "country" | "password", string>
->;
+const REGISTER_URL = "/api/v1/auth/register";
+const CHECK_USERNAME_URL = "/api/v1/auth/username-available";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -40,9 +40,10 @@ export default function Register() {
   const [country, setCountry] = useState("");
   const [password, setPassword] = useState("");
 
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
 
-  const dispatch = useAppDispatch();
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState<
@@ -52,7 +53,6 @@ export default function Register() {
 
   const isFirstNameFilled = firstName.trim() !== "";
   const isLastNameFilled = lastName.trim() !== "";
-  const isEmailFilled = email.trim() !== "";
   const isUsernameFilled = username.trim() !== "";
   const isCountryFilled = country.trim() !== "";
   const isPasswordFilled = password.trim() !== "";
@@ -60,14 +60,12 @@ export default function Register() {
   const isUserRegisterComplete
     = isFirstNameFilled
       && isLastNameFilled
-      && isEmailFilled
       && isUsernameFilled
       && isCountryFilled
       && isPasswordFilled;
 
   const usernameCheck = async (username: string) => {
-    const parsed = registerSchema.shape.username.safeParse(username);
-    if (!parsed.success) {
+    if (!USER_REGEX.test(username)) {
       setIsUsernameAvailable(null);
       return;
     }
@@ -75,7 +73,12 @@ export default function Register() {
     setCheckUsername(true);
 
     try {
-      const response = await api.get(`/users/search/${encodeURIComponent(username)}`);
+      const response = await api.get(CHECK_USERNAME_URL, {
+        params: {
+          username,
+        },
+      });
+
       setIsUsernameAvailable(response.data.data.available);
     }
     catch (error) {
@@ -95,47 +98,51 @@ export default function Register() {
     return () => clearTimeout(timer);
   }, [username]);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: any) => {
     e.preventDefault();
+
+    setUsernameError("");
+    setPasswordError("");
+
+    let isUserValid = true;
 
     const cleanUsername = username.replace("@", "");
 
-    const result = registerSchema.safeParse({
-      firstName,
-      lastName,
-      email,
-      username: cleanUsername,
-      country,
-      password,
-    });
+    if (!country) {
+      toast.error("Please select your country.");
+      isUserValid = false;
+    }
+    if (!USER_REGEX.test(cleanUsername)) {
+      setUsernameError(
+        "Username must be 4-24 characters, start with a letter, and contain only letters, numbers, '-' or '_'.",
+      );
 
-    const fieldErrors: FieldErrors = {};
-
-    if (!result.success) {
-      for (const issue of result.error.issues) {
-        const key = issue.path[0] as keyof FieldErrors;
-        if (!fieldErrors[key]) {
-          fieldErrors[key] = issue.message;
-        }
-      }
+      isUserValid = false;
     }
 
     if (isUsernameAvailable === false) {
-      fieldErrors.username = "Username is already taken.";
-    }
-    else if (isUsernameAvailable === null && !fieldErrors.username) {
-      fieldErrors.username = "Please wait until username availability is checked.";
+      setUsernameError("Username is already taken.");
+
+      isUserValid = false;
     }
 
-    if (Object.keys(fieldErrors).length > 0) {
-      setErrors(fieldErrors);
-      if (fieldErrors.country) {
-        toast.error(fieldErrors.country);
-      }
+    if (isUsernameAvailable === null) {
+      setUsernameError("Please wait until username availability is checked.");
+
+      isUserValid = false;
+    }
+
+    if (!PWD_REGEX.test(password)) {
+      setPasswordError(
+        "Password must be 8-24 characters and include uppercase, lowercase, number and special character (!@#$%).",
+      );
+
+      isUserValid = false;
+    }
+
+    if (!isUserValid) {
       return;
     }
-
-    setErrors({});
     setIsLoading(true);
 
     try {
@@ -148,28 +155,17 @@ export default function Register() {
         password,
       });
 
-      const { accessToken, refreshToken, user } = response.data?.data ?? {};
-
-      if (accessToken && refreshToken && user) {
-        dispatch(credentialsSet({ accessToken, refreshToken, user }));
-        toast.success("Account created successfully!");
-        navigate("/pin", { state: { from: "register" } });
-      }
-      else {
-        toast.error("Registration succeeded but session data was missing.");
-      }
-
       console.warn("User Registered Successfully", response.data);
 
       toast.success("Account created successfully!");
-      navigate("/pin", { state: { from: "register" } });
+      navigate("/pin");
     }
     catch (error) {
       const message = axios.isAxiosError<{ message: string }>(error)
         ? error.response?.data?.message
         : "Something went wrong with registration.";
 
-      toast.error(message ?? "Something went wrong with registration.");
+      toast.error(message);
     }
     finally {
       setIsLoading(false);
@@ -177,11 +173,77 @@ export default function Register() {
   };
 
   return (
-    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary-tint">
+    <div
+      className="
+      relative
+      flex
+      items-center
+      justify-center
+      min-h-screen
+      w-full
+      bg-[#2e2c36]
+      p-0
+      sm:p-4
+      md:p-6
+    "
+    >
+      {/* Background */}
 
-      <div className="flex-1 ">
+      <div
+        className="
+        absolute
+        inset-0
+        overflow-hidden
+        pointer-events-none
+      "
+      >
+        <div
+          className="
+          absolute
+          -top-[30%]
+          -left-[10%]
+          w-[60vw]
+          h-[60vw]
+          rounded-full
+          bg-sfx-primary
+          opacity-20
+          blur-[150px]
+        "
+        />
 
-        <div className="py-4 mt-6">
+        <div
+          className="
+          absolute
+          -bottom-[30%]
+          -right-[10%]
+          w-[50vw]
+          h-[50vw]
+          rounded-full
+          bg-sfx-primary
+          opacity-20
+          blur-[150px]
+        "
+        />
+      </div>
+
+      <div
+        className="
+        relative
+        w-full
+        h-screen
+        sm:h-[844px]
+        sm:w-[390px]
+        bg-sfx-primary-tint
+        sm:rounded-[44px]
+        shadow-brand
+        sm:border-[10px]
+        sm:border-[#221a38]
+        flex
+        flex-col
+        overflow-hidden
+      "
+      >
+        <div className="p-8 mt-6">
           <div className="flex items-center gap-2">
             <Link to="/welcome" className="text-sfx-muted hover:text-sfx-ink">
               <MdArrowBack className="size-6" />
@@ -192,12 +254,11 @@ export default function Register() {
         </div>
         {/* Progress Bar */}
 
-        <div className="w-80 mx-auto">
+        <div className="w-80 mx-auto mb-2">
           <div className="flex gap-1.5">
             {[
               { name: "firstName", filled: isFirstNameFilled },
               { name: "lastName", filled: isLastNameFilled },
-              { name: "email", filled: isEmailFilled },
               { name: "username", filled: isUsernameFilled },
               { name: "country", filled: isCountryFilled },
               { name: "password", filled: isPasswordFilled },
@@ -223,68 +284,137 @@ export default function Register() {
 
         {/* Form */}
 
-        <form onSubmit={handleRegister} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4 px-8">
           {/* First Name */}
-          <div className="mt-4">
-            <FormInput
-              label="First name"
+          <div className="space-y-2 mt-4">
+            <label
+              htmlFor="firstname"
+              className="font-rh-r font-medium text-sfx-muted"
+            >
+              First name
+            </label>
+
+            <Input
+              id="firstname"
               type="text"
               placeholder="Enter your first name"
               value={firstName}
-              onChange={setFirstName}
+              onChange={e => setFirstName(e.target.value)}
               required
-              error={errors.firstName}
+              className="
+                h-12
+                rounded-input
+                border-[1.5px]
+                bg-white
+                text-sfx-ink
+              "
             />
           </div>
 
           {/* Last Name */}
-          <FormInput
-            label="Last name"
-            type="text"
-            placeholder="Enter your last name"
-            value={lastName}
-            onChange={setLastName}
-            required
-            error={errors.lastName}
-          />
 
-          {/* Email */}
-          <FormInput
-            label="Email"
-            type="email"
-            autoComplete="email"
-            placeholder="Enter your email address"
-            value={email}
-            onChange={(value) => {
-              setEmail(value);
-              setErrors(prev => ({ ...prev, email: undefined }));
-            }}
-            required
-            error={errors.email}
-          />
+          <div className="space-y-2">
+            <label
+              htmlFor="lastname"
+              className="font-rh-r font-medium text-sfx-muted"
+            >
+              Last name
+            </label>
+
+            <Input
+              id="lastname"
+              type="text"
+              placeholder="Enter your last name"
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+              required
+              className="
+                h-12
+                rounded-input
+                border-[1.5px]
+                bg-white
+                text-sfx-ink
+              "
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className="font-rh-r font-medium text-sfx-muted"
+            >
+              Email
+            </label>
+
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              className="
+                h-12
+                rounded-input
+                border-[1.5px]
+                bg-white
+                text-sfx-ink
+              "
+            />
+          </div>
 
           {/* Username */}
 
           <div className="space-y-2">
+            <label
+              htmlFor="username"
+              className="font-rh-r font-medium text-sfx-muted"
+            >
+              Username
+            </label>
+
             <div className="relative">
-              <FormInput
-                label="Username"
+              <Input
+                id="username"
                 type="text"
                 autoComplete="off"
                 placeholder="Pick a username"
                 value={username}
-                onChange={(value) => {
-                  const cleaned = value.replace("@", "").trim();
-                  setErrors(prev => ({ ...prev, username: undefined }));
+                onChange={(e) => {
+                  const value = e.target.value.replace("@", "").trim();
+
+                  setUsernameError("");
                   setIsUsernameAvailable(null);
-                  setUsername(cleaned);
+
+                  setUsername(value);
                 }}
                 required
-                error={errors.username}
+
+                className={`
+                h-12
+                rounded-input
+                border-[1.5px]
+                bg-white
+                text-sfx-ink
+                pr-10
+
+                ${usernameError || isUsernameAvailable === false ? "border-red-500" : ""}
+
+                ${isUsernameAvailable === true ? "border-green-500" : ""}
+
+              `}
               />
 
               {/* Username status icon */}
-              <div className="absolute right-3 top-[42px]">
+
+              <div
+                className="
+                absolute
+                right-3
+                top-1/2
+                -translate-y-1/2
+                "
+              >
                 {checkUsername
                   ? (
                       <div
@@ -315,40 +445,115 @@ export default function Register() {
               <p className="text-sm text-sfx-muted">Checking username...</p>
             )}
 
-            {!checkUsername && !errors.username && isUsernameAvailable === true && (
+            {!checkUsername && isUsernameAvailable === true && (
               <p className="text-sm text-green-500">Username is available</p>
+            )}
+
+            {!checkUsername && isUsernameAvailable === false && (
+              <p className="text-sm text-red-500">Username is already taken</p>
             )}
           </div>
 
           {/* Country */}
 
-          <CustomSelect
-            label="Home Country"
-            placeholder="Select your country"
-            options={COUNTRY_OPTIONS}
-            value={country}
-            onChange={(value) => {
-              setCountry(value);
-              setErrors(prev => ({ ...prev, country: undefined }));
-            }}
-            error={errors.country}
-          />
+          <div className="space-y-2">
+            <label
+              htmlFor="country"
+              className="font-rh-r font-medium text-sfx-muted"
+            >
+              Home Country
+            </label>
+
+            <Select
+              value={country}
+              onValueChange={(value) => {
+                if (value !== null) {
+                  setCountry(value);
+                }
+              }}
+            >
+              <SelectTrigger
+                id="country"
+                className="
+                  w-full
+                  h-12
+                  rounded-input
+                  bg-white
+                  text-sfx-ink
+                "
+              >
+                <SelectValue placeholder="Select your country" />
+              </SelectTrigger>
+              <SelectContent className="bg-sfx-primary-tint text-sfx-ink">
+                <SelectItem value="United States">United States</SelectItem>
+                <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                <SelectItem value="Canada">Canada</SelectItem>
+                <SelectItem value="Australia">Australia</SelectItem>
+                <SelectItem value="Nigeria">Nigeria</SelectItem>
+                <SelectItem value="South Korea">South Korea</SelectItem>
+                <SelectItem value="United Arab Emirates">
+                  United Arab Emirates
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Password */}
 
-          <FormInput
-            label="Password"
-            type="password"
-            autoComplete="new-password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(value) => {
-              setPassword(value);
-              setErrors(prev => ({ ...prev, password: undefined }));
-            }}
-            required
-            error={errors.password}
-          />
+          <div className="space-y-2">
+            <label
+              htmlFor="password"
+              className="font-rh-r font-medium text-sfx-muted"
+            >
+              Password
+            </label>
+
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                placeholder="Enter your password"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                required
+                className={`
+                  h-12
+                  rounded-input
+                  bg-white
+                  text-sfx-ink
+                  pr-10
+                  ${passwordError ? "border-red-500" : ""}
+                `}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="
+                  absolute
+                  right-3
+                  top-1/2
+                  -translate-y-1/2
+                  text-sfx-primary
+                "
+              >
+                {showPassword
+                  ? (
+                      <MdOutlineVisibilityOff size={20} />
+                    )
+                  : (
+                      <MdOutlineRemoveRedEye size={20} />
+                    )}
+              </button>
+            </div>
+
+            {passwordError && (
+              <p className="text-sm text-red-500">{passwordError}</p>
+            )}
+          </div>
 
           {/* Button */}
 
