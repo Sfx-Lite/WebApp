@@ -1,6 +1,17 @@
-import { Outlet } from "react-router";
+import { Navigate, Outlet } from "react-router";
+import { useAppSelector } from "@/hooks/reduxHooks";
 
-export default function OnboardingLayout() {
+export default function PinRoute() {
+  const { user, token, isPinVerified } = useAppSelector(s => s.auth);
+
+  if (!token || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (isPinVerified) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div
       className="relative flex items-center justify-center min-h-screen w-full bg-[#2e2c36]
@@ -32,6 +43,7 @@ export default function OnboardingLayout() {
       >
         <Outlet />
       </div>
+      {" "}
     </div>
   );
 }
