@@ -28,8 +28,8 @@ const USER_REGEX = /^[a-z][\w-]{3,23}$/i;
 
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%]).{8,24}$/;
 
-const REGISTER_URL = "/api/v1/auth/register";
-const CHECK_USERNAME_URL = "/api/v1/auth/username-available";
+const REGISTER_URL = "/auth/register";
+const CHECK_USERNAME_URL = "users/search/{username}";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -173,77 +173,11 @@ export default function Register() {
   };
 
   return (
-    <div
-      className="
-      relative
-      flex
-      items-center
-      justify-center
-      min-h-screen
-      w-full
-      bg-[#2e2c36]
-      p-0
-      sm:p-4
-      md:p-6
-    "
-    >
-      {/* Background */}
+    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary-tint">
 
-      <div
-        className="
-        absolute
-        inset-0
-        overflow-hidden
-        pointer-events-none
-      "
-      >
-        <div
-          className="
-          absolute
-          -top-[30%]
-          -left-[10%]
-          w-[60vw]
-          h-[60vw]
-          rounded-full
-          bg-sfx-primary
-          opacity-20
-          blur-[150px]
-        "
-        />
+      <div className="flex-1 ">
 
-        <div
-          className="
-          absolute
-          -bottom-[30%]
-          -right-[10%]
-          w-[50vw]
-          h-[50vw]
-          rounded-full
-          bg-sfx-primary
-          opacity-20
-          blur-[150px]
-        "
-        />
-      </div>
-
-      <div
-        className="
-        relative
-        w-full
-        h-screen
-        sm:h-[844px]
-        sm:w-[390px]
-        bg-sfx-primary-tint
-        sm:rounded-[44px]
-        shadow-brand
-        sm:border-[10px]
-        sm:border-[#221a38]
-        flex
-        flex-col
-        overflow-hidden
-      "
-      >
-        <div className="p-8 mt-6">
+        <div className="py-4 mt-6">
           <div className="flex items-center gap-2">
             <Link to="/welcome" className="text-sfx-muted hover:text-sfx-ink">
               <MdArrowBack className="size-6" />
@@ -254,7 +188,7 @@ export default function Register() {
         </div>
         {/* Progress Bar */}
 
-        <div className="w-80 mx-auto mb-2">
+        <div className="w-80 mx-auto">
           <div className="flex gap-1.5">
             {[
               { name: "firstName", filled: isFirstNameFilled },
@@ -284,7 +218,7 @@ export default function Register() {
 
         {/* Form */}
 
-        <form onSubmit={handleRegister} className="space-y-4 px-8">
+        <form onSubmit={handleRegister} className="space-y-4">
           {/* First Name */}
           <div className="space-y-2 mt-4">
             <label
