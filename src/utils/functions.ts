@@ -34,3 +34,51 @@ export const buttonVariants = cva(
     },
   },
 );
+
+export const pillVariants = cva(
+
+  "inline-flex items-center justify-center gap-1 rounded-radius-pill font-rh-m text-xs leading-none whitespace-nowrap px-2.5 py-1",
+
+  {
+
+    variants: {
+
+      variant: {
+
+        success: "bg-sfx-success/10 text-sfx-success",
+
+        danger: "bg-sfx-danger-bg text-sfx-danger",
+
+        amber: "bg-sfx-amber/10 text-sfx-amber",
+
+        neutral: "bg-sfx-primary-tint text-sfx-muted",
+
+      },
+
+    },
+
+    defaultVariants: {
+
+      variant: "neutral",
+
+    },
+
+  },
+
+);
+export const bannerVariants = cva(
+  "flex items-start gap-2.5 rounded-radius-card p-[14px] font-rh-r text-sm",
+  {
+    variants: {
+      variant: {
+        info: "bg-sfx-primary-tint text-sfx-ink",
+        success: "bg-sfx-success/10 text-sfx-ink",
+        warning: "bg-sfx-amber/10 text-sfx-ink",
+        error: "bg-sfx-danger-bg text-sfx-ink",
+      },
+    },
+    defaultVariants: {
+      variant: "info",
+    },
+  },
+);
