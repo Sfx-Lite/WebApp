@@ -2,14 +2,27 @@ import { useEffect, useState } from "react";
 import { MdArrowBack, MdOutlineShield } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router";
 import api from "@/api/axios";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { pinVerified } from "@/store/authSlice";
 
 type FlowMode = "set" | "confirm" | "verify";
 
 export default function Pin() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  const isRegisterFlow = location.state?.from === "register" || "google";
+  const stateFrom = location.state?.from as string | undefined;
+
+  useEffect(() => {
+    if (stateFrom) {
+      sessionStorage.setItem("pinFlow", stateFrom);
+    }
+  });
+
+  // eslint-disable-next-line react/purity
+  const flowFrom = stateFrom ?? sessionStorage.getItem("pinFlow");
+  const isRegisterFlow = flowFrom === "register" || flowFrom === "google";
 
   const [mode, setMode] = useState<FlowMode>(isRegisterFlow ? "set" : "verify");
   const [pin, setPin] = useState<number[]>([]);
@@ -93,6 +106,8 @@ export default function Pin() {
               });
 
               if (response.status === 200 || response.status === 201) {
+                dispatch(pinVerified());
+                sessionStorage.removeItem("pinFlow");
                 setTimeout(() => {
                   setPin([]);
                   navigate("/");
@@ -129,6 +144,7 @@ export default function Pin() {
             });
 
             if (response.status === 200) {
+              dispatch(pinVerified());
               setTimeout(() => {
                 setPin([]);
                 navigate("/");

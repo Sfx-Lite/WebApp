@@ -1,25 +1,29 @@
+import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
 
-const api = axios.create({
+import { store } from "@/store";
+import { logout } from "@/store/authSlice";
+
+const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("accessToken");
+instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = store.getState().auth.token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+instance.interceptors.response.use(
+  response => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      store.dispatch(logout());
     }
-
-    return config;
-  },
-  (error) => {
     return Promise.reject(error);
   },
 );
 
-export default api;
+export default instance;

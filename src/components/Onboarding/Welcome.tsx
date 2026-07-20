@@ -6,7 +6,7 @@ export default function Welcome() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary">
+    <div className="flex p-4 flex-col justify-between h-full w-full bg-sfx-primary">
       <div className="py-2 mt-4">
         <img src={logowhite} className="w-[150px]" />
       </div>

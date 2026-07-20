@@ -1,9 +1,6 @@
-import { MdLogout } from "react-icons/md";
-import { useNavigate } from "react-router";
+import LogOutBtn from "@/components/global/LogOutBtn";
 
 export default function Home() {
-  const navigate = useNavigate();
-
   return (
     <div>
       <div
@@ -69,23 +66,7 @@ export default function Home() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate("/welcome")}
-          className="
-            w-10
-            h-10
-            rounded-full
-            bg-white
-            flex
-            items-center
-            justify-center
-            text-sfx-primary
-            shadow-sm
-            cursor-grab
-            "
-        >
-          <MdLogout size={22} />
-        </button>
+        <LogOutBtn />
       </div>
     </div>
   );

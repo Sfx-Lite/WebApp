@@ -1,42 +1,34 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { MdOutlineRemoveRedEye, MdOutlineVisibilityOff } from "react-icons/md";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import logopurple from "@/assets/imgs/sfx-logo-purple.png";
+import FormInput from "@/components/Form/CustomInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { loginSchema } from "@/lib/schemas/login-schema";
+
+import { credentialsSet } from "@/store/authSlice";
 import GoogleOAuth from "../GoogleAuth/GoogleOAuth";
 
 const LOGIN_URL = "/auth/login";
 
+type FieldErrors = Partial<Record<"identifier" | "password", string>>;
+
 export default function Login() {
   const [userIdentifier, setUserIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const usernameRegex = /^\w{3,20}$/;
-  const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
+  const dispatch = useAppDispatch();
 
-  const isValidIdentifier
-    = emailRegex.test(userIdentifier) || usernameRegex.test(userIdentifier);
-
-  const isPasswordValid = password.length >= 8;
-  const isUserLoginComplete = isValidIdentifier && isPasswordValid;
-
-  const identifierError
-    = userIdentifier && !isValidIdentifier
-      ? "Enter a valid email or username."
-      : "";
-
-  const passwordError
-    = password && !isPasswordValid
-      ? "Password must be at least 8 characters."
-      : "";
+  const isUserLoginComplete
+    = userIdentifier.trim() !== "" && password.trim() !== "";
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -49,26 +41,42 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const result = loginSchema.safeParse({
+      identifier: userIdentifier,
+      password,
+    });
+
+    if (!result.success) {
+      const fieldErrors: FieldErrors = {};
+      for (const issue of result.error.issues) {
+        const key = issue.path[0] as keyof FieldErrors;
+        if (!fieldErrors[key]) {
+          fieldErrors[key] = issue.message;
+        }
+      }
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
     setIsLoading(true);
 
     try {
       const response = await api.post(LOGIN_URL, {
-        emailOrUsername: userIdentifier,
-        password,
+        emailOrUsername: result.data.identifier,
+        password: result.data.password,
       });
-      console.warn("Login successful", response.data);
 
-      const token = response.data?.data?.accessToken;
-      if (token) {
+      const { accessToken, refreshToken, user } = response.data?.data ?? {};
+
+      if (accessToken && refreshToken && user) {
+        dispatch(credentialsSet({ accessToken, refreshToken, user }));
         toast.success("Logged in successfully!");
-        navigate("/pin", { state: { from: "login", token } });
+        navigate("/pin", { state: { from: "login" } });
       }
       else {
-        console.error(
-          "Token missing from server payload structure:",
-          response.data,
-        );
-        toast.error("Authentication token not found in server response.");
+        toast.error("Authentication data not found in server response.");
       }
     }
     catch (error) {
@@ -99,100 +107,33 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
-          <div className="space-y-2">
-            <label
-              className="font-rh-r text-sm text-sfx-muted"
-              htmlFor="identifier"
-            >
-              Email or Username
-            </label>
+          <FormInput
+            label="Email or Username"
+            type="text"
+            placeholder="Enter your email or username"
+            value={userIdentifier}
+            onChange={(value) => {
+              setUserIdentifier(value);
+              setErrors(prev => ({ ...prev, identifier: undefined }));
+            }}
+            required
+            error={errors.identifier}
+          />
 
-            <Input
-              className="
-                mt-1
-                bg-white
-                h-12
-                py-4
-                rounded-input
-                border-[1.5px]
-                text-sfx-ink
-                placeholder:text-sfx-muted
-                focus:outline-none
-                focus:ring-2
-                focus:ring-sfx-primary-tint
-                focus:border-transparent
-              "
-              id="identifier"
-              type="text"
-              placeholder="Enter your email or username"
-              value={userIdentifier}
-              onChange={e => setUserIdentifier(e.target.value)}
+          <div className="space-y-2">
+            <FormInput
+              label="Password"
+              type="password"
+              autoComplete="off"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(value) => {
+                setPassword(value);
+                setErrors(prev => ({ ...prev, password: undefined }));
+              }}
               required
+              error={errors.password}
             />
-
-            {identifierError && (
-              <p className="text-red-500 text-sm mt-1">{identifierError}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label
-              className="font-rh-r text-sm text-sfx-muted"
-              htmlFor="password"
-            >
-              Password
-            </label>
-
-            <div className="relative">
-              <Input
-                className="
-                  mt-1
-                  bg-white
-                  h-12
-                  py-4
-                  rounded-input
-                  border-[1.5px]
-                  text-sfx-ink
-                  placeholder:text-sfx-muted
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-sfx-primary-tint
-                  focus:border-transparent
-                  "
-                id="password"
-                autoComplete="off"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                placeholder="Enter your password"
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-
-              {passwordError && (
-                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="
-                  absolute
-                  right-3
-                  top-1/2
-                  -translate-y-1/2
-                  text-xs
-                  text-sfx-primary
-                  "
-              >
-                {showPassword
-                  ? (
-                      <MdOutlineVisibilityOff size="20px" />
-                    )
-                  : (
-                      <MdOutlineRemoveRedEye size="20px" />
-                    )}
-              </button>
-            </div>
 
             <div className="flex justify-end">
               <button
@@ -230,7 +171,7 @@ export default function Login() {
 
           <GoogleOAuth />
           <div className="p-2 text-center text-sm text-sfx-muted">
-            Don"t have an account?
+            Don&apos;t have an account?
             {" "}
             <Link
               to="/register"
