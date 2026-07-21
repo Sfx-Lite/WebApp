@@ -12,7 +12,7 @@ export type AuthState = {
   token: string | null;
   refreshToken: string | null;
   isInitialized: boolean;
-  isPinVerified: boolean;
+  hasPin: boolean;
 };
 
 export type AuthPayload = {
@@ -22,8 +22,17 @@ export type AuthPayload = {
 };
 
 export type LoginResponse = {
+  accessToken: string;
+  refreshToken: string;
   user: User;
-  token: string;
+  isPin: boolean;
+};
+
+export type GoogleSessionResponse = {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+  isNewUser: boolean;
 };
 
 export type LoginCredentials = {
@@ -41,5 +50,5 @@ export type RegisterPayload = {
 };
 
 export type AuthTokenResponse = {
-  token: string;
+  accessToken: string;
 };

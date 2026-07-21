@@ -1,35 +1,16 @@
 import { Outlet } from "react-router";
+import OnboardingNav from "../../components/Onboarding/OnboardingNav";
 
 export default function OnboardingLayout() {
   return (
     <div
-      className="relative flex items-center justify-center min-h-screen w-full bg-[#2e2c36]
-           p-0 sm:p-4 md:p-6 select-none overflow-hidden"
+      className="min-h-dvh w-full bg-gradient-to-b from-[var(--color-sfx-primary-soft)] from-0% via-[#f3edff] via-22% to-white to-100%"
     >
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-30%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
+      <div className="w-full px-5 md:max-w-[95%] lg:max-w-[83%] w-full pt-6 mx-auto h-full">
+        <div className="mb-[4rem]">
+          <OnboardingNav />
+        </div>
 
-        <div className="absolute bottom-[-30%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
-      </div>
-      <div
-        className="
-            relative
-            w-full
-            h-screen
-            sm:h-[844px]
-            sm:w-[390px]
-            bg-sfx-primary-tint
-            sm:rounded-[44px]
-            shadow-brand
-            sm:border-[10px]
-            sm:border-[#221a38]
-            flex
-            flex-col
-            overflow-hidden
-            transition-all
-            duration-300
-            "
-      >
         <Outlet />
       </div>
     </div>

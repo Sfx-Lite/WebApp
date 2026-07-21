@@ -1,48 +1,35 @@
-import type { ChangeEvent } from "react";
+/* eslint-disable react/no-forward-ref */
+import type { InputHTMLAttributes } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useId, useState } from "react";
+import { forwardRef, useId, useState } from "react";
 
 export type FormInputProps = {
   label: string;
   type?: "text" | "email" | "password";
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  name?: string;
-  autoComplete?: string;
-  required?: boolean;
-  disabled?: boolean;
   error?: string;
   className?: string;
-};
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className">;
 
-export default function FormInput({
-  label,
-  type = "text",
-  value,
-  onChange,
-  placeholder = "",
-  name,
-  autoComplete,
-  required = false,
-  disabled = false,
-  error,
-  className = "",
-}: FormInputProps) {
+const FormInput = forwardRef<HTMLInputElement, FormInputProps>((
+  {
+    label,
+    type = "text",
+    error,
+    className = "",
+    ...rest
+  },
+  ref,
+) => {
   const [revealed, setRevealed] = useState<boolean>(false);
   const inputId = useId();
   const isPassword = type === "password";
   const resolvedType = isPassword ? (revealed ? "text" : "password") : type;
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
-
   return (
     <div className={`w-full ${className}`}>
       <label
         htmlFor={inputId}
-        className="block text-sm font-medium text-slate-500 mb-2"
+        className="block text-[15px] font-rh-m mb-2"
       >
         {label}
       </label>
@@ -50,31 +37,26 @@ export default function FormInput({
       <div className="relative">
         <input
           id={inputId}
-          name={name}
+          ref={ref}
           type={resolvedType}
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-          required={required}
-          disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={error ? `${inputId}-error` : undefined}
-          className={`w-full bg-sfx-card rounded-2xl px-4 py-3.5
-                     placeholder-sfx-muted outline-none border-2 transition-colors
+          className={`w-full bg-sfx-card rounded-lg px-4 py-3
+                     placeholder-sfx-muted outline-none border transition-colors
                      pr-11 disabled:opacity-50 disabled:cursor-not-allowed
                      ${error ? "border-sfx-danger" : "border-sfx-muted/40 focus:border-sfx-primary"}`}
+          {...rest}
         />
 
         {isPassword && (
           <button
             type="button"
             onClick={() => setRevealed(r => !r)}
-            disabled={disabled}
+            disabled={rest.disabled}
             aria-label={revealed ? "Hide password" : "Show password"}
             aria-pressed={revealed}
             className="absolute right-3 top-1/2 -translate-y-1/2
-                       text-sfx-primary hover:text-sfx-primary/80 transition-colors
+                       hover:text-sfx-muted/80 transition-colors
                        focus:outline-none focus-visible:ring-2 focus-visible:ring-sfx-primary/80
                        rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -90,4 +72,6 @@ export default function FormInput({
       )}
     </div>
   );
-}
+});
+
+export default FormInput;

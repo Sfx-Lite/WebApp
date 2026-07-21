@@ -1,9 +1,8 @@
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import api from "@/api/axios";
-import { useAppDispatch } from "@/hooks/reduxHooks";
-import { credentialsSet } from "@/store/authSlice";
+import api from "../../api/axios";
+import { useAppDispatch } from "../../hooks/reduxHooks";
+import { credentialsSet } from "../../store/authSlice";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -11,10 +10,17 @@ function getGoogle() {
   return (window as typeof window & { google?: any }).google;
 }
 
-export default function GoogleOAuth() {
-  const navigate = useNavigate();
+type GoogleAuthProps = {
+  onSuccess: (isNewUser: boolean) => void;
+};
+
+export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
   const dispatch = useAppDispatch();
   const buttonRef = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
 
   useEffect(() => {
     const google = getGoogle();
@@ -31,9 +37,11 @@ export default function GoogleOAuth() {
 
     let cancelled = false;
 
+    const noncePromise = api.get("/auth/google/nonce");
+
     const init = async () => {
       try {
-        const nonceResponse = await api.get("/auth/google/nonce");
+        const nonceResponse = await noncePromise;
         const nonce = nonceResponse.data.data.nonce;
 
         if (cancelled)
@@ -54,12 +62,12 @@ export default function GoogleOAuth() {
                 idToken: credential,
               });
 
-              const { accessToken, refreshToken, user } = response.data?.data ?? {};
+              const { accessToken, refreshToken, user, isNewUser } = response.data?.data ?? {};
 
               if (accessToken && refreshToken && user) {
                 dispatch(credentialsSet({ accessToken, refreshToken, user }));
                 toast.success("Logged in successfully!");
-                navigate("/pin", { state: { from: "google" } });
+                onSuccessRef.current(Boolean(isNewUser));
               }
               else {
                 toast.error("Sign-in succeeded but session data was missing.");
@@ -78,6 +86,7 @@ export default function GoogleOAuth() {
             size: "large",
             width: buttonRef.current.offsetWidth,
           });
+          setReady(true);
         }
       }
       catch (error) {
@@ -91,7 +100,14 @@ export default function GoogleOAuth() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, navigate]);
+  }, [dispatch]);
 
-  return <div ref={buttonRef} className="w-full flex justify-center" />;
+  return (
+    <div className="w-full flex justify-center">
+      {!ready && (
+        <div className="h-10 w-full max-w-[240px] animate-pulse rounded-md bg-muted" />
+      )}
+      <div ref={buttonRef} className={ready ? "w-full flex justify-center" : "hidden"} />
+    </div>
+  );
 }
