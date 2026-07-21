@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/utils/trackEvent";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -54,8 +55,12 @@ export default function GoogleOAuth() {
 
             console.log("Backend response:", response.data);
 
-            const { accessToken } = response.data.data;
-
+            const { accessToken, isNewUser } = response.data.data;
+            
+            if (isNewUser) {
+              trackEvent("signup_completed", { method: "google" });
+            }
+            
             toast.success("Logged in successfully!");
 
             navigate("/pin", { state: { from: "google", token: accessToken } });
