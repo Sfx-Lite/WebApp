@@ -24,7 +24,7 @@ export async function trackEvent(
   properties: Record<string, unknown> = {},
 ): Promise<void> {
   try {
-    await api.post('/events', {
+    await api.post('/analytics/events', {
       eventName,
       sessionId: getSessionId(),
       properties,
