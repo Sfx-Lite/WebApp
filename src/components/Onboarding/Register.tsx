@@ -13,6 +13,8 @@ import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import api from "@/api/axios";
 
+import { trackEvent } from "@/utils/trackEvent";
+
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
@@ -157,6 +159,8 @@ export default function Register() {
 
       console.warn("User Registered Successfully", response.data);
 
+      trackEvent("signup_completed", { method: "email" });
+      
       toast.success("Account created successfully!");
       navigate("/pin");
     }
