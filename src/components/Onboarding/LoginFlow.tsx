@@ -6,6 +6,7 @@ import PinSetup from "../Form/PinSetup";
 import Login from "./Login";
 
 type FlowStep = "login" | "pin";
+type PinMode = "set" | "verify";
 
 export default function LoginFlow() {
   const navigate = useNavigate();
@@ -16,25 +17,16 @@ export default function LoginFlow() {
   const [step, setStep] = useState<FlowStep>(() =>
     (token && user && !hasPin ? "pin" : "login"));
 
+  const [pinMode, setPinMode] = useState<PinMode>("verify");
+
   const handleLoginSuccess = (isPin: boolean) => {
-    dispatch(pinStatusSet(isPin));
-    if (isPin) {
-      navigate("/");
-    }
-    else {
-      setStep("pin");
-    }
+    setPinMode(isPin ? "verify" : "set");
+    setStep("pin");
   };
 
   const handleGoogleSuccess = (isNewUser: boolean) => {
-    if (isNewUser) {
-      dispatch(pinStatusSet(false));
-      setStep("pin");
-    }
-    else {
-      dispatch(pinStatusSet(true));
-      navigate("/");
-    }
+    setPinMode(isNewUser ? "set" : "verify");
+    setStep("pin");
   };
 
   const handlePinComplete = () => {
@@ -47,7 +39,7 @@ export default function LoginFlow() {
       {step === "login" && (
         <Login onSuccess={handleLoginSuccess} onGoogleSuccess={handleGoogleSuccess} />
       )}
-      {step === "pin" && <PinSetup mode="set" onComplete={handlePinComplete} />}
+      {step === "pin" && <PinSetup mode={pinMode} onComplete={handlePinComplete} />}
     </>
   );
 }
