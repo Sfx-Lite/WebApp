@@ -1,13 +1,10 @@
 import { Navigate, Outlet } from "react-router";
-import { useAppSelector } from "@/hooks/reduxHooks";
+import { useAppSelector } from "../../hooks/reduxHooks";
 
 export default function PublicRoute() {
-  const { user, token, isPinVerified } = useAppSelector(s => s.auth);
+  const { user, token, hasPin } = useAppSelector(s => s.auth);
 
-  if (token && user) {
-    if (!isPinVerified) {
-      return <Navigate to="/pin" state={{ from: "login" }} replace />;
-    }
+  if (token && user && hasPin) {
     return <Navigate to="/" replace />;
   }
 

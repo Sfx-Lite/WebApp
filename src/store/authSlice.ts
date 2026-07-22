@@ -1,5 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AuthPayload, AuthState, User } from "@/lib/types/auth";
+import type { AuthPayload, AuthState, User } from "../lib/types/auth";
 import { createSlice } from "@reduxjs/toolkit";
 
 function loadUser(): User | null {
@@ -18,7 +18,7 @@ const initialState: AuthState = {
   user: loadUser(),
   token: localStorage.getItem("token"),
   refreshToken: localStorage.getItem("refreshToken"),
-  isPinVerified: sessionStorage.getItem("pinVerified") === "true",
+  hasPin: sessionStorage.getItem("hasPin") === "true",
   isInitialized: true,
 };
 
@@ -31,20 +31,28 @@ const authSlice = createSlice({
       state.token = accessToken;
       state.refreshToken = refreshToken;
       state.user = user;
+      state.hasPin = false;
 
       localStorage.setItem("token", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.removeItem("hasPin");
     },
-    pinVerified(state) {
-      state.isPinVerified = true;
-      sessionStorage.setItem("pinVerified", "true");
+    pinStatusSet(state, action: PayloadAction<boolean>) {
+      state.hasPin = action.payload;
+
+      if (action.payload) {
+        sessionStorage.setItem("hasPin", "true");
+      }
+      else {
+        sessionStorage.removeItem("hasPin");
+      }
     },
     logout(state) {
       state.user = null;
       state.token = null;
       state.refreshToken = null;
-      state.isPinVerified = false;
+      state.hasPin = false;
 
       window.history.pushState(null, "", window.location.href);
       window.addEventListener("popstate", () => {
@@ -54,10 +62,10 @@ const authSlice = createSlice({
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      sessionStorage.removeItem("pinVerified");
+      sessionStorage.removeItem("hasPin");
     },
   },
 });
 
-export const { credentialsSet, pinVerified, logout } = authSlice.actions;
+export const { credentialsSet, pinStatusSet, logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -2,8 +2,9 @@ import { z } from "zod/v4";
 
 const USER_REGEX = /^[a-z][\w-]{3,23}$/i;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%]).{8,24}$/;
+const PHONE_REGEX = /^\+?[1-9]\d{7,14}$/;
 
-export const registerSchema = z.object({
+const registerObjectSchema = z.object({
   firstName: z
     .string()
     .trim()
@@ -31,6 +32,13 @@ export const registerSchema = z.object({
       "Username must be 4-24 characters, start with a letter, and contain only letters, numbers, '-' or '_'.",
     ),
 
+  phoneCountryCode: z.string().length(2, "Select a country"),
+
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(PHONE_REGEX, "Enter a valid phone number, digits only (e.g. +2348012345678)."),
+
   country: z.string().trim().min(1, "Please select your country"),
 
   password: z
@@ -39,9 +47,18 @@ export const registerSchema = z.object({
       PWD_REGEX,
       "Password must be 8-24 characters and include uppercase, lowercase, number and special character (!@#$%).",
     ),
+
+  confirmPassword: z.string().min(1, "Please confirm your password"),
 });
 
-export type RegisterFormData = z.infer<typeof registerSchema>;
+export const registerSchema = registerObjectSchema.refine(
+  data => data.password === data.confirmPassword,
+  {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  },
+);
 
-// Convenience type for field-level error state, e.g. useState<RegisterFormErrors>({})
-// export type RegisterFormErrors = Partial<Record<keyof RegisterFormData, string>>;
+export const usernameSchema = registerObjectSchema.shape.username;
+
+export type RegisterFormData = z.infer<typeof registerSchema>;

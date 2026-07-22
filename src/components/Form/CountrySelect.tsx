@@ -1,6 +1,5 @@
 /* eslint-disable react/set-state-in-effect */
 import { Check, ChevronDown } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import {
   useCallback,
   useEffect,
@@ -9,18 +8,18 @@ import {
   useRef,
   useState,
 } from "react";
+import ReactCountryFlag from "react-country-flag";
 import { createPortal } from "react-dom";
-import { popoverContainerVariants, popoverItemVariants } from "@/lib/animations/popover-variants";
 
-export type SelectOption = {
+export type CountryOption = {
   label: string;
   value: string;
-  tag?: string;
+  alpha2Code: string;
 };
 
-type CustomSelectProps = {
+type CountrySelectProps = {
   label?: string;
-  options: SelectOption[];
+  options: CountryOption[];
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -41,17 +40,28 @@ type MenuPosition = {
 
 const VIEWPORT_PADDING = 12;
 
-export default function CustomSelect({
+function CountryFlag({ alpha2Code, label }: { alpha2Code: string; label: string }) {
+  return (
+    <ReactCountryFlag
+      countryCode={alpha2Code}
+      svg
+      style={{ width: "1.5rem", height: "1.5rem" }}
+      aria-label={label}
+    />
+  );
+}
+
+export default function CountrySelect({
   label,
   options,
   value,
   onChange,
-  placeholder = "Select an option",
+  placeholder = "Select a country",
   error,
   disabled = false,
   searchable = true,
   className = "",
-}: CustomSelectProps) {
+}: CountrySelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState<MenuPosition | null>(null);
@@ -172,7 +182,7 @@ export default function CustomSelect({
     }
   }, [open, options, value, searchable]);
 
-  const commit = (option: SelectOption) => {
+  const commit = (option: CountryOption) => {
     onChange(option.value);
     setOpen(false);
     triggerRef.current?.focus();
@@ -207,7 +217,7 @@ export default function CustomSelect({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-slate-500 mb-2"
+          className="block text-[15px] font-rh-m mb-2"
         >
           {label}
         </label>
@@ -223,22 +233,18 @@ export default function CustomSelect({
         aria-expanded={open}
         aria-controls={listboxId}
         className={`w-full flex items-center justify-between gap-2
-                   bg-sfx-card rounded-2xl px-4 py-3.5
-                   outline-none border-2 transition-colors
+                   bg-sfx-card rounded-lg px-4 py-3
+                   outline-none border transition-colors
                    disabled:opacity-50 disabled:cursor-not-allowed
                    ${error ? "border-sfx-danger" : open ? "border-sfx-primary" : "border-sfx-muted/40"}`}
       >
         <span
-          className={`truncate text-left ${selected ? "text-sfx-ink" : "text-sfx-muted"}`}
+          className={`flex items-center gap-2 truncate text-left ${selected ? "text-sfx-ink" : "text-sfx-muted"}`}
         >
           {selected
             ? (
                 <>
-                  {selected.tag && (
-                    <span className="text-xs font-semibold text-sfx-muted mr-2">
-                      {selected.tag}
-                    </span>
-                  )}
+                  <CountryFlag alpha2Code={selected.alpha2Code} label={selected.label} />
                   {selected.label}
                 </>
               )
@@ -254,88 +260,74 @@ export default function CustomSelect({
 
       {error && <p className="mt-1.5 text-sm text-sfx-danger">{error}</p>}
 
-      {createPortal(
-        <AnimatePresence>
-          {open && position && (
-            <motion.div
-              ref={menuRef}
-              id={listboxId}
-              role="listbox"
-              tabIndex={-1}
-              onKeyDown={handleKeyDown}
-              variants={popoverContainerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              style={{
-                position: "fixed",
-                top: position.top,
-                bottom: position.bottom,
-                left: position.left,
-                width: position.width,
-                maxHeight: position.maxHeight,
-                transformOrigin: position.origin === "top" ? "top center" : "bottom center",
-                zIndex: 50,
+      {open && position && createPortal(
+        <div
+          ref={menuRef}
+          id={listboxId}
+          role="listbox"
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
+          style={{
+            position: "fixed",
+            top: position.top,
+            bottom: position.bottom,
+            left: position.left,
+            width: position.width,
+            maxHeight: position.maxHeight,
+            zIndex: 50,
+          }}
+          className="flex flex-col bg-white rounded-lg border border-black/5
+                     shadow-xl p-2 overflow-hidden"
+        >
+          {searchable && (
+            <input
+              ref={searchRef}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActiveIndex(0);
               }}
-              className="flex flex-col bg-white rounded-2xl border border-black/5
-                         shadow-xl p-2 overflow-hidden"
-            >
-              {searchable && (
-                <input
-                  ref={searchRef}
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    setActiveIndex(0);
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search..."
-                  className="mb-2 shrink-0 rounded-xl bg-sfx-primary-tint px-3 py-2
-                             text-sm outline-none border-2 border-transparent
-                             focus:border-sfx-primary"
-                />
-              )}
-
-              <ul className="overflow-y-auto flex flex-col gap-0.5">
-                {filtered.length === 0 && (
-                  <li className="px-3 py-2 text-sm text-sfx-muted">
-                    No results found
-                  </li>
-                )}
-
-                {filtered.map((option, index) => {
-                  const isSelected = option.value === value;
-                  const isActive = index === activeIndex;
-                  return (
-                    <motion.li
-                      key={option.value}
-                      variants={popoverItemVariants}
-                      role="option"
-                      aria-selected={isSelected}
-                      onMouseEnter={() => setActiveIndex(index)}
-                      onClick={() => commit(option)}
-                      className={`flex items-center justify-between gap-2 px-3 py-2.5
-                                 rounded-xl text-sm cursor-pointer transition-colors
-                                 ${isActive ? "bg-sfx-primary-tint" : ""}`}
-                    >
-                      <span className="flex items-center gap-2 truncate">
-                        {option.tag && (
-                          <span className="text-xs font-semibold text-sfx-muted">
-                            {option.tag}
-                          </span>
-                        )}
-                        <span className="truncate text-sfx-ink">{option.label}</span>
-                      </span>
-                      {isSelected && (
-                        <Check size={16} className="shrink-0 text-sfx-primary" />
-                      )}
-                    </motion.li>
-                  );
-                })}
-              </ul>
-            </motion.div>
+              onKeyDown={handleKeyDown}
+              placeholder="Search..."
+              className="mb-2 shrink-0 rounded-md bg-sfx-primary-tint px-3 py-2
+                         text-sm outline-none border-2 border-transparent
+                         focus:border-sfx-primary"
+            />
           )}
-        </AnimatePresence>,
+
+          <ul className="overflow-y-auto flex flex-col gap-0.5">
+            {filtered.length === 0 && (
+              <li className="px-3 py-2 text-sm text-sfx-muted">
+                No results found
+              </li>
+            )}
+
+            {filtered.map((option, index) => {
+              const isSelected = option.value === value;
+              const isActive = index === activeIndex;
+              return (
+                <li
+                  key={option.value}
+                  role="option"
+                  aria-selected={isSelected}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => commit(option)}
+                  className={`flex items-center justify-between gap-2 px-3 py-2.5
+                             rounded-md text-sm cursor-pointer transition-colors
+                             ${isActive ? "bg-sfx-primary-tint" : ""}`}
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <CountryFlag alpha2Code={option.alpha2Code} label={option.label} />
+                    <span className="truncate text-sfx-ink">{option.label}</span>
+                  </span>
+                  {isSelected && (
+                    <Check size={16} className="shrink-0 text-sfx-primary" />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>,
         document.body,
       )}
     </div>
