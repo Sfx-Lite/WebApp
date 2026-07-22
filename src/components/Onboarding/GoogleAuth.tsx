@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import api from "../../api/axios";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { credentialsSet } from "../../store/authSlice";
+import { trackEvent } from "@/utils/trackEvent";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -66,6 +67,9 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
 
               if (accessToken && refreshToken && user) {
                 dispatch(credentialsSet({ accessToken, refreshToken, user }));
+                if (isNewUser) {
+                  trackEvent("signup_completed", { method: "google" });
+                }
                 toast.success("Logged in successfully!");
                 onSuccessRef.current(Boolean(isNewUser));
               }
