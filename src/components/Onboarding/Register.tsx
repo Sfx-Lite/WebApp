@@ -1,536 +1,313 @@
+/* eslint-disable react/set-state-in-effect */
+import type { SubmitHandler } from "react-hook-form";
+import type { RegisterFormData } from "../../lib/schemas/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-
-import { useEffect, useState } from "react";
-import {
-  MdArrowBack,
-  MdCancel,
-  MdCheck,
-  MdOutlineRemoveRedEye,
-  MdOutlineVisibilityOff,
-} from "react-icons/md";
-import { Link, useNavigate } from "react-router";
-
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { MdCancel, MdCheck } from "react-icons/md";
+import { Link } from "react-router";
 import { toast } from "sonner";
-import api from "@/api/axios";
-
-import { trackEvent } from "@/utils/trackEvent";
-
-import { Button } from "@/components/ui/button";
-
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const USER_REGEX = /^[a-z][\w-]{3,23}$/i;
-
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%]).{8,24}$/;
+import api from "../../api/axios";
+import { useAppDispatch } from "../../hooks/reduxHooks";
+import { useCountries } from "../../hooks/useCountries";
+import { registerSchema, usernameSchema } from "../../lib/schemas/schema";
+import { credentialsSet, pinStatusSet } from "../../store/authSlice";
+import CountrySelect from "../Form/CountrySelect";
+import FormInput from "../Form/FormInput";
+import FormPhoneInput from "../Form/FormPhoneInput";
+import SvgSpinners3DotsFade from "../global/icons/SvgSpinners3DotsFade";
+import GoogleAuth from "./GoogleAuth";
 
 const REGISTER_URL = "/auth/register";
-const CHECK_USERNAME_URL = "users/search/{username}";
 
-export default function Register() {
-  const navigate = useNavigate();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [country, setCountry] = useState("");
-  const [password, setPassword] = useState("");
+type RegisterProps = {
+  defaultValues?: Partial<RegisterFormData>;
+  onSuccess: (data: RegisterFormData) => void;
+  onGoogleSuccess: (isNewUser: boolean) => void;
+};
 
-  const [showPassword, setShowPassword] = useState(false);
+export default function Register({ defaultValues, onSuccess, onGoogleSuccess }: RegisterProps) {
+  const dispatch = useAppDispatch();
 
-  const [usernameError, setUsernameError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: "onChange",
+    defaultValues,
+  });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<
-    boolean | null
-  >(null);
-  const [checkUsername, setCheckUsername] = useState(false);
+  const { countries, isLoading: countriesLoading, error: countriesError } = useCountries();
 
-  const isFirstNameFilled = firstName.trim() !== "";
-  const isLastNameFilled = lastName.trim() !== "";
-  const isUsernameFilled = username.trim() !== "";
-  const isCountryFilled = country.trim() !== "";
-  const isPasswordFilled = password.trim() !== "";
+  const countryOptions = useMemo(
+    () =>
+      countries.map(c => ({
+        label: c.name,
+        value: c.alpha2Code,
+        alpha2Code: c.alpha2Code,
+      })),
+    [countries],
+  );
 
-  const isUserRegisterComplete
-    = isFirstNameFilled
-      && isLastNameFilled
-      && isUsernameFilled
-      && isCountryFilled
-      && isPasswordFilled;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
 
-  const usernameCheck = async (username: string) => {
-    if (!USER_REGEX.test(username)) {
-      setIsUsernameAvailable(null);
-      return;
-    }
-
-    setCheckUsername(true);
-
-    try {
-      const response = await api.get(CHECK_USERNAME_URL, {
-        params: {
-          username,
-        },
-      });
-
-      setIsUsernameAvailable(response.data.data.available);
-    }
-    catch (error) {
-      console.error("Username check failed", error);
-      setIsUsernameAvailable(null);
-    }
-    finally {
-      setCheckUsername(false);
-    }
-  };
+  const usernameValue = watch("username");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      usernameCheck(username);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [username]);
-
-  const handleRegister = async (e: any) => {
-    e.preventDefault();
-
-    setUsernameError("");
-    setPasswordError("");
-
-    let isUserValid = true;
-
-    const cleanUsername = username.replace("@", "");
-
-    if (!country) {
-      toast.error("Please select your country.");
-      isUserValid = false;
-    }
-    if (!USER_REGEX.test(cleanUsername)) {
-      setUsernameError(
-        "Username must be 4-24 characters, start with a letter, and contain only letters, numbers, '-' or '_'.",
-      );
-
-      isUserValid = false;
-    }
-
-    if (isUsernameAvailable === false) {
-      setUsernameError("Username is already taken.");
-
-      isUserValid = false;
-    }
-
-    if (isUsernameAvailable === null) {
-      setUsernameError("Please wait until username availability is checked.");
-
-      isUserValid = false;
-    }
-
-    if (!PWD_REGEX.test(password)) {
-      setPasswordError(
-        "Password must be 8-24 characters and include uppercase, lowercase, number and special character (!@#$%).",
-      );
-
-      isUserValid = false;
-    }
-
-    if (!isUserValid) {
+    const parsed = usernameSchema.safeParse(usernameValue);
+    if (!usernameValue || !parsed.success) {
+      setIsUsernameAvailable(null);
       return;
     }
-    setIsLoading(true);
+
+    setCheckingUsername(true);
+    const timer = setTimeout(async () => {
+      try {
+        const response = await api.get(`/users/search/${encodeURIComponent(usernameValue)}`);
+
+        setIsUsernameAvailable(response.data.data.available);
+      }
+      catch (error) {
+        console.error("Username check failed", error);
+        setIsUsernameAvailable(null);
+      }
+      finally {
+        setCheckingUsername(false);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      setCheckingUsername(false);
+    };
+  }, [usernameValue]);
+
+  const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
+    if (isUsernameAvailable === false) {
+      setError("username", { message: "Username is already taken." });
+      return;
+    }
+    if (isUsernameAvailable === null) {
+      setError("username", { message: "Please wait until username availability is checked." });
+      return;
+    }
+
+    const { confirmPassword, phoneCountryCode, phoneNumber, ...payload } = data;
+    // const selectedCountry = countries.find(c => c.alpha2Code === phoneCountryCode);
+
+    // const payload = {
+    //   ...rest,
+    //   phoneNumber: `${selectedCountry?.callingCode ?? ""}${phoneNumber}`,
+    // };
+
+    setIsSubmitting(true);
 
     try {
-      const response = await api.post(REGISTER_URL, {
-        username: cleanUsername,
-        email,
-        firstName,
-        lastName,
-        country,
-        password,
-      });
+      const response = await api.post(REGISTER_URL, payload);
+      const { accessToken, refreshToken, user } = response.data?.data ?? {};
 
-      console.warn("User Registered Successfully", response.data);
-
-      trackEvent("signup_completed", { method: "email" });
-      
-      toast.success("Account created successfully!");
-      navigate("/pin");
+      if (accessToken && refreshToken && user) {
+        dispatch(credentialsSet({ accessToken, refreshToken, user }));
+        dispatch(pinStatusSet(false));
+        toast.success("Account created successfully!");
+        onSuccess(data);
+      }
+      else {
+        toast.error("Registration succeeded but session data was missing.");
+      }
     }
     catch (error) {
       const message = axios.isAxiosError<{ message: string }>(error)
         ? error.response?.data?.message
         : "Something went wrong with registration.";
 
-      toast.error(message);
+      toast.error(message ?? "Something went wrong with registration.");
     }
     finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary-tint">
-
-      <div className="flex-1 ">
-
-        <div className="py-4 mt-6">
-          <div className="flex items-center gap-2">
-            <Link to="/welcome" className="text-sfx-muted hover:text-sfx-ink">
-              <MdArrowBack className="size-6" />
-            </Link>
-
-            <h1 className="font-rh-sb text-xl">Create account</h1>
-          </div>
-        </div>
-        {/* Progress Bar */}
-
-        <div className="w-80 mx-auto">
-          <div className="flex gap-1.5">
-            {[
-              { name: "firstName", filled: isFirstNameFilled },
-              { name: "lastName", filled: isLastNameFilled },
-              { name: "username", filled: isUsernameFilled },
-              { name: "country", filled: isCountryFilled },
-              { name: "password", filled: isPasswordFilled },
-            ].map(item => (
-              <div
-                key={item.name}
-                className={`
-          h-1.5
-          flex-1
-          rounded-full
-          transition-all
-          duration-300
-          ${
-              item.filled
-                ? "bg-sfx-primary shadow-brand"
-                : "bg-sfx-muted/40"
-              }
-        `}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Form */}
-
-        <form onSubmit={handleRegister} className="space-y-4">
-          {/* First Name */}
-          <div className="space-y-2 mt-4">
-            <label
-              htmlFor="firstname"
-              className="font-rh-r font-medium text-sfx-muted"
-            >
-              First name
-            </label>
-
-            <Input
-              id="firstname"
-              type="text"
-              placeholder="Enter your first name"
-              value={firstName}
-              onChange={e => setFirstName(e.target.value)}
-              required
-              className="
-                h-12
-                rounded-input
-                border-[1.5px]
-                bg-white
-                text-sfx-ink
-              "
-            />
-          </div>
-
-          {/* Last Name */}
-
-          <div className="space-y-2">
-            <label
-              htmlFor="lastname"
-              className="font-rh-r font-medium text-sfx-muted"
-            >
-              Last name
-            </label>
-
-            <Input
-              id="lastname"
-              type="text"
-              placeholder="Enter your last name"
-              value={lastName}
-              onChange={e => setLastName(e.target.value)}
-              required
-              className="
-                h-12
-                rounded-input
-                border-[1.5px]
-                bg-white
-                text-sfx-ink
-              "
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="font-rh-r font-medium text-sfx-muted"
-            >
-              Email
-            </label>
-
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="
-                h-12
-                rounded-input
-                border-[1.5px]
-                bg-white
-                text-sfx-ink
-              "
-            />
-          </div>
-
-          {/* Username */}
-
-          <div className="space-y-2">
-            <label
-              htmlFor="username"
-              className="font-rh-r font-medium text-sfx-muted"
-            >
-              Username
-            </label>
-
-            <div className="relative">
-              <Input
-                id="username"
-                type="text"
-                autoComplete="off"
-                placeholder="Pick a username"
-                value={username}
-                onChange={(e) => {
-                  const value = e.target.value.replace("@", "").trim();
-
-                  setUsernameError("");
-                  setIsUsernameAvailable(null);
-
-                  setUsername(value);
-                }}
-                required
-
-                className={`
-                h-12
-                rounded-input
-                border-[1.5px]
-                bg-white
-                text-sfx-ink
-                pr-10
-
-                ${usernameError || isUsernameAvailable === false ? "border-red-500" : ""}
-
-                ${isUsernameAvailable === true ? "border-green-500" : ""}
-
-              `}
-              />
-
-              {/* Username status icon */}
-
-              <div
-                className="
-                absolute
-                right-3
-                top-1/2
-                -translate-y-1/2
-                "
-              >
-                {checkUsername
-                  ? (
-                      <div
-                        className="
-                        w-4
-                        h-4
-                        border-2
-                        border-sfx-primary
-                        border-t-transparent
-                        rounded-full
-                        animate-spin
-                        "
-                      />
-                    )
-                  : isUsernameAvailable === true
-                    ? (
-                        <MdCheck size={22} className="text-green-500" />
-                      )
-                    : isUsernameAvailable === false
-                      ? (
-                          <MdCancel size={22} className="text-red-500" />
-                        )
-                      : null}
-              </div>
-            </div>
-
-            {checkUsername && (
-              <p className="text-sm text-sfx-muted">Checking username...</p>
-            )}
-
-            {!checkUsername && isUsernameAvailable === true && (
-              <p className="text-sm text-green-500">Username is available</p>
-            )}
-
-            {!checkUsername && isUsernameAvailable === false && (
-              <p className="text-sm text-red-500">Username is already taken</p>
-            )}
-          </div>
-
-          {/* Country */}
-
-          <div className="space-y-2">
-            <label
-              htmlFor="country"
-              className="font-rh-r font-medium text-sfx-muted"
-            >
-              Home Country
-            </label>
-
-            <Select
-              value={country}
-              onValueChange={(value) => {
-                if (value !== null) {
-                  setCountry(value);
-                }
-              }}
-            >
-              <SelectTrigger
-                id="country"
-                className="
-                  w-full
-                  h-12
-                  rounded-input
-                  bg-white
-                  text-sfx-ink
-                "
-              >
-                <SelectValue placeholder="Select your country" />
-              </SelectTrigger>
-              <SelectContent className="bg-sfx-primary-tint text-sfx-ink">
-                <SelectItem value="United States">United States</SelectItem>
-                <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                <SelectItem value="Canada">Canada</SelectItem>
-                <SelectItem value="Australia">Australia</SelectItem>
-                <SelectItem value="Nigeria">Nigeria</SelectItem>
-                <SelectItem value="South Korea">South Korea</SelectItem>
-                <SelectItem value="United Arab Emirates">
-                  United Arab Emirates
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Password */}
-
-          <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="font-rh-r font-medium text-sfx-muted"
-            >
-              Password
-            </label>
-
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                placeholder="Enter your password"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPasswordError("");
-                }}
-                required
-                className={`
-                  h-12
-                  rounded-input
-                  bg-white
-                  text-sfx-ink
-                  pr-10
-                  ${passwordError ? "border-red-500" : ""}
-                `}
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="
-                  absolute
-                  right-3
-                  top-1/2
-                  -translate-y-1/2
-                  text-sfx-primary
-                "
-              >
-                {showPassword
-                  ? (
-                      <MdOutlineVisibilityOff size={20} />
-                    )
-                  : (
-                      <MdOutlineRemoveRedEye size={20} />
-                    )}
-              </button>
-            </div>
-
-            {passwordError && (
-              <p className="text-sm text-red-500">{passwordError}</p>
-            )}
-          </div>
-
-          {/* Button */}
-
-          <Button
-            type="submit"
-            disabled={isLoading || !isUserRegisterComplete}
-            className="
-              w-full
-              h-(--spacing-button-h)
-              rounded-button
-              bg-sfx-primary
-              text-sfx-primary-tint
-              hover:bg-sfx-ink
-              hover:text-sfx-primary
-            "
-          >
-            {isLoading ? "Creating account..." : "Continue"}
-          </Button>
-
-          <div
-            className="
-            p-2
-            text-center
-            text-sm
-            text-sfx-muted
-          "
-          >
-            Do you have an account?
+    <div className="w-full">
+      <div className="space-y-[2.25rem]">
+        <div>
+          <h1 className="text-[1.5rem] mb-1 font-rh-sb">
+            Create your SFx account
+          </h1>
+          <p className="text-[1rem] leading-[1.25rem] text-sfx-muted">
+            Create your account in minutes and start
             {" "}
-            <Link
-              to="/login"
-              className="
-                text-sfx-primary
-                hover:underline
-              "
-            >
-              Log in
-            </Link>
+            <br />
+            making fast, secure transactions
+          </p>
+        </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-[2.25rem]"
+        >
+          <div>
+            <fieldset disabled={isSubmitting} className="space-y-4">
+              <div className="grid grid-col-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label="First Name"
+                  type="text"
+                  placeholder="John"
+                  {...register("firstName")}
+                  error={errors.firstName?.message}
+                />
+                <FormInput
+                  label="Last Name"
+                  type="text"
+                  placeholder="Doe"
+                  {...register("lastName")}
+                  error={errors.lastName?.message}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label="Email"
+                  type="email"
+                  placeholder="Sample@gmail.com"
+                  {...register("email")}
+                  error={errors.email?.message}
+                />
+                <div className="space-y-2">
+                  <div className="relative">
+                    <FormInput
+                      label="Username"
+                      type="text"
+                      placeholder="johndoe"
+                      {...register("username", {
+                        onChange: (e) => {
+                          const cleaned = e.target.value.replace("@", "");
+                          if (cleaned !== e.target.value) {
+                            setValue("username", cleaned, { shouldValidate: true });
+                          }
+                        },
+                      })}
+                      error={errors.username?.message}
+                    />
+                    <div className="absolute right-3 top-[48px]">
+                      {checkingUsername
+                        ? (
+                            <div className="w-4 h-4 border-2 border-sfx-primary border-t-transparent rounded-full animate-spin" />
+                          )
+                        : isUsernameAvailable === true
+                          ? (
+                              <MdCheck size={22} className="text-green-500" />
+                            )
+                          : isUsernameAvailable === false
+                            ? (
+                                <MdCancel size={22} className="text-red-500" />
+                              )
+                            : null}
+                    </div>
+                  </div>
+                  {checkingUsername && (
+                    <p className="text-sm text-sfx-muted">Checking username...</p>
+                  )}
+                  {!checkingUsername && !errors.username && isUsernameAvailable === true && (
+                    <p className="text-sm text-green-500">Username is available</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Controller
+                  name="phoneCountryCode"
+                  control={control}
+                  render={({ field }) => (
+                    <Controller
+                      name="phoneNumber"
+                      control={control}
+                      render={({ field: numberField }) => (
+                        <FormPhoneInput
+                          countryCode={field.value}
+                          onCountryChange={field.onChange}
+                          value={numberField.value}
+                          onChange={numberField.onChange}
+                          error={errors.phoneNumber?.message}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <Controller
+                  name="country"
+                  control={control}
+                  render={({ field }) => (
+                    <CountrySelect
+                      label="Country"
+                      options={countryOptions}
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      placeholder={countriesLoading ? "Loading countries..." : "Select your country"}
+                      disabled={countriesLoading}
+                      error={errors.country?.message ?? countriesError ?? undefined}
+                    />
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label="Password"
+                  type="password"
+                  placeholder="*********"
+                  {...register("password")}
+                  error={errors.password?.message}
+                />
+                <FormInput
+                  label="Confirm Password"
+                  type="password"
+                  placeholder="*********"
+                  {...register("confirmPassword")}
+                  error={errors.confirmPassword?.message}
+                />
+              </div>
+            </fieldset>
           </div>
+
+          <div className="space-y-3.5">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-4 px-3 rounded-full flex items-center justify-center bg-sfx-primary text-white font-rh-b hover:scale-95 transition-transform duration-300
+                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isSubmitting ? (<SvgSpinners3DotsFade className="text-[1.5rem]" />) : "Continue"}
+            </button>
+
+            <div className="flex gap-2 items-center">
+              <div className="flex-1 h-0.5 bg-sfx-muted/40" />
+              <span className="inline-block uppercase text-[14px]">or</span>
+              <div className="flex-1 h-0.5 bg-sfx-muted/40" />
+            </div>
+
+            <GoogleAuth onSuccess={onGoogleSuccess} />
+
+            <div className="text-center">
+              <span className="inline-block">
+                Already have an account?
+              </span>
+              {" "}
+              <Link
+                to="/"
+                className="text-sfx-primary font-rh-sb text-[15px] underline"
+              >
+                Sign in
+              </Link>
+            </div>
+          </div>
+
         </form>
       </div>
     </div>
