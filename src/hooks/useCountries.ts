@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 export type Country = {
   name: string;
   alpha2Code: string;
-  callingCodes: string;
+  callingCodes: string[];
 };
 
 const COUNTRIES_ENDPOINT = "https://countries.dev/countries?fields=name,alpha2Code,callingCodes&sort=name";
