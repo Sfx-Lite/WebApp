@@ -18,6 +18,7 @@ import FormInput from "../Form/FormInput";
 import FormPhoneInput from "../Form/FormPhoneInput";
 import SvgSpinners3DotsFade from "../global/icons/SvgSpinners3DotsFade";
 import GoogleAuth from "./GoogleAuth";
+import { trackEvent } from "@/utils/trackEvent";
 
 const REGISTER_URL = "/auth/register";
 
@@ -118,6 +119,7 @@ export default function Register({ defaultValues, onSuccess, onGoogleSuccess }: 
       if (accessToken && refreshToken && user) {
         dispatch(credentialsSet({ accessToken, refreshToken, user }));
         dispatch(pinStatusSet(false));
+        trackEvent("signup_completed", { method: "email" });
         toast.success("Account created successfully!");
         onSuccess(data);
       }
