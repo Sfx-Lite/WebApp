@@ -1,21 +1,22 @@
 import { Route, Routes } from "react-router";
-
 import { Toaster } from "@/components/ui/sonner";
 import Login from "./components/Onboarding/Login";
+
 import Pin from "./components/Onboarding/Pin";
-
 import Register from "./components/Onboarding/Register";
-import Welcome from "./components/Onboarding/Welcome";
 
+import Welcome from "./components/Onboarding/Welcome";
 import ChatLayout from "./layouts/Chat/ChatLayout";
 import HomeLayout from "./layouts/Home/HomeLayout";
 import OnboardingLayout from "./layouts/Onboarding/OnboardingLayout";
 import History from "./pages/History";
 import Home from "./pages/Home";
 import Rates from "./pages/Rates";
-import Settings from "./pages/Settings";
 
+import Settings from "./pages/Settings";
 import SupportChat from "./pages/SupportChat";
+
+// const CLIENT_ID =""
 
 function App() {
   return (

@@ -1,154 +1,214 @@
-import { Shield } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { IoIosArrowBack } from "react-icons/io";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { MdArrowBack, MdOutlineShield } from "react-icons/md";
+import { Link, useLocation, useNavigate } from "react-router";
+import api from "@/api/axios";
 
-const CORRECT_PIN = 1234;
+type FlowMode = "set" | "confirm" | "verify";
 
 export default function Pin() {
-  const [pin, setPin] = useState<number[]>([]);// saving the state as an array of numbers
-  const [error, setError] = useState("");
+  const location = useLocation();
   const navigate = useNavigate();
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [lockoutEndsAt, setLockoutEndsAt] = useState<number | null>(null);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const isLocked = lockoutEndsAt !== null;
+  const isRegisterFlow = location.state?.from === "register" || "google";
 
-  useEffect (() => {
-    if (!lockoutEndsAt)
+  const [mode, setMode] = useState<FlowMode>(isRegisterFlow ? "set" : "verify");
+  const [pin, setPin] = useState<number[]>([]);
+  const [firstPin, setFirstPin] = useState<string>("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [attempts, setAttempts] = useState(0);
+  const [lockoutTimeLeft, setLockoutTimeLeft] = useState<number>(0);
+
+  useEffect(() => {
+    if (lockoutTimeLeft <= 0)
       return;
 
-    intervalRef.current = setInterval(() => {
-      const secondsLeft = Math.ceil((lockoutEndsAt - Date.now()) / 1000);
-
-      if (secondsLeft <= 0) {
-        setLockoutEndsAt(null);
-        setWrongAttempts(0);
-        setError("");
-        if (intervalRef.current)
-          clearInterval(intervalRef.current);
-      }
-      else {
-        setRemainingSeconds(secondsLeft);
-      }
+    const timer = setInterval(() => {
+      setLockoutTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setAttempts(0);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
-    return () => {
-      if (intervalRef.current)
-        clearInterval(intervalRef.current);
-    };
-  }, [lockoutEndsAt]);
 
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, "0");
-    const s = (secs % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
+    return () => clearInterval(timer);
+  }, [lockoutTimeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleNumberClick = (num: number) => {
-    if (isLocked || pin.length < 4) {
-      const newPin = [...pin, num]; // returns the numbers that are already in the pin array , then  adds the new number to the end of the array
+  const resetToInitialSetMode = () => {
+    setPin([]);
+    setFirstPin("");
+    setMode("set");
+  };
+
+  const handleFailedVerifyAttempt = () => {
+    const nextAttempts = attempts + 1;
+    setAttempts(nextAttempts);
+    setPin([]);
+
+    if (nextAttempts >= 5) {
+      setError("");
+      setLockoutTimeLeft(15 * 60);
+    }
+    else {
+      setError(
+        `Incorrect security PIN. ${5 - nextAttempts} attempts remaining.`,
+      );
+    }
+  };
+
+  const handleNumberClick = async (num: number) => {
+    if (lockoutTimeLeft > 0 || isLoading)
+      return;
+    if (pin.length < 4) {
+      const newPin = [...pin, num];
       setPin(newPin);
       setError("");
 
       if (newPin.length === 4) {
-        if (newPin.join("") === CORRECT_PIN.toString()) {
+        const pinString = newPin.join("");
+
+        if (mode === "set") {
           setTimeout(() => {
+            setFirstPin(pinString);
             setPin([]);
+            setMode("confirm");
           }, 250);
         }
-        else {
-          const attempts = wrongAttempts + 1;
-          setWrongAttempts(attempts);
-          setTimeout(() => {
-            setPin([]);
+        else if (mode === "confirm") {
+          if (pinString === firstPin) {
+            setIsLoading(true);
+            try {
+              const response = await api.post("auth/pin", {
+                pin: pinString,
+              });
 
-            if (attempts >= 5) {
-              const lockDurationMs = 15 * 60 * 1000;
-              setLockoutEndsAt(Date.now() + lockDurationMs);
-              setRemainingSeconds(15 * 60);
-              setError("Too many incorrect attempts. Try again later.");
+              if (response.status === 200 || response.status === 201) {
+                setTimeout(() => {
+                  setPin([]);
+                  navigate("/");
+                }, 250);
+              }
+              else {
+                setError("Failed to set PIN. Try again.");
+                resetToInitialSetMode();
+              }
+            }
+            catch (err: any) {
+              setError(
+                err.response?.data?.message
+                || "Network error. Please try again.",
+              );
+              resetToInitialSetMode();
+            }
+            finally {
+              setIsLoading(false);
+            }
+          }
+          else {
+            setTimeout(() => {
+              setError("PINs do not match. Start over.");
+              resetToInitialSetMode();
+            }, 400);
+          }
+        }
+        else if (mode === "verify") {
+          setIsLoading(true);
+          try {
+            const response = await api.post("/auth/pin/verify", {
+              pin: pinString,
+            });
+
+            if (response.status === 200) {
+              setTimeout(() => {
+                setPin([]);
+                navigate("/");
+              }, 250);
             }
             else {
-              setError(
-                `Incorrect security PIN. Please try again. (${5 - attempts} attempt${5 - attempts === 1 ? "" : "s"} left)`,
-              );
+              handleFailedVerifyAttempt();
             }
-          }, 400);
+          }
+          catch {
+            handleFailedVerifyAttempt();
+          }
+          finally {
+            setIsLoading(false);
+          }
         }
       }
     }
   };
 
   const handleBackspace = () => {
+    if (lockoutTimeLeft > 0 || isLoading)
+      return;
     if (pin.length > 0) {
       setPin(pin.slice(0, -1));
       setError("");
     }
   };
 
+  const getHeadingText = () => {
+    if (mode === "set")
+      return "Set your 4-digit PIN";
+    if (mode === "confirm")
+      return "Confirm your 4-digit PIN";
+    return "Enter transaction PIN";
+  };
+
+  const getDescriptionText = () => {
+    if (mode === "confirm")
+      return "Please re-enter your selection to match.";
+    return "You'll confirm every transfer with this PIN.\nStaff will never ask you for it.";
+  };
+
   return (
-    <div className="relative flex items-center justify-center min-h-screen w-full bg-[#0d091a] p-0 sm:p-4 md:p-6 select-none">
-      {/* Background */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[30%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
-
-        <div className="absolute -bottom-[30%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-sfx-primary opacity-20 blur-[150px]" />
-      </div>
-
-      <div
-        className="
-          relative
-          w-full
-          h-screen
-          sm:h-[844px]
-          sm:w-[390px]
-          bg-sfx-primary-tint
-          sm:rounded-[44px]
-          shadow-brand
-          sm:border-[10px]
-          sm:border-[#221a38]
-          flex
-          flex-col
-          overflow-hidden
-          transition-all
-          duration-300
-          "
-      >
-        <div className="p-8 mt-6 flex items-center">
-          <button
-            onClick={() =>
-              navigate("/register")}
-            className="flex items-center justify-center w-10 h-10 bg-white rounded-full cursor-pointer hover:bg-gray-100 transition-colors shadow-sm"
-          >
-            <IoIosArrowBack className="w-6 h-6 text-black" />
-          </button>
-          <h1 className="text-sfx-ink text-xl font-rh-m ml-4">
-            Transaction PIN
-          </h1>
+    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary-tint">
+      <div className="flex-1 ">
+        <div className="py-4 mt-2">
+          <div className="flex items-center gap-2">
+            <Link
+              to={isRegisterFlow ? "/register" : "/login"}
+              className="text-sfx-muted hover:text-sfx-ink transition-colors"
+            >
+              <MdArrowBack className="size-6" />
+            </Link>
+            <h1 className="font-rh-sb text-xl">Transaction PIN</h1>
+          </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-1">
-          <div className="flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-sm mb-8">
-            <Shield className="w-10 h-10 text-sfx-primary-strong" />
-          </div>
+        <div className="flex flex-col items-center justify-center mt-14">
+          <MdOutlineShield className="size-8 text-sfx-primary-strong" />
+          <h2 className="font-rh-sb text-2xl text-center h-8">
+            {lockoutTimeLeft > 0 ? "Account Locked" : getHeadingText()}
+          </h2>
 
-          <h2 className="mb-2 font-rh-sb text-2xl ">Set your 4-digit PIN</h2>
-          <p className="text-sfx-muted text-sm text-center mb-8">
-            You'll confirm every transfer with this PIN.
-            <br />
-            Staff will never ask you for it.
+          <p className="text-sfx-muted text-sm text-center mb-8 whitespace-pre-line min-h-10">
+            {lockoutTimeLeft > 0
+              ? `Too many incorrect attempts. Please try again in ${formatTime(lockoutTimeLeft)}.`
+              : getDescriptionText()}
           </p>
 
-          <div className="flex gap-6 mb-4">
+          <div className="flex gap-6 mb-1">
             {[0, 1, 2, 3].map(index => (
               <div
                 key={index}
                 className={`w-4 h-4 rounded-full transition-all duration-150 ${
-                  pin.length > index
-                    ? "bg-sfx-primary-strong scale-110 shadow-brand"
-                    : "bg-sfx-muted/80"
+                  lockoutTimeLeft > 0
+                    ? "bg-sfx-muted/40 cursor-not-allowed"
+                    : pin.length > index
+                      ? "bg-sfx-primary-strong scale-110 shadow-brand"
+                      : "bg-sfx-muted/80"
                 }`}
               />
             ))}
@@ -170,15 +230,14 @@ export default function Pin() {
           </div>
         </div>
 
-        {/* The keypad grid for user to enter pin */}
-        <div className="grid grid-cols-3 gap-y-4 gap-x-8 w-full max-w-[270px] mx-auto mt-24">
+        <div className="grid grid-cols-3 gap-y-4 gap-x-8 w-full max-w-[270px] mx-auto mt-12">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
             <button
               key={num}
               type="button"
-              disabled={isLocked}
+              disabled={lockoutTimeLeft > 0 || isLoading}
               onClick={() => handleNumberClick(num)}
-              className={`w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none ${isLocked ? "opacity-30 cursor-not-allowed " : "cursor-pointer hover:bg-sfx-muted/50"}`}
+              className="w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {num}
             </button>
@@ -188,17 +247,18 @@ export default function Pin() {
 
           <button
             type="button"
-            disabled={isLocked}
+            disabled={lockoutTimeLeft > 0 || isLoading}
             onClick={() => handleNumberClick(0)}
-            className={`w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none ${isLocked ? "opacity-30 cursor-not-allowed " : "cursor-pointer hover:bg-sfx-muted/50"}`}
+            className="w-16 h-16 rounded-full text-sfx-ink font-rh-sb text-[28px] flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted/50 focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed"
           >
             0
           </button>
 
           <button
             type="button"
+            disabled={lockoutTimeLeft > 0 || isLoading}
             onClick={handleBackspace}
-            className="w-16 h-16 rounded-full text-sfx-ink font-rh-b text-lg flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted focus:outline-none"
+            className="w-16 h-16 rounded-full text-sfx-ink font-rh-b text-3xl flex items-center justify-center cursor-pointer transition-all active:scale-90 hover:bg-sfx-muted focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed"
           >
             ⌫
           </button>
