@@ -8,6 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import { MdCancel, MdCheck } from "react-icons/md";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import { trackEvent } from "@/utils/trackEvent";
 import api from "../../api/axios";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { useCountries } from "../../hooks/useCountries";
@@ -18,7 +19,6 @@ import FormInput from "../Form/FormInput";
 import FormPhoneInput from "../Form/FormPhoneInput";
 import SvgSpinners3DotsFade from "../global/icons/SvgSpinners3DotsFade";
 import GoogleAuth from "./GoogleAuth";
-import { trackEvent } from "@/utils/trackEvent";
 
 const REGISTER_URL = "/auth/register";
 
@@ -102,13 +102,17 @@ export default function Register({ defaultValues, onSuccess, onGoogleSuccess }: 
       return;
     }
 
-    const { confirmPassword, phoneCountryCode, phoneNumber, ...payload } = data;
-    // const selectedCountry = countries.find(c => c.alpha2Code === phoneCountryCode);
+    const { confirmPassword, phoneCountryCode, phoneNumber, ...rest } = data;
+    const selectedCountry = countries.find(c => c.alpha2Code === phoneCountryCode);
 
-    // const payload = {
-    //   ...rest,
-    //   phoneNumber: `${selectedCountry?.callingCode ?? ""}${phoneNumber}`,
-    // };
+    const dialCode = Array.isArray(selectedCountry?.callingCodes)
+      ? selectedCountry.callingCodes[0]
+      : selectedCountry?.callingCodes;
+
+    const payload = {
+      ...rest,
+      mobileNumber: dialCode ? `+${dialCode}${phoneNumber}` : phoneNumber,
+    };
 
     setIsSubmitting(true);
 

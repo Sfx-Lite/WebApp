@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { trackEvent } from "@/utils/trackEvent";
 import api from "../../api/axios";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { credentialsSet } from "../../store/authSlice";
-import { trackEvent } from "@/utils/trackEvent";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 

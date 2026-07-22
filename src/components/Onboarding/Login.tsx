@@ -89,7 +89,7 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
             <fieldset disabled={isSubmitting} className="space-y-4">
               <FormInput
                 label="Email or Username"
-                type="email"
+                type="text"
                 placeholder="Sample@gmail.com"
                 {...register("identifier")}
                 error={errors.identifier?.message}
