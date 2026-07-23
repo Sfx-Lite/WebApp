@@ -32,16 +32,30 @@ export default function KycSelfieCapture() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const webcamRef = useRef<Webcam | null>(null);
   const [faceDetected, setFaceDetected] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(
+    "Position your face inside the frame",
+  );
 
   useEffect(() => {
     const loadModels = async () => {
-      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+        // console.log("✅ Face model loaded");
+        setModelsLoaded(true);
+      }
+      catch (error) {
+        console.error("❌ Failed to load model", error);
+      }
     };
 
     loadModels();
   }, []);
 
   useEffect(() => {
+    if (!modelsLoaded)
+      return;
+
     const interval = setInterval(async () => {
       if (!webcamRef.current?.video)
         return;
@@ -51,13 +65,28 @@ export default function KycSelfieCapture() {
         new faceapi.TinyFaceDetectorOptions(),
       );
 
-      setFaceDetected(result.length === 1);
+      if (result.length === 1) {
+        setFaceDetected(true);
+        setStatusMessage("Face detected");
+      }
+      else if (result.length === 0) {
+        setFaceDetected(false);
+        setStatusMessage("No face detected");
+      }
+      else {
+        setFaceDetected(false);
+        setStatusMessage("Only one person should be visible");
+      }
     }, 200);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [modelsLoaded]);
 
   const handleCapture = async () => {
+    if (!modelsLoaded) {
+      toast.warning("Face detector is loading...");
+      return;
+    }
     if (!webcamRef.current)
       return;
 
@@ -135,7 +164,6 @@ export default function KycSelfieCapture() {
                         "
                         />
 
-                        {/* Face oval guide */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div
                             className="
@@ -150,14 +178,19 @@ export default function KycSelfieCapture() {
                         </div>
                       </div>
 
-                      <p className="absolute bottom-4 text-m font-rh-b text-sfx-danger tracking-wide text-center">
-                        Center your face in the frame
+                      <p
+                        className={`absolute bottom-4 text-sm font-rh-b tracking-wide text-center ${
+                          faceDetected
+                            ? "text-emerald-400"
+                            : "text-sfx-danger"
+                        }`}
+                      >
+                        {statusMessage}
                       </p>
                     </>
                   )}
             </div>
 
-            {/* Checklist items */}
             <div className="my-4 flex items-center justify-center gap-3 sm:gap-4 flex-wrap text-xs text-white/80 font-rh-r">
               {Guide.map(item => (
                 <span key={item} className="flex items-center gap-1">
@@ -179,7 +212,7 @@ export default function KycSelfieCapture() {
                         Retake
                       </Button>
                       <Button
-                        onClick={() => navigate("/kyc/pending")}
+                        onClick={() => navigate("/kyc/submit")}
                         className="flex-1 bg-sfx-primary text-white hover:bg-sfx-primary/90 rounded-full font-rh-sb"
                       >
                         Use Photo
@@ -261,7 +294,7 @@ export default function KycSelfieCapture() {
             {/* Desktop Action Backup */}
             <div className="pt-6 hidden lg:block">
               <Button
-                onClick={() => navigate("/kyc/pending")}
+                onClick={() => navigate("/kyc/submit")}
                 disabled={!capturedImage}
                 className="h-button-h rounded-button w-full bg-sfx-primary text-base font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 disabled:opacity-50"
               >

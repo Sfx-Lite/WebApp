@@ -8,9 +8,19 @@ export type Country = {
   label: string;
 };
 
+export type OcrData = {
+  documentNumber?: string;
+  fullName?: string;
+  rawText?: string;
+};
+
 type KycState = {
   documentType: DocumentType;
   country: Country;
+  documentImage: string | null; // Blob URL or base64 string
+  selfieImage: string | null; // Blob URL or base64 string
+  isPdf: boolean;
+  ocrData: OcrData | null;
 };
 
 const initialState: KycState = {
@@ -19,6 +29,10 @@ const initialState: KycState = {
     alpha2Code: "NG",
     label: "Nigeria",
   },
+  documentImage: null,
+  selfieImage: null,
+  isPdf: false,
+  ocrData: null,
 };
 
 const kycSlice = createSlice({
@@ -33,10 +47,31 @@ const kycSlice = createSlice({
       state.country = action.payload;
     },
 
+    setDocumentData(
+      state,
+      action: PayloadAction<{ image: string; isPdf?: boolean; ocrData?: OcrData | null }>,
+    ) {
+      state.documentImage = action.payload.image;
+      state.isPdf = action.payload.isPdf ?? false;
+      if (action.payload.ocrData !== undefined) {
+        state.ocrData = action.payload.ocrData;
+      }
+    },
+
+    setSelfieImage(state, action: PayloadAction<string>) {
+      state.selfieImage = action.payload;
+    },
+
     resetKyc: () => initialState,
   },
 });
 
-export const { setDocumentType, setCountry, resetKyc } = kycSlice.actions;
+export const {
+  setDocumentType,
+  setCountry,
+  setDocumentData,
+  setSelfieImage,
+  resetKyc,
+} = kycSlice.actions;
 
 export default kycSlice.reducer;

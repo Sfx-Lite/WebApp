@@ -10,7 +10,7 @@ export default antfu({
     semi: true,
     quotes: "double",
   },
-  ignores: ["**/node_modules", "**/dev-dist/*"],
+  ignores: ["**/node_modules", "**/dev-dist/*", "public/models/**"],
 }, {
   rules: {
     "ts/no-redeclare": "off",
