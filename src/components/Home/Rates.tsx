@@ -80,8 +80,8 @@ export default function Rates() {
     return reversed ? numericAmount / rate : numericAmount * rate;
   }, [amount, rate, reversed, selection]);
 
-  const fromLabel = reversed ? selection?.currency : base;
-  const toLabel = reversed ? base : selection?.currency;
+  const fromLabel = reversed ? selection?.entry.currency : base;
+  const toLabel = reversed ? base : selection?.entry.currency;
 
   if (selection) {
     return (
@@ -127,7 +127,7 @@ export default function Rates() {
             {" "}
             {formatNumber(rate)}
             {" "}
-            {selection.currency}
+            {selection.entry.currency}
           </p>
 
           <div className="flex gap-2 items-start bg-sfx-primary/5 border-l-4 border-sfx-primary rounded-md p-3">
