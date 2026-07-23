@@ -19,13 +19,8 @@ export default function LoginFlow() {
 
   const [pinMode, setPinMode] = useState<PinMode>("verify");
 
-  const handleLoginSuccess = (isPin: boolean) => {
+  const handleAuthSuccess = (isPin: boolean) => {
     setPinMode(isPin ? "verify" : "set");
-    setStep("pin");
-  };
-
-  const handleGoogleSuccess = (isNewUser: boolean) => {
-    setPinMode(isNewUser ? "set" : "verify");
     setStep("pin");
   };
 
@@ -37,7 +32,7 @@ export default function LoginFlow() {
   return (
     <>
       {step === "login" && (
-        <Login onSuccess={handleLoginSuccess} onGoogleSuccess={handleGoogleSuccess} />
+        <Login onSuccess={handleAuthSuccess} onGoogleSuccess={handleAuthSuccess} />
       )}
       {step === "pin" && <PinSetup mode={pinMode} onComplete={handlePinComplete} />}
     </>

@@ -12,7 +12,7 @@ function getGoogle() {
 }
 
 type GoogleAuthProps = {
-  onSuccess: (isNewUser: boolean) => void;
+  onSuccess: (isPin: boolean) => void;
 };
 
 export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
@@ -63,7 +63,7 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
                 idToken: credential,
               });
 
-              const { accessToken, refreshToken, user, isNewUser } = response.data?.data ?? {};
+              const { accessToken, refreshToken, user, isNewUser, isPin } = response.data?.data ?? {};
 
               if (accessToken && refreshToken && user) {
                 dispatch(credentialsSet({ accessToken, refreshToken, user }));
@@ -71,7 +71,7 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
                   trackEvent("signup_completed", { method: "google" });
                 }
                 toast.success("Logged in successfully!");
-                onSuccessRef.current(Boolean(isNewUser));
+                onSuccessRef.current(Boolean(isPin));
               }
               else {
                 toast.error("Sign-in succeeded but session data was missing.");
