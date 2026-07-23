@@ -22,7 +22,7 @@ const LOGIN_URL = "/auth/login";
 
 type LoginProps = {
   onSuccess: (isPin: boolean) => void;
-  onGoogleSuccess: (isNewUser: boolean) => void;
+  onGoogleSuccess: (isPin: boolean) => void;
 };
 
 export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {

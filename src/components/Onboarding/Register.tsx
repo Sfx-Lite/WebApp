@@ -25,7 +25,7 @@ const REGISTER_URL = "/auth/register";
 type RegisterProps = {
   defaultValues?: Partial<RegisterFormData>;
   onSuccess: (data: RegisterFormData) => void;
-  onGoogleSuccess: (isNewUser: boolean) => void;
+  onGoogleSuccess: (isPin: boolean) => void;
 };
 
 export default function Register({ defaultValues, onSuccess, onGoogleSuccess }: RegisterProps) {
