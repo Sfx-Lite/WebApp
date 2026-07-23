@@ -14,11 +14,13 @@ import RegistrationTimeline from "./RegistrationTimeline";
 import RegistrationTimelineMobile from "./RegistrationTimelineMobile";
 
 type FlowStep = "register" | "pin";
+type PinMode = "set" | "verify";
 
 export default function RegisterFlow() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [step, setStep] = useState<FlowStep>("register");
+  const [pinMode, setPinMode] = useState<PinMode>("set");
   const [registerData, setRegisterData] = useState<RegisterFormData | null>(null);
 
   const currentStep = step === "register" ? 0 : 1;
@@ -26,18 +28,13 @@ export default function RegisterFlow() {
   const handleRegisterSuccess = (data: RegisterFormData) => {
     setRegisterData(data);
     dispatch(pinStatusSet(false));
+    setPinMode("set");
     setStep("pin");
   };
 
-  const handleGoogleSuccess = (isNewUser: boolean) => {
-    if (isNewUser) {
-      dispatch(pinStatusSet(false));
-      setStep("pin");
-    }
-    else {
-      dispatch(pinStatusSet(true));
-      navigate("/");
-    }
+  const handleGoogleSuccess = (isPin: boolean) => {
+    setPinMode(isPin ? "verify" : "set");
+    setStep("pin");
   };
 
   const handleBackToRegister = () => {
@@ -97,7 +94,7 @@ export default function RegisterFlow() {
             className="w-full lg:w-[40%]"
           >
             <PinSetup
-              mode="set"
+              mode={pinMode}
               onComplete={handlePinComplete}
               onBack={handleBackToRegister}
             />
