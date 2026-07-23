@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/reduxHooks";
+import { trackEvent } from "@/utils/trackEvent";
 
 const Guide = ["All four corners", "No glare", "Text readable"];
 const MAX_FILE_SIZE_MB = 8;
@@ -56,6 +57,7 @@ export default function KycDocCapture() {
     setCapturedImage(
       "https://placehold.co/600x400/1e1b2e/ffffff?text=Document+Captured",
     );
+    trackEvent("kyc_document_uploaded", { doc_type: documentType });
   };
 
   const handleRetake = () => {
@@ -94,6 +96,7 @@ export default function KycDocCapture() {
 
     setIsPdf(isPdfFile);
     setCapturedImage(imageUrl);
+    trackEvent("kyc_document_uploaded", { doc_type: documentType });
 
     e.target.value = "";
   };
