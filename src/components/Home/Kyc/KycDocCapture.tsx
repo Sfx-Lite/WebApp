@@ -39,9 +39,11 @@ const Tips = [
 ];
 
 export default function KycDocCapture() {
+// Turn on when api comes in --> const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const webcamRef = useRef<Webcam | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const documentType = useAppSelector(state => state.kyc.documentType);
 
@@ -76,21 +78,24 @@ export default function KycDocCapture() {
         return;
 
       const video = webcamRef.current.video;
-      if (video.readyState !== 4)
+      if (video.readyState !== 4 || video.videoWidth === 0 || video.videoHeight === 0) {
         return;
+      }
 
-      // Analyze contrast/edges inside target frame area
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      const ctx = canvas.getContext("2d");
+      if (!canvasRef.current) {
+        canvasRef.current = document.createElement("canvas");
+      }
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
 
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx)
         return;
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Crop inspection to central guide box zone (60% width x 40% height)
+      //  central guide box zone (60% width x 40% height)
       const cropWidth = canvas.width * 0.7;
       const cropHeight = canvas.height * 0.5;
       const cropX = (canvas.width - cropWidth) / 2;
@@ -143,14 +148,14 @@ export default function KycDocCapture() {
     return () => clearInterval(interval);
   }, [capturedImage]);
 
-  // Clean up Object URL
-  useEffect(() => {
-    return () => {
-      if (capturedImage?.startsWith("blob:")) {
-        URL.revokeObjectURL(capturedImage);
-      }
-    };
-  }, [capturedImage]);
+  // // Clean up Object URL
+  // useEffect(() => {
+  //   return () => {
+  //     if (capturedImage?.startsWith("blob:")) {
+  //       URL.revokeObjectURL(capturedImage);
+  //     }
+  //   };
+  // }, [capturedImage]);
 
   const handleDocumentProcess = async (
     imageUrl: string,
@@ -205,21 +210,25 @@ export default function KycDocCapture() {
       return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.warning("Unsupported format. Upload JPG, PNG, WEBP, or PDF.");
+      toast.error("Unsupported format. Upload JPG, PNG, WEBP, or PDF.");
       e.target.value = "";
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      toast.warning(`File size exceeds limit (${MAX_FILE_SIZE_MB}MB).`);
+      toast.error(`File size exceeds limit (${MAX_FILE_SIZE_MB}MB).`);
       e.target.value = "";
       return;
     }
 
     const isPdfFile = file.type === "application/pdf";
-    const imageUrl = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Url = reader.result as string;
+      handleDocumentProcess(base64Url, isPdfFile);
+    };
+    reader.readAsDataURL(file);
 
-    handleDocumentProcess(imageUrl, isPdfFile);
     e.target.value = "";
   };
 
@@ -237,6 +246,46 @@ export default function KycDocCapture() {
 
     navigate("/kyc/selfie");
   };
+
+  // Turn on when API comes --> const handleContinue = async () => {
+  //   if (!capturedImage)
+  //     return;
+
+  //   setIsUploading(true);
+
+  //   try {
+  //     const response = await fetch("API HERE", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         documentType, // 'passport' | 'national_id'
+  //         documentImage: capturedImage, // Base64 data string
+  //         ocrData: extractedData,
+  //       }),
+  //     });
+
+  //     if (!response.ok)
+  //       throw new Error("Document submission failed");
+
+  //     // Save to Redux after API succeeds
+  //     dispatch(
+  //       setDocumentData({
+  //         image: capturedImage,
+  //         isPdf,
+  //         ocrData: extractedData,
+  //       }),
+  //     );
+
+  //     toast.success("Document uploaded successfully");
+  //     navigate("/kyc/selfie");
+  //   }
+  //   catch (error: any) {
+  //     toast.error(error?.message || "Something went wrong. Please try again.");
+  //   }
+  //   finally {
+  //     setIsUploading(false);
+  //   }
+  // };
 
   return (
     <div className="flex h-dvh w-full flex-col overflow-y-auto bg-sfx-primary-tint">
@@ -293,7 +342,7 @@ export default function KycDocCapture() {
                           <img
                             src={capturedImage}
                             alt="Captured Document"
-                            className="h-full w-full rounded-xl object-cover"
+                            className="h-full w-full rounded-xl object-contain"
                           />
                         )
                   )
@@ -309,6 +358,10 @@ export default function KycDocCapture() {
                           audio={false}
                           screenshotFormat="image/jpeg"
                           videoConstraints={videoConstraints}
+                          onUserMediaError={(err) => {
+                            console.error("Camera access error:", err);
+                            toast.error("Unable to access camera. Please check browser permissions or upload a file instead.");
+                          }}
                           className="absolute inset-0 h-full w-full object-cover"
                         />
 
@@ -459,6 +512,13 @@ export default function KycDocCapture() {
               >
                 Continue
               </Button>
+
+              {/* <Button
+                onClick={handleContinue}
+                disabled={!capturedImage || isProcessing || isUploading}
+              >
+                {isUploading ? "Uploading..." : "Continue"}
+              </Button> */}
             </div>
           </div>
         </div>
