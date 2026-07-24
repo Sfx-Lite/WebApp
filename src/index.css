@@ -41,9 +41,11 @@
   --color-sfx-muted: #756c8e;
 
   --color-sfx-success: #00bf63;
+  --color-sfx-success-bg: #e3f9ee;
   --color-sfx-danger: #dc2626;
   --color-sfx-danger-bg: #fdebec;
   --color-sfx-amber: #d97706;
+  --color-sfx-amber-bg: #fdf3e3;
 
   --font-rh-r: "RedHat Display Regular";
   --font-rh-m: "RedHat Display Medium";

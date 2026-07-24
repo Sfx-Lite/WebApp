@@ -1,12 +1,10 @@
 "use client";
 
-import { History, Home, LogOut, Settings, TrendingUp } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { History, Home, Settings, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
-import { useDashboardView } from "@/hooks/useDashboardView";
+import { Link, NavLink } from "react-router";
 import logo from "../../assets/imgs/sfx-logo-purple.png";
-import { popoverContainerVariants, popoverItemVariants } from "../../lib/animations/popover-variants";
+import LogOutBtn from "../global/LogOutBtn";
 
 type SidebarUser = {
   displayName?: string;
@@ -16,19 +14,18 @@ type SidebarUser = {
 
 type SidebarProps = {
   user?: SidebarUser;
-  onSignOut?: () => void;
+  // onSignOut?: () => void;
 };
 
 const NAV_ITEMS = [
-  { view: "home", label: "New event", icon: Home },
-  { view: "rates", label: "Previous events", icon: TrendingUp },
-  { view: "history", label: "History", icon: History },
-  { view: "settings", label: "Settings", icon: Settings },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/rates", label: "Rates", icon: TrendingUp },
+  { href: "/history", label: "History", icon: History },
+  { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
-export default function Sidebar({ user, onSignOut }: SidebarProps) {
+export default function Sidebar({ user }: SidebarProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { activeView, setActiveView } = useDashboardView();
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,7 +45,7 @@ export default function Sidebar({ user, onSignOut }: SidebarProps) {
   return (
     <nav className="isolate w-full h-full p-[1rem]">
       <div className="h-full flex flex-col items-start justify-between">
-        <div className="w-full space-y-[1rem]">
+        <div className="w-full">
           <Link
             to="/"
             className="inline-flex gap-1 items-center"
@@ -60,51 +57,65 @@ export default function Sidebar({ user, onSignOut }: SidebarProps) {
             />
           </Link>
 
-          <div className="w-full flex flex-col gap-0.5">
-            {NAV_ITEMS.map(({ view, label, icon: Icon }) => {
-              const isActive = activeView === view;
-
-              return (
+          <div className="">
+            <div className="p-2 rounded-[10px] bg-sfx-card shadow-md border border-sfx-muted/20 my-[1.75rem]">
+              <div className="flex items-center gap-3">
                 <button
-                  key={view}
-                  onClick={() => setActiveView(view)}
-                  className={`w-full flex gap-4 items-center text-[16px] px-[1rem] py-[.65rem] rounded-full transition duration-400 ease-in-out ${
-                    isActive ? "bg-col-light-gray" : "hover:bg-col-light-gray"
-                  }`}
+                  onClick={() => setIsProfileOpen(prev => !prev)}
+                  className="h-[2.25rem] w-[2.25rem] rounded-full"
                 >
-                  <Icon
-                    className={`w-[22px] transition-colors duration-400 ease-in-out ${
-                      isActive ? "text-sfx-muted" : "text-sfx-muted"
-                    }`}
+                  <img
+                    src={user?.photoURL ?? "/sneaks.jpg"}
+                    alt={user?.displayName ?? "User avatar"}
+                    className="h-full w-full rounded-[inherit] object-cover"
                   />
-                  <span
-                    className={`inline-block font-rh-m transition-colors duration-400 ease-in-out ${
-                      isActive ? "text-sfx-muted" : ""
-                    }`}
-                  >
-                    {label}
-                  </span>
                 </button>
-              );
-            })}
+
+                <div className="flex flex-col gap-1 leading-4">
+                  <span className="inline-block font-rh-b text-[15px]">
+                    Finney Charles
+                  </span>
+                  <span className="inline-block text-sfx-muted font-rh-m text-[14px]">
+                    @blandirony
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="w-full flex flex-col gap-1.5">
+              {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+                <NavLink key={href} to={href} end={href === "/"}>
+                  {({ isActive }) => (
+                    <div
+                      className={`w-full flex gap-4 items-center text-[16px] px-[1rem] py-[.5rem] rounded-full transition duration-400 ease-in-out ${
+                        isActive ? "bg-sfx-primary-tint" : "hover:bg-sfx-primary-tint"
+                      }`}
+                    >
+                      <Icon
+                        className={`w-[20px] transition-colors duration-400 ease-in-out ${
+                          isActive ? "text-sfx-muted" : "text-sfx-muted/50"
+                        }`}
+                      />
+                      <span
+                        className={`inline-block font-rh-m text-[15px] transition-colors duration-400 ease-in-out ${
+                          isActive ? "text-sfx-muted" : "text-sfx-muted"
+                        }`}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  )}
+                </NavLink>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div ref={profileRef} className="relative flex items-center gap-2 pl-[1.5rem]">
-          {/* <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsProfileOpen(prev => !prev)}
-              className="h-[3.5rem] w-[3.5rem] rounded-full"
-            >
-              <img
-                src={user?.photoURL ?? "/images/image.jpg"}
-                alt={user?.displayName ?? "User avatar"}
-                className="h-full w-full rounded-[inherit] object-cover"
-              />
-            </button>
-          </div> */}
-
-          <AnimatePresence>
+        <div className="flex items-center gap-2 pl-[1rem]">
+          <LogOutBtn />
+        </div>
+      </div>
+      <div className="relative">
+        {/* <AnimatePresence>
             {isProfileOpen && (
               <motion.div
                 variants={popoverContainerVariants}
@@ -147,8 +158,7 @@ export default function Sidebar({ user, onSignOut }: SidebarProps) {
                 </motion.div>
               </motion.div>
             )}
-          </AnimatePresence>
-        </div>
+          </AnimatePresence> */}
       </div>
     </nav>
   );

@@ -13,19 +13,18 @@ export default function LogOutBtn() {
     <button
       onClick={handleLogout}
       className="
-            w-10
-            h-10
-            rounded-full
-            bg-white
             flex
             items-center
             justify-center
-            text-sfx-primary
-            shadow-sm
+            gap-2
+            text-sfx-muted
             cursor-grab
             "
     >
-      <MdLogout size={22} />
+      <MdLogout className="text-[22px]" />
+      <span className="inline-block font-rh-m text-[15px] text-sfx-muted">
+        Log out
+      </span>
     </button>
   );
 }
