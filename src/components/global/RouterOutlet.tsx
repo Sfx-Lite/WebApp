@@ -15,8 +15,9 @@ import KycPending from "../Home/Kyc/KycPending";
 import KycReviewSubmit from "../Home/Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Home/Kyc/KycSelfieCapture";
 import KycType from "../Home/Kyc/KycType";
-import UserProfile from "../Home/UserProfile";
+import UserPassword from "../Home/UserPassword";
 
+import UserProfile from "../Home/UserProfile";
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
 import ProtectedRoute from "./ProtectedRoute";
@@ -48,6 +49,8 @@ export default function RouterOutlet() {
           <Route path="/kyc/pending" element={<KycPending />} />
 
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/password" element={<UserPassword />} />
+
         </Route>
 
         <Route element={<ChatLayout />}>

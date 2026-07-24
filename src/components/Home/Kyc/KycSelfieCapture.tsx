@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router";
 import Webcam from "react-webcam";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { setSelfieImage } from "@/store/kycSlice";
 
 const Guide = ["Good lighting", "No hat or glasses", "Just you"];
 
@@ -33,6 +35,7 @@ export default function KycSelfieCapture() {
   const webcamRef = useRef<Webcam | null>(null);
   const [faceDetected, setFaceDetected] = useState(false);
   const [modelsLoaded, setModelsLoaded] = useState(false);
+  const dispatch = useAppDispatch();
   const [statusMessage, setStatusMessage] = useState(
     "Position your face inside the frame",
   );
@@ -105,6 +108,7 @@ export default function KycSelfieCapture() {
 
       if (imageSrc) {
         setCapturedImage(imageSrc);
+        dispatch(setSelfieImage(imageSrc));
       }
     }
     else {

@@ -136,12 +136,12 @@ export default function Settings() {
                 icon={<MdOutlineShield className="size-6 text-sfx-primary" />}
                 iconBgClass="bg-sfx-primary/10"
                 title="Security"
-                subtitle="Password and transaction PIN."
+                subtitle="Manage Password."
                 badge={{
                   text: "Medium",
                   className: "bg-amber-100 text-amber-700",
                 }}
-                to="/security"
+                to="/password"
               />
 
               {/* Notifications */}
