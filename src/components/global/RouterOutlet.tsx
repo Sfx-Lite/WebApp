@@ -8,6 +8,13 @@ import Home from "../../pages/Home";
 import Rates from "../../pages/Rates";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
+import KycDocCapture from "../Home/Kyc/KycDocCapture";
+
+import KycIntro from "../Home/Kyc/KycIntro";
+import KycPending from "../Home/Kyc/KycPending";
+import KycReviewSubmit from "../Home/Kyc/KycReviewSubmit";
+import KycSelfieCapture from "../Home/Kyc/KycSelfieCapture";
+import KycType from "../Home/Kyc/KycType";
 
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
@@ -31,6 +38,13 @@ export default function RouterOutlet() {
           <Route path="/rates" element={<Rates />} />
           <Route path="/history" element={<History />} />
           <Route path="/settings" element={<Settings />} />
+
+          <Route path="/kyc" element={<KycIntro />} />
+          <Route path="/kyc/type" element={<KycType />} />
+          <Route path="/kyc/doc" element={<KycDocCapture />} />
+          <Route path="/kyc/selfie" element={<KycSelfieCapture />} />
+          <Route path="/kyc/submit" element={<KycReviewSubmit />} />
+          <Route path="/kyc/pending" element={<KycPending />} />
         </Route>
 
         <Route element={<ChatLayout />}>
