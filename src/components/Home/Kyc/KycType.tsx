@@ -51,7 +51,6 @@ export default function KycType() {
   return (
     <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-hidden">
       <div className="mx-auto flex w-full max-w-4xl lg:max-w-5xl flex-1 flex-col justify-between p-4 sm:p-6 lg:p-8">
-        {/* Header */}
         <header className="py-2 mb-4">
           <div className="flex items-center gap-2">
             <Link
@@ -166,7 +165,6 @@ export default function KycType() {
             </div>
           </div>
 
-          {/* COLUMN 2: Guidelines Sidebar */}
           <div className="hidden lg:flex">
             <p> Progress bar</p>
           </div>
