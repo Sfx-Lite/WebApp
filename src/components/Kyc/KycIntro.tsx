@@ -66,7 +66,6 @@ export default function KycIntro() {
   return (
     <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
       <div className="mx-auto flex w-full max-w-4xl lg:max-w-5xl flex-1 flex-col justify-between p-4 sm:p-6 lg:p-8">
-        {/* Header */}
         <header className="py-2 mb-4">
           <div className="flex items-center gap-2">
             <Link
@@ -82,9 +81,7 @@ export default function KycIntro() {
           </div>
         </header>
 
-        {/* --- TWO COLUMN MAIN CONTENT AREA --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 flex-1 items-start">
-          {/* COLUMN 1: Main KYC Info & Steps */}
           <div className="flex flex-col justify-between h-full">
             <div>
               <div className="flex size-14 items-center justify-center rounded-2xl bg-sfx-primary/5 sm:size-16">
@@ -121,7 +118,6 @@ export default function KycIntro() {
               </ol>
             </div>
 
-            {/* Action Button */}
             <div className="pt-6 pb-2 mt-auto">
               <Button
                 onClick={() => navigate("/kyc/type")}
@@ -132,7 +128,6 @@ export default function KycIntro() {
             </div>
           </div>
 
-          {/* COLUMN 2: Accordion FAQ Section */}
           <div className="flex-col rounded-2xl border border-sfx-primary-tint/30 bg-white/70 p-5 shadow-sm hidden lg:flex">
             <div className="flex items-center gap-2 mb-4 pb-3 border-b border-sfx-primary-tint/20">
               <MdHelpOutline className="size-5 text-sfx-primary" />

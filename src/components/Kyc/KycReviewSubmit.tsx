@@ -1,89 +1,264 @@
+import { useState } from "react";
 import { AiOutlineScan, AiOutlineUser } from "react-icons/ai";
-import { MdArrowBack } from "react-icons/md";
+import { MdArrowBack, MdClose, MdPictureAsPdf } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
 
-const STEPS = [
-  {
-    id: 1,
-    Icon: AiOutlineScan,
-    title: "Passport",
-    actionText: "Retake",
-  },
-  {
-    id: 2,
-    Icon: AiOutlineUser,
-    title: "Selfie",
-    actionText: "Retake",
-  },
-];
+import { Button } from "@/components/ui/button";
+import { useAppSelector } from "@/hooks/reduxHooks";
 
 export default function KycReviewSubmit() {
   const navigate = useNavigate();
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewTitle, setPreviewTitle] = useState("");
+
+  const { documentType, documentImage, selfieImage, isPdf } = useAppSelector(
+    state => state.kyc,
+  );
+
+  const canSubmit = documentImage && selfieImage;
+
+  const cards = [
+    {
+      id: 1,
+      title:
+        documentType === "passport"
+          ? "International Passport"
+          : "National ID Card",
+      subtitle: "Review your uploaded document.",
+      image: documentImage,
+      isPdf,
+      route: "/kyc/doc",
+      Icon: AiOutlineScan,
+    },
+    {
+      id: 2,
+      title: "Selfie",
+      subtitle: "Ensure your face is clearly visible.",
+      image: selfieImage,
+      isPdf: false,
+      route: "/kyc/selfie",
+      Icon: AiOutlineUser,
+    },
+  ];
+
+  const handleView = (image: string | null, title: string) => {
+    if (!image) {
+      // console.log("KYC STATE", {
+      //   documentType,
+      //   documentImage,
+      //   selfieImage,
+      //   isPdf,
+      // });
+      return;
+    }
+
+    setPreviewImage(image);
+    setPreviewTitle(title);
+  };
+
   return (
-    <div className="flex p-4 flex-col justify-between h-screen w-full bg-sfx-primary-tint">
-      <div className="flex-1">
-        <header className="py-4 mt-6">
+    <div className="flex min-h-dvh w-full flex-col bg-sfx-primary-tint">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col p-4 sm:p-6 lg:p-8">
+        <header className="mb-8">
           <div className="flex items-center gap-2">
-            <Link to="/">
-              <MdArrowBack className="size-6" />
+            <Link
+              to="/kyc/selfie"
+              className="rounded-lg p-1 transition hover:bg-sfx-primary/10"
+            >
+              <MdArrowBack className="size-6 text-sfx-ink" />
             </Link>
 
-            <h1 className="font-rh-sb text-xl">Review & Submit</h1>
+            <h1 className="font-rh-sb text-xl text-sfx-ink sm:text-2xl">
+              Review & Submit
+            </h1>
           </div>
+
+          <p className="mt-2 font-rh-r text-sm text-sfx-muted">
+            Review your uploaded document and selfie before submitting them for
+            verification.
+          </p>
         </header>
 
-        <ol className="mt-6 flex gap-4">
-          {STEPS.map(({ id, Icon, title, actionText }) => (
-            <li
-              key={id}
-              className="flex-1 bg-white p-3 rounded-3xl border border-sfx-primary-tint/20 shadow-sm flex flex-col items-center text-center gap-3"
+        <div className="flex-1 space-y-5">
+          {cards.map(card => (
+            <div
+              key={card.id}
+              className="
+                flex
+                flex-col
+                gap-5
+                rounded-3xl
+                border
+                border-sfx-primary-tint/20
+                bg-white
+                p-5
+                shadow-sm
+
+                md:flex-row
+                md:items-center
+              "
             >
-              <div className="w-full h-24 rounded-2xl bg-sfx-primary-soft/30 text-sfx-primary flex items-center justify-center">
-                <Icon className="size-8 text-sfx-primary-strong" />
+              {/* For user to preview */}
+              <div className="flex w-full flex-col items-center md:w-52 md:shrink-0">
+                <div
+                  className="
+                    h-52
+                    w-full
+                    overflow-hidden
+                    rounded-2xl
+                    bg-sfx-primary-soft/20
+
+                    md:h-36
+                  "
+                >
+                  {card.image
+                    ? (
+                        card.isPdf
+                          ? (
+                              <div className="flex h-full flex-col items-center justify-center gap-2">
+                                <MdPictureAsPdf className="size-16 text-red-500" />
+                                <span className="font-rh-sb text-sm">PDF Document</span>
+                              </div>
+                            )
+                          : (
+                              <img
+                                src={card.image}
+                                alt={card.title}
+                                className="h-full w-full object-cover"
+                              />
+                            )
+                      )
+                    : (
+                        <div className="flex h-full items-center justify-center">
+                          <card.Icon className="size-14 text-sfx-primary" />
+                        </div>
+                      )}
+                </div>
+
+                <div className="mt-3 flex w-full gap-2">
+                  <Button
+                    variant="outline"
+                    disabled={!card.image}
+                    onClick={() => handleView(card.image, card.title)}
+                    className="
+                      flex-1
+                      rounded-full
+                      border-sfx-primary
+                      font-rh-sb
+                      text-sfx-primary
+                    "
+                  >
+                    View
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(card.route)}
+                    className="
+                      flex-1
+                      rounded-full
+                      border-sfx-primary
+                      font-rh-sb
+                      text-sfx-primary
+                    "
+                  >
+                    Retake
+                  </Button>
+                </div>
               </div>
 
-              <div className="flex flex-col items-center gap-1">
-                <p className="text-m font-rh-b ">{title}</p>
-                <button
-                  type="button"
-                  className="text-sm font-rh-b text-sfx-primary hover:text-xs hover:text-sfx-ink"
-                >
-                  {actionText}
-                </button>
+              {/* Details */}
+              <div className="flex flex-1 flex-col justify-center">
+                <h2 className="font-rh-sb text-lg text-sfx-ink">
+                  {card.title}
+                </h2>
+
+                <p className="mt-2 font-rh-r text-sm leading-relaxed text-sfx-muted">
+                  {card.subtitle}
+                </p>
               </div>
-            </li>
+            </div>
           ))}
-        </ol>
-        <div className="mt-4 flex items-start gap-2 rounded-2xl shadow-brand bg-white p-3">
-          <p className="text-sm font-rh-r text-sfx-muted p-1">
-            By submitting you confirm the document belongs to you and the
-            details on your profile match it. Review usually completes within
-            {" "}
-            <strong className="text-sfx-ink">24 hours.</strong>
-          </p>
+
+          <div className="rounded-3xl bg-white p-5 shadow-brand">
+            <p className="font-rh-r text-sm leading-relaxed text-sfx-muted">
+              By submitting these documents, you confirm that they belong to you
+              and that the information provided is accurate. Verification
+              typically completes within
+              {" "}
+              <strong className="text-sfx-ink">24 hours.</strong>
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <Button
+            disabled={!canSubmit}
+            onClick={() => navigate("/kyc/pending")}
+            className="
+              h-button-h
+              w-full
+              rounded-button
+              bg-sfx-primary
+              font-rh-sb
+              text-base
+              text-white
+              shadow-brand
+              hover:bg-sfx-ink/90
+            "
+          >
+            Submit for Review
+          </Button>
         </div>
       </div>
 
-      <div>
-        <Button
-          onClick={() => navigate("/KycType")}
-          className="
-              w-full
-              h-(--spacing-button-h)
-              rounded-button
-              bg-sfx-primary
-              text-white
-              hover:bg-sfx-ink/90
-              text-base
-              font-rh-sb
-              shadow-brand
-              "
+      {/* Preview Modal */}
+      {/* Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 sm:p-6"
+          onClick={() => setPreviewImage(null)} // Close when clicking backdrop
         >
-          Submit for review
-        </Button>
-      </div>
+          <div
+            className="relative flex max-h-[90vh] w-full max-w-4xl flex-col rounded-3xl bg-white p-4 sm:p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()} // Prevent closing when clicking content
+          >
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between border-b border-sfx-primary-tint/20 pb-3">
+              <h2 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
+                {previewTitle}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="rounded-full bg-sfx-primary-tint/30 p-2 text-sfx-ink transition-colors hover:bg-sfx-primary-tint/60"
+              >
+                <MdClose className="size-5" />
+              </button>
+            </div>
+
+            {/* Full Document View Container */}
+            <div className="relative flex flex-1 items-center justify-center overflow-auto rounded-2xl bg-[#13111C] p-2 sm:p-4">
+              {isPdf && previewTitle.includes("Passport")
+                ? (
+                    <iframe
+                      src={previewImage}
+                      title={previewTitle}
+                      className="h-full w-full"
+                    />
+                  )
+                : (
+                    <img
+                      src={previewImage}
+                      alt={previewTitle}
+                      className="max-h-[70vh] w-full"
+                    />
+                  )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

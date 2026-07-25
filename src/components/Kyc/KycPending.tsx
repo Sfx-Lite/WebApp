@@ -40,14 +40,13 @@ export default function KycPending() {
   return (
     <div className="flex h-dvh w-full flex-col overflow-y-auto bg-sfx-primary-tint">
       <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-between p-4 sm:p-6 lg:max-w-5xl lg:p-8">
-        <div className="my-auto grid flex-1 grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-          <div className="flex h-full flex-col justify-between items-center rounded-3xl border border-sfx-primary-tint/30 bg-white/70 p-6 shadow-sm sm:p-8">
+        <div className=" grid flex-1 grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12 items-center">
+          <div className="flex min-h-fit flex-col justify-between items-center rounded-3xl border border-sfx-primary-tint/30 bg-white/70 p-6 shadow-sm sm:p-8 lg:h-full">
             <div className="my-auto flex w-full flex-col items-center text-center">
               <div className="mb-6 flex size-20 items-center justify-center rounded-full bg-amber-100 ring-8 ring-amber-50/50">
                 <GoClock className="size-9 text-amber-600" />
               </div>
 
-              {/* Title & Subtitle */}
               <h1 className="mb-2 font-rh-sb text-xl text-sfx-ink sm:text-2xl">
                 Documents submitted
               </h1>
@@ -94,7 +93,6 @@ export default function KycPending() {
             </div>
           </div>
 
-          {/* COLUMN 2: Guidelines Sidebar */}
           <div className="hidden h-full flex-col justify-between rounded-3xl border border-sfx-primary-tint/30 bg-white/70 p-6 shadow-sm lg:flex lg:p-8">
             <div>
               <div className="mb-3 flex items-center gap-2">
