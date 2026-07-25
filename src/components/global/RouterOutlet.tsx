@@ -8,18 +8,18 @@ import Home from "../../pages/Home";
 import Rates from "../../pages/Rates";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
-import KycDocCapture from "../Home/Kyc/KycDocCapture";
+import KycDocCapture from "../Kyc/KycDocCapture";
 
-import KycIntro from "../Home/Kyc/KycIntro";
-import KycPending from "../Home/Kyc/KycPending";
-import KycReviewSubmit from "../Home/Kyc/KycReviewSubmit";
-import KycSelfieCapture from "../Home/Kyc/KycSelfieCapture";
-import KycType from "../Home/Kyc/KycType";
-import UserPassword from "../Home/UserPassword";
-
-import UserProfile from "../Home/UserProfile";
+import KycIntro from "../Kyc/KycIntro";
+import KycPending from "../Kyc/KycPending";
+import KycReviewSubmit from "../Kyc/KycReviewSubmit";
+import KycSelfieCapture from "../Kyc/KycSelfieCapture";
+import KycType from "../Kyc/KycType";
 import LoginFlow from "../Onboarding/LoginFlow";
+
 import AuthFlow from "../Onboarding/RegistrationFlow";
+import UserPassword from "../UserPassword";
+import UserProfile from "../UserProfile";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 
