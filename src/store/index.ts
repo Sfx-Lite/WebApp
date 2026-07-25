@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
-import topbarReducer from "./topbarSlice";
 import kycReducer from "./kycSlice";
+import topbarReducer from "./topbarSlice";
 
 export const store = configureStore({
   reducer: {
