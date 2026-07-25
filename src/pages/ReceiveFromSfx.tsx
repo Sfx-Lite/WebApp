@@ -26,7 +26,7 @@ export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSF
       setTimeout(setCopied, 1800, false);
     }
     catch {
-
+      console.warn("Failed to copy");
     }
   };
 
