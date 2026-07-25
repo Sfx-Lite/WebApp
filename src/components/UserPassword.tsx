@@ -10,7 +10,9 @@ import {
 } from "react-icons/md";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
+import { PWD_REGEX } from "@/utils/validation";
 
 type PasswordInputProps = {
   label: string;
@@ -45,7 +47,7 @@ function PasswordInput({
           placeholder={placeholder}
           className={`w-full rounded-xl border bg-white px-4 py-3 pr-12 font-rh-sb text-sfx-ink outline-none transition-colors focus:border-sfx-primary ${
             error ? "border-red-500" : "border-sfx-ink/20"
-          }`}
+          } ${disabled ? "cursor-not-allowed bg-gray-50 text-sfx-muted" : ""}`}
         />
         <button
           type="button"
@@ -69,19 +71,36 @@ function PasswordInput({
   );
 }
 
+const UPDATE_PWD_URL = "/users/update_password";
+
 export default function UserPassword() {
-  const [currentPassword, setCurrentPassword] = useState("YourCurrentPassword123!");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const canSubmit
+    = currentPassword.length > 0
+      && PWD_REGEX.test(newPassword)
+      && newPassword === confirmPassword;
 
   const requirements = [
-    { id: "req-length", label: "At least 8 characters long", test: (p: string) => p.length >= 8 },
+    {
+      id: "req-length",
+      label: "8-24 characters long",
+      test: (p: string) => p.length >= 8 && p.length <= 24,
+    },
     {
       id: "req-uppercase",
       label: "Contains at least 1 uppercase letter",
       test: (p: string) => /[A-Z]/.test(p),
+    },
+    {
+      id: "req-lowercase",
+      label: "Contains at least 1 lowercase letter",
+      test: (p: string) => /[a-z]/.test(p),
     },
     {
       id: "req-number",
@@ -90,8 +109,8 @@ export default function UserPassword() {
     },
     {
       id: "req-special",
-      label: "Contains at least 1 special character",
-      test: (p: string) => /[^A-Z0-9]/i.test(p),
+      label: "Contains at least 1 special character (!@#$%)",
+      test: (p: string) => /[!@#$%]/.test(p),
     },
   ];
 
@@ -109,32 +128,51 @@ export default function UserPassword() {
     return { text: "Strong", color: "bg-sfx-success" };
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
 
     if (!currentPassword) {
-      toast.error ("Please enter your current password.");
+      toast.error("Please enter your current password.");
       return;
     }
 
-    if (passedRequirements < requirements.length) {
+    if (!PWD_REGEX.test(newPassword)) {
       toast.error(
-        "Please ensure your new password meets all security requirements.",
+        "New password does not meet the security requirements.",
       );
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation do not match.");
+      toast.error("Passwords do not match!");
       return;
     }
 
-    toast.success(true);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      setLoading(true);
+
+      await api.patch(UPDATE_PWD_URL, {
+        oldPassword: currentPassword,
+        newPassword,
+      });
+
+      toast.success("Password updated successfully!");
+      setSuccess(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    catch (err: any) {
+      const apiMessage
+        = err.response?.data?.message
+          || "Failed to update password. Please try again.";
+      setError(apiMessage);
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   const strength = getStrengthLabel();
@@ -185,7 +223,7 @@ export default function UserPassword() {
                 </p>
 
                 {success && (
-                  <div className="mt-6 flex items-center gap-2 rounded-xl border border-sfx-success bg-sfx-success p-4 text-sm font-rh-sb text-sfx-success">
+                  <div className="mt-6 flex items-center gap-2 rounded-xl border border-sfx-success bg-white p-4 text-sm font-rh-sb text-sfx-ink">
                     <MdCheck className="size-5 text-sfx-success shrink-0" />
                     Your password has been updated successfully!
                   </div>
@@ -202,7 +240,8 @@ export default function UserPassword() {
                   <PasswordInput
                     label="Current Password"
                     value={currentPassword}
-                    disabled={true}
+                    onChange={setCurrentPassword}
+                    placeholder="Enter current password"
                   />
 
                   <hr className="border-sfx-ink/10" />
@@ -225,7 +264,7 @@ export default function UserPassword() {
                           <div
                             className={`h-full transition-all duration-300 ${strength.color}`}
                             style={{
-                              width: `${(passedRequirements / 4) * 100}%`,
+                              width: `${(passedRequirements / requirements.length) * 100}%`,
                             }}
                           />
                         </div>
@@ -285,10 +324,11 @@ export default function UserPassword() {
 
                 <Button
                   type="submit"
-                  className="mt-8 h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90  flex items-center justify-center gap-2"
+                  disabled={loading || !canSubmit}
+                  className="mt-8 h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 flex items-center justify-center gap-2"
                 >
                   <MdSave className="size-5" />
-                  Update Password
+                  {loading ? "Updating..." : "Change Password"}
                 </Button>
               </section>
             </form>

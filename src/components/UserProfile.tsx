@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdArrowBack, MdEdit, MdOutlinePerson, MdSave } from "react-icons/md";
 import { Link } from "react-router";
+import { toast } from "sonner";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 type InfoFieldProps = {
   label: string;
@@ -9,6 +12,29 @@ type InfoFieldProps = {
   disabled?: boolean;
 
 };
+
+type Address = {
+  street1: string;
+  street2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+};
+
+type UserProfileData = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  username: string;
+  mobileNumber: string;
+  email: string;
+  tier: string;
+  homeCountry: string;
+  address: Address;
+};
+
+const USER_PROFILE_URL = "/users/profile";
 
 function InfoField({ label, value, disabled }: InfoFieldProps) {
   return (
@@ -29,7 +55,7 @@ function InfoField({ label, value, disabled }: InfoFieldProps) {
       </div>
       {disabled && (
         <p className="mt-1 text-xs text-sfx-muted">
-          Username cannot be changed.
+          This field cannot be changed.
         </p>
       )}
     </div>
@@ -53,7 +79,7 @@ function EditableField({
       </label>
 
       <input
-        value={value}
+        value={value ?? ""}
         onChange={e => onChange(e.target.value)}
         className="w-full rounded-xl border border-sfx-ink/20 bg-sfx-primary-tint px-4 py-3 font-rh-sb text-sfx-ink outline-none focus:border-sfx-primary"
       />
@@ -62,58 +88,160 @@ function EditableField({
 }
 
 export default function UserProfile() {
-  const user = {
-    firstName: "John",
-    middleName: "Alexander",
-    lastName: "Doe",
-    username: "johndoe",
-    mobileNumber: "+234 801 234 5678",
-    accountTier: "Tier 2",
-    homeCountry: "Nigeria",
-
-    address: {
-      street1: "12 Admiralty Way",
-      street2: "Apartment 3B",
-      city: "Lekki",
-      state: "Lagos",
-      postalCode: "105102",
-      country: "Nigeria",
-    },
-  };
-
-  const [profile, setProfile] = useState(user);
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const updateField = (
-    field: keyof typeof profile,
-    value: string,
-  ) => {
-    setProfile(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        setIsLoading(true);
+
+        const res = await api.get(USER_PROFILE_URL);
+
+        const data = res.data.data;
+
+        setProfile({
+          firstName: data.firstName || "",
+          middleName: data.middleName || "",
+          lastName: data.lastName || "",
+          email: data.email || "",
+          username: data.username || "",
+          mobileNumber: data.mobileNumber || "",
+          tier: data.tier || "",
+          homeCountry: data.homeCountry || "",
+
+          address: {
+            street1: data.streetAddress1 || data.address?.street1 || "",
+            street2: data.streetAddress2 || data.address?.street2 || "",
+            city: data.city || data.address?.city || "",
+            state: data.state || data.address?.state || "",
+            postalCode: data.postalCode || data.address?.postalCode || "",
+            country: data.country || data.address?.country || "",
+          },
+        });
+      }
+      catch (err) {
+        const message
+          = err instanceof Error
+            ? err.message
+            : "Something went wrong";
+
+        setError(message);
+        toast.error(message);
+      }
+      finally {
+        setIsLoading(false);
+      }
+    };
+
+    getUserProfile();
+  }, []);
+
+  const updateField = (field: keyof UserProfileData, value: string) => {
+    if (!profile)
+      return;
+    setProfile(prev => (prev ? { ...prev, [field]: value } : prev));
   };
 
-  const updateAddressField = (
-    field: keyof typeof profile.address,
-    value: string,
-  ) => {
-    setProfile(prev => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [field]: value,
-      },
-    }));
+  const updateAddressField = (field: keyof Address, value: string) => {
+    if (!profile)
+      return;
+    setProfile(prev =>
+      prev
+        ? {
+            ...prev,
+            address: {
+              ...prev.address,
+              [field]: value,
+            },
+          }
+        : prev,
+    );
   };
 
-  const handleUpdate = () => {
-    if (isEditing) {
-      // console.log(profile);
+  const handleUpdate = async () => {
+    if (!isEditing) {
+      setIsEditing(true);
+      return;
     }
 
-    setIsEditing(prev => !prev);
+    if (!profile)
+      return;
+
+    try {
+      setIsSaving(true);
+
+      const payload = {
+        firstName: profile.firstName,
+        middleName: profile.middleName,
+        lastName: profile.lastName,
+        streetAddress1: profile.address.street1,
+        streetAddress2: profile.address.street2,
+        city: profile.address.city,
+        state: profile.address.state,
+        country: profile.address.country,
+      };
+
+      await api.patch(USER_PROFILE_URL, payload);
+
+      const updatedProfile = await api.get(USER_PROFILE_URL);
+
+      const data = updatedProfile.data.data;
+
+      setProfile({
+        firstName: data.firstName || "",
+        middleName: data.middleName || "",
+        lastName: data.lastName || "",
+        email: data.email || "",
+        username: data.username || "",
+        mobileNumber: data.mobileNumber || "",
+        tier: data.tier || "",
+        homeCountry: data.homeCountry || "",
+
+        address: {
+          street1: data.streetAddress1 || "",
+          street2: data.streetAddress2 || "",
+          city: data.city || "",
+          state: data.state || "",
+          postalCode: data.postalCode || "",
+          country: data.country || "",
+        },
+      });
+
+      setIsEditing(false);
+
+      toast.success("Profile updated successfully");
+    }
+    catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Update failed",
+      );
+    }
+    finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-dvh w-full items-center justify-center bg-sfx-primary-tint">
+        <p className="font-rh-sb text-sfx-ink"><Spinner /></p>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex min-h-dvh w-full items-center justify-center bg-sfx-primary-tint">
+        <p className="font-rh-sb text-red-500">{error || "User profile not found."}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
@@ -154,18 +282,25 @@ export default function UserProfile() {
               </p>
 
               <span className="mt-5 rounded-full bg-sfx-primary/10 px-4 py-2 text-sm font-rh-sb text-sfx-primary">
-                {profile.accountTier}
+                Account Tier:
+                {" "}
+                {profile.tier}
               </span>
 
               <Button
                 onClick={handleUpdate}
+                disabled={isSaving}
                 className="mt-8 hidden h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 lg:flex"
               >
                 {isEditing
                   ? <MdSave className="size-5" />
                   : <MdEdit className="size-5" />}
 
-                {isEditing ? "Save Changes" : "Edit"}
+                {isSaving
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save"
+                    : "Edit"}
               </Button>
             </div>
           </section>
@@ -211,7 +346,7 @@ export default function UserProfile() {
 
                         <InfoField
                           label="Account Tier"
-                          value={profile.accountTier}
+                          value={profile.tier}
                         />
                       </>
                     )
@@ -222,11 +357,21 @@ export default function UserProfile() {
                           value={`@${profile.username}`}
                           disabled
                         />
+                        <InfoField
+                          label="Mobile Number"
+                          value={profile.mobileNumber}
+                          disabled
+                        />
+                        <InfoField
+                          label="Email"
+                          value={profile.email}
+                          disabled
+                        />
                         <InfoField label="First Name" value={profile.firstName} />
                         <InfoField label="Middle Name" value={profile.middleName} />
                         <InfoField label="Last Name" value={profile.lastName} />
                         <InfoField label="Home Country" value={profile.homeCountry} />
-                        <InfoField label="Account Tier" value={profile.accountTier} />
+                        <InfoField label="Account Tier" value={profile.tier} />
                       </>
                     )}
               </div>
@@ -296,13 +441,18 @@ export default function UserProfile() {
 
               <Button
                 onClick={handleUpdate}
+                disabled={isSaving}
                 className="mt-8 h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 lg:hidden"
               >
                 {isEditing
                   ? <MdSave className="size-5" />
                   : <MdEdit className="size-5" />}
 
-                {isEditing ? "Save Changes" : "Edit"}
+                {isSaving
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save"
+                    : "Edit"}
               </Button>
             </section>
           </div>
