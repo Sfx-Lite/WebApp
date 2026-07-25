@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useNavigate } from "react-router";
 import { useGetUserProfileQuery } from "@/api/users";
-import QRCode from "@/components/global/QRCode";
+import QrCode from "@/components/global/QRCode";
 
 type ReceiveFromSFxProps = {
   domain?: string;
@@ -72,7 +72,7 @@ export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSF
 
           <div className="w-full p-(--spacing-card-pad) bg-sfx-card rounded-card space-y-5">
             <div className="w-full aspect-square max-w-[260px] mx-auto">
-              <QRCode />
+              <QrCode />
             </div>
 
             <div className="text-center space-y-1">

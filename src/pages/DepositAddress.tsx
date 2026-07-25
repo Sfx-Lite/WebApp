@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router";
 import { useGetWalletAddressQuery } from "@/api/wallet";
-import QRCode from "@/components/global/QRCode";
+import QrCode from "@/components/global/QRCode";
 
 type DepositAddressState = {
   assetSymbol?: string;
@@ -57,7 +57,7 @@ export default function DepositAddress() {
             <div className="w-full aspect-square max-w-[220px] mx-auto">
               {isLoading
                 ? <div className="w-full h-full rounded-[10px] bg-sfx-muted/20 animate-pulse" />
-                : <QRCode />}
+                : <QrCode />}
             </div>
 
             <div className="flex items-center justify-center gap-4 text-[14px]">

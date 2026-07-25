@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-export default function QRCode() {
+export default function QrCode() {
   const finders: Array<[number, number]> = [
     [10, 10],
     [150, 10],
