@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router";
 import { useGetWalletAddressQuery } from "@/api/wallet";
-import QrCode from "@/components/global/QRCode";
+import QrCode from "@/components/global/qrcode/QrCode";
 
 type DepositAddressState = {
   assetSymbol?: string;

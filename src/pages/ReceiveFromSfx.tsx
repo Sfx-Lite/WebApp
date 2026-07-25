@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useNavigate } from "react-router";
 import { useGetUserProfileQuery } from "@/api/users";
-import QrCode from "@/components/global/QRCode";
+import QrCode from "@/components/global/qrcode/QrCode";
 
 type ReceiveFromSFxProps = {
   domain?: string;
