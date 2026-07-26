@@ -3,7 +3,7 @@
 import { History, Home, Settings, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router";
-import { useUserStore } from "@/store/useUserStore";
+import { useAppSelector } from "@/hooks/reduxHooks";
 import logo from "../../assets/imgs/sfx-logo-purple.png";
 import LogOutBtn from "../global/LogOutBtn";
 
@@ -28,14 +28,16 @@ const NAV_ITEMS = [
 export default function Sidebar({ user }: SidebarProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const profile = useUserStore(s => s.profile);
-  const isLoading = useUserStore(s => s.isLoading);
+  const userProfile = useAppSelector(state => state.auth.user);
+  const isLoading = useAppSelector(state => state.auth.isInitialized);
 
-  const displayName = profile
-    ? `${profile.firstName} ${profile.lastName}`.trim()
+  const displayName = userProfile
+    ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
     : "User Name";
-  const username = profile?.username ? `@${profile.username}` : "";
 
+  const username = userProfile?.username
+    ? `@${userProfile.username}`
+    : "";
   useEffect(() => {
     if (!isProfileOpen)
       return;
