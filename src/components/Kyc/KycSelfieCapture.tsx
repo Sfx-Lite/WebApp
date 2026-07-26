@@ -6,7 +6,8 @@ import Webcam from "react-webcam";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch } from "@/hooks/reduxHooks";
-import { setSelfieImage } from "@/store/kycSlice";
+import { clearSelfie, setSelfieImage } from "@/store/kycSlice";
+import { base64ToFile } from "@/utils/base64ToFile";
 
 const Guide = ["Good lighting", "No hat or glasses", "Just you"];
 
@@ -107,8 +108,19 @@ export default function KycSelfieCapture() {
       const imageSrc = webcamRef.current.getScreenshot();
 
       if (imageSrc) {
+        const selfieFile = base64ToFile(
+          imageSrc,
+          "selfie.jpg",
+        );
+
         setCapturedImage(imageSrc);
-        dispatch(setSelfieImage(imageSrc));
+
+        dispatch(
+          setSelfieImage({
+            image: imageSrc,
+            file: selfieFile,
+          }),
+        );
       }
     }
     else {
@@ -118,6 +130,8 @@ export default function KycSelfieCapture() {
 
   const handleRetake = () => {
     setCapturedImage(null);
+
+    dispatch(clearSelfie());
   };
 
   return (

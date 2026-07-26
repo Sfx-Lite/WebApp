@@ -4,19 +4,20 @@ import AddMoney from "@/pages/AddMoney";
 import DepositAddress from "@/pages/DepositAddress";
 
 import DepositCrypto from "@/pages/DepositCrypto";
+import Notifications from "@/pages/Notifications";
 import ReceiveFromSFx from "@/pages/ReceiveFromSfx";
 import ChatLayout from "../../layouts/Chat/ChatLayout";
 import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
 import History from "../../pages/History";
-import Home from "../../pages/Home";
 
+import Home from "../../pages/Home";
 import Rates from "../../pages/Rates";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
 import KycDocCapture from "../Kyc/KycDocCapture";
 import KycIntro from "../Kyc/KycIntro";
-import KycPending from "../Kyc/KycPending";
 
+import KycPending from "../Kyc/KycPending";
 import KycReviewSubmit from "../Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Kyc/KycSelfieCapture";
 import KycType from "../Kyc/KycType";
@@ -44,6 +45,7 @@ export default function RouterOutlet() {
           <Route path="/rates" element={<Rates />} />
           <Route path="/history" element={<History />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/addmoney" element={<AddMoney />} />
           <Route path="/addmoney/sfxr" element={<ReceiveFromSFx />} />
           <Route path="/addmoney/depositcrypto" element={<DepositCrypto />} />

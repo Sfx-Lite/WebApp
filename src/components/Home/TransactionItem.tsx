@@ -49,11 +49,11 @@ export default function TransactionItem({ transaction }: Props) {
           <Icon className={`w-[25px] ${iconColor}`} />
         </div>
         <div className="flex flex-col">
-          <span className="inline-block font-rh-sb">
+          <span className="inline-block text-[15px] md:text-[16px] font-rh-sb">
             {title}
           </span>
           <span className="inline-flex items-center gap-0.5 text-sfx-muted">
-            <span className="text-[15px]">
+            <span className="text-[13px] md:text-[15px]">
               {formatTransactionTime(transaction.createdAt)}
             </span>
             <span>
@@ -66,7 +66,7 @@ export default function TransactionItem({ transaction }: Props) {
         </div>
       </div>
 
-      <p className={`text-[20px] font-rh-sb ${isCredit ? "text-sfx-success" : ""}`}>
+      <p className={`md:text-[20px] font-rh-sb ${isCredit ? "text-sfx-success" : ""}`}>
         {amountDisplay}
       </p>
     </li>

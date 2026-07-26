@@ -17,20 +17,33 @@ export type OcrData = {
 type KycState = {
   documentType: DocumentType;
   country: Country;
-  documentImage: string | null; // Blob URL or base64 string
-  selfieImage: string | null; // Blob URL or base64 string
+
+  // For displaying preview
+  documentImage: string | null;
+  selfieImage: string | null;
+
+  // For API upload to the backend
+  documentFile: File | null;
+  selfieFile: File | null;
+
   isPdf: boolean;
   ocrData: OcrData | null;
 };
 
 const initialState: KycState = {
   documentType: "passport",
+
   country: {
     alpha2Code: "NG",
     label: "Nigeria",
   },
+
   documentImage: null,
   selfieImage: null,
+
+  documentFile: null,
+  selfieFile: null,
+
   isPdf: false,
   ocrData: null,
 };
@@ -49,20 +62,40 @@ const kycSlice = createSlice({
 
     setDocumentData(
       state,
-      action: PayloadAction<{ image: string; isPdf?: boolean; ocrData?: OcrData | null }>,
+      action: PayloadAction<{ image: string; file: File; isPdf?: boolean; ocrData?: OcrData | null }>,
     ) {
       state.documentImage = action.payload.image;
+      state.documentFile = action.payload.file;
       state.isPdf = action.payload.isPdf ?? false;
       if (action.payload.ocrData !== undefined) {
         state.ocrData = action.payload.ocrData;
       }
     },
 
-    setSelfieImage(state, action: PayloadAction<string>) {
-      state.selfieImage = action.payload;
+    setSelfieImage(
+      state,
+      action: PayloadAction<{
+        image: string;
+        file: File;
+      }>,
+    ) {
+      state.selfieImage = action.payload.image;
+      state.selfieFile = action.payload.file;
     },
 
+    clearSelfie: (state) => {
+      state.selfieImage = null;
+      state.selfieFile = null;
+    },
+
+    clearDocument: (state) => {
+      state.documentImage = null;
+      state.documentFile = null;
+      state.isPdf = false;
+      state.ocrData = null;
+    },
     resetKyc: () => initialState,
+
   },
 });
 
@@ -71,6 +104,8 @@ export const {
   setCountry,
   setDocumentData,
   setSelfieImage,
+  clearSelfie,
+  clearDocument,
   resetKyc,
 } = kycSlice.actions;
 

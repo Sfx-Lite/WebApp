@@ -16,7 +16,7 @@ export default function WalletBalance() {
       : `$${Number(data?.balance).toFixed(2)}`;
 
   return (
-    <div className="w-1/2 p-card-pad rounded-card space-y-[.75rem] bg-sfx-card shadow-lg">
+    <div className="w-full md:w-1/2 p-card-pad rounded-card space-y-[.75rem] bg-sfx-card shadow-lg">
       <div className="flex items-center gap-2">
         <p className="text-[14px] text-sfx-muted">
           Main account balance

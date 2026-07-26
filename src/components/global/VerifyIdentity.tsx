@@ -12,7 +12,7 @@ export default function VerifyIdentity() {
           <MdOutlineShield className="size-7 text-sfx-primary sm:size-8" />
         </div>
       </div>
-      <div className="flex-1 flex items-center justify-between">
+      <div className="flex flex-1 gap-4 flex-col md:flex-row md:items-center justify-between">
         <div className="space-y-1">
           <h3 className="font-rh-b text-[16px] leading-[16px]">
             Verify your Identity
@@ -27,7 +27,7 @@ export default function VerifyIdentity() {
 
         <button
           onClick={() => navigate("/kyc")}
-          className="bg-sfx-primary py-3 px-8 rounded-full text-white hover:scale-95 transition-transform duration-300"
+          className="w-fit bg-sfx-primary py-3 px-8 rounded-full text-white hover:scale-95 transition-transform duration-300"
         >
           Start Verification
         </button>

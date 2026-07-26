@@ -26,7 +26,7 @@ export default function KycDocGuidelines({
 
         <p className="mb-6 font-rh-r text-sm leading-relaxed text-sfx-muted">
           Take a clear photo of your original document. Supported formats
-          include JPG, PNG, WEBP, and PDF (up to
+          include JPG, PNG, and PDF (up to
           {" "}
           {maxFileSize}
           {" "}

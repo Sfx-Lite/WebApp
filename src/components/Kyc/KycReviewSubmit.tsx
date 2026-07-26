@@ -2,9 +2,13 @@ import { useState } from "react";
 import { AiOutlineScan, AiOutlineUser } from "react-icons/ai";
 import { MdArrowBack, MdClose, MdPictureAsPdf } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
+import api from "@/api/axios";
 
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/reduxHooks";
+
+const KYC_SUBMISSION_URL = "/kyc/submission";
 
 export default function KycReviewSubmit() {
   const navigate = useNavigate();
@@ -12,11 +16,19 @@ export default function KycReviewSubmit() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
 
-  const { documentType, documentImage, selfieImage, isPdf } = useAppSelector(
-    state => state.kyc,
-  );
+  const {
+    documentType,
+    documentImage,
+    documentFile,
+    selfieImage,
+    selfieFile,
+    isPdf,
+  } = useAppSelector(state => state.kyc);
 
-  const canSubmit = documentImage && selfieImage;
+  const canSubmit
+    = !!documentType
+      && !!documentFile
+      && !!selfieFile;
 
   const cards = [
     {
@@ -42,14 +54,37 @@ export default function KycReviewSubmit() {
     },
   ];
 
+  const handleSubmit = async () => {
+    if (!documentFile || !selfieFile) {
+      toast.error("Please upload all required documents.");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("docType", documentType);
+    formData.append("doc", documentFile);
+    formData.append("selfie", selfieFile);
+
+    try {
+      await api.post(KYC_SUBMISSION_URL, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("KYC submitted successfully.");
+
+      navigate("/kyc/pending");
+    }
+    catch (error) {
+      console.error(error);
+      toast.error("Failed to submit KYC.");
+    }
+  };
+
   const handleView = (image: string | null, title: string) => {
     if (!image) {
-      // console.log("KYC STATE", {
-      //   documentType,
-      //   documentImage,
-      //   selfieImage,
-      //   isPdf,
-      // });
       return;
     }
 
@@ -195,7 +230,7 @@ export default function KycReviewSubmit() {
         <div className="mt-8">
           <Button
             disabled={!canSubmit}
-            onClick={() => navigate("/kyc/pending")}
+            onClick={handleSubmit}
             className="
               h-button-h
               w-full
