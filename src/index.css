@@ -98,3 +98,15 @@ body {
 button {
   cursor: pointer;
 }
+
+.user__gradient {
+  background: linear-gradient(135deg, #8b6cff, #5b3fd4);
+}
+
+.button__hover {
+  transition: transform 0.3s ease-in-out;
+}
+
+.button__hover:hover {
+  transform: scale(0.95);
+}
