@@ -5,12 +5,12 @@ import { toast } from "sonner";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useUserStore } from "@/store/useUserStore";
 
 type InfoFieldProps = {
   label: string;
   value: string;
   disabled?: boolean;
-
 };
 
 type Address = {
@@ -43,15 +43,14 @@ function InfoField({ label, value, disabled }: InfoFieldProps) {
         {label}
       </label>
 
-      <div className={`rounded-xl border px-4 py-3 font-rh-sb text-sfx-ink ${
-        disabled
-          ? "border-sfx-ink/10 bg-sfx-primary-tint/10"
-          : "border-sfx-ink/20 bg-sfx-primary-tint/20"
-      }`}
+      <div
+        className={`rounded-xl border px-4 py-3 font-rh-sb text-sfx-ink ${
+          disabled
+            ? "border-sfx-ink/10 bg-sfx-primary-tint/10"
+            : "border-sfx-ink/20 bg-sfx-primary-tint/20"
+        }`}
       >
-        <span className="font-rh-sb text-sfx-ink">
-          {value || "—"}
-        </span>
+        <span className="font-rh-sb text-sfx-ink">{value || "—"}</span>
       </div>
       {disabled && (
         <p className="mt-1 text-xs text-sfx-muted">
@@ -67,11 +66,8 @@ type EditableFieldProps = {
   value: string;
   onChange: (value: string) => void;
 };
-function EditableField({
-  label,
-  value,
-  onChange,
-}: EditableFieldProps) {
+
+function EditableField({ label, value, onChange }: EditableFieldProps) {
   return (
     <div>
       <label className="mb-2 block font-rh-sb text-sm text-sfx-muted">
@@ -88,68 +84,31 @@ function EditableField({
 }
 
 export default function UserProfile() {
-  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const { profile, isLoading, error, fetchProfile, setProfile } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<UserProfileData | null>(null);
 
+  //  Fetch profile on mount
   useEffect(() => {
-    const getUserProfile = async () => {
-      try {
-        setIsLoading(true);
+    fetchProfile();
+  }, [fetchProfile]);
 
-        const res = await api.get(USER_PROFILE_URL);
+  //  Tis will sync draft state when store profile changes
+  useEffect(() => {
+    if (profile) {
+      // eslint-disable-next-line react/set-state-in-effect
+      setDraft(profile);
+    }
+  }, [profile]);
 
-        const data = res.data.data;
-
-        setProfile({
-          firstName: data.firstName || "",
-          middleName: data.middleName || "",
-          lastName: data.lastName || "",
-          email: data.email || "",
-          username: data.username || "",
-          mobileNumber: data.mobileNumber || "",
-          tier: data.tier || "",
-          homeCountry: data.homeCountry || "",
-
-          address: {
-            street1: data.streetAddress1 || data.address?.street1 || "",
-            street2: data.streetAddress2 || data.address?.street2 || "",
-            city: data.city || data.address?.city || "",
-            state: data.state || data.address?.state || "",
-            postalCode: data.postalCode || data.address?.postalCode || "",
-            country: data.country || data.address?.country || "",
-          },
-        });
-      }
-      catch (err) {
-        const message
-          = err instanceof Error
-            ? err.message
-            : "Something went wrong";
-
-        setError(message);
-        toast.error(message);
-      }
-      finally {
-        setIsLoading(false);
-      }
-    };
-
-    getUserProfile();
-  }, []);
-
+  // Update draft form state
   const updateField = (field: keyof UserProfileData, value: string) => {
-    if (!profile)
-      return;
-    setProfile(prev => (prev ? { ...prev, [field]: value } : prev));
+    setDraft(prev => (prev ? { ...prev, [field]: value } : prev));
   };
 
   const updateAddressField = (field: keyof Address, value: string) => {
-    if (!profile)
-      return;
-    setProfile(prev =>
+    setDraft(prev =>
       prev
         ? {
             ...prev,
@@ -168,84 +127,70 @@ export default function UserProfile() {
       return;
     }
 
-    if (!profile)
+    if (!draft)
       return;
 
     try {
       setIsSaving(true);
 
       const payload = {
-        firstName: profile.firstName,
-        middleName: profile.middleName,
-        lastName: profile.lastName,
-        streetAddress1: profile.address.street1,
-        streetAddress2: profile.address.street2,
-        city: profile.address.city,
-        state: profile.address.state,
-        country: profile.address.country,
+        mobileNumber: draft.mobileNumber,
+        firstName: draft.firstName,
+        middleName: draft.middleName,
+        lastName: draft.lastName,
+        streetAddress1: draft.address.street1,
+        streetAddress2: draft.address.street2,
+        city: draft.address.city,
+        state: draft.address.state,
+        country: draft.address.country,
       };
 
       await api.patch(USER_PROFILE_URL, payload);
 
-      const updatedProfile = await api.get(USER_PROFILE_URL);
-
-      const data = updatedProfile.data.data;
-
-      setProfile({
-        firstName: data.firstName || "",
-        middleName: data.middleName || "",
-        lastName: data.lastName || "",
-        email: data.email || "",
-        username: data.username || "",
-        mobileNumber: data.mobileNumber || "",
-        tier: data.tier || "",
-        homeCountry: data.homeCountry || "",
-
-        address: {
-          street1: data.streetAddress1 || "",
-          street2: data.streetAddress2 || "",
-          city: data.city || "",
-          state: data.state || "",
-          postalCode: data.postalCode || "",
-          country: data.country || "",
-        },
-      });
-
+      // Save updated draft to Zustand global store
+      setProfile(draft);
       setIsEditing(false);
-
       toast.success("Profile updated successfully");
     }
-    catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Update failed",
-      );
+    catch (err: any) {
+      const errorMessage
+        = err.response?.data?.message || err.message || "Failed to update profile";
+      toast.error(errorMessage);
     }
     finally {
       setIsSaving(false);
     }
   };
 
+  // Cancel edit mode and reset draft back to current store state
+  const handleCancel = () => {
+    setDraft(profile);
+    setIsEditing(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-dvh w-full items-center justify-center bg-sfx-primary-tint">
-        <p className="font-rh-sb text-sfx-ink"><Spinner /></p>
+        <p className="font-rh-sb text-sfx-ink">
+          <Spinner />
+        </p>
       </div>
     );
   }
 
-  if (error || !profile) {
+  if (error || !profile || !draft) {
     return (
       <div className="flex min-h-dvh w-full items-center justify-center bg-sfx-primary-tint">
-        <p className="font-rh-sb text-red-500">{error || "User profile not found."}</p>
+        <p className="font-rh-sb text-red-500">
+          {error || "User profile not found."}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl lg:max-w-5xl flex-1 flex-col p-4 sm:p-6 lg:p-8">
+    <div className="flex min-h-dvh w-full flex-col overflow-y-auto bg-sfx-primary-tint">
+      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col p-4 sm:p-6 lg:max-w-5xl lg:p-8">
         <header className="mb-8 flex items-center gap-2">
           <Link
             to="/settings"
@@ -260,7 +205,7 @@ export default function UserProfile() {
         </header>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-          <section className="rounded-2xl border border-sfx-ink/20 bg-white p-6 shadow-brand h-fit">
+          <section className="h-fit rounded-2xl border border-sfx-ink/20 bg-white p-6 shadow-brand">
             <div className="flex flex-col items-center text-center">
               <div className="flex size-20 items-center justify-center rounded-full bg-sfx-primary/10">
                 <MdOutlinePerson className="size-10 text-sfx-primary" />
@@ -287,21 +232,33 @@ export default function UserProfile() {
                 {profile.tier}
               </span>
 
-              <Button
-                onClick={handleUpdate}
-                disabled={isSaving}
-                className="mt-8 hidden h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 lg:flex"
-              >
-                {isEditing
-                  ? <MdSave className="size-5" />
-                  : <MdEdit className="size-5" />}
+              <div className="mt-8 hidden w-full flex-col gap-2 lg:flex">
+                <Button
+                  onClick={handleUpdate}
+                  disabled={isSaving}
+                  className="h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90"
+                >
+                  {isEditing
+                    ? (
+                        <MdSave className="size-5" />
+                      )
+                    : (
+                        <MdEdit className="size-5" />
+                      )}
+                  {isSaving ? "Saving..." : isEditing ? "Save" : "Edit"}
+                </Button>
 
-                {isSaving
-                  ? "Saving..."
-                  : isEditing
-                    ? "Save"
-                    : "Edit"}
-              </Button>
+                {isEditing && (
+                  <Button
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                    variant="outline"
+                    className="h-button-h w-full rounded-button font-rh-sb"
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </div>
           </section>
 
@@ -319,35 +276,37 @@ export default function UserProfile() {
                 {isEditing
                   ? (
                       <>
+                        <EditableField
+                          label="Mobile Number"
+                          value={draft.mobileNumber}
+                          onChange={value => updateField("mobileNumber", value)}
+                        />
 
                         <EditableField
                           label="First Name"
-                          value={profile.firstName}
+                          value={draft.firstName}
                           onChange={value => updateField("firstName", value)}
                         />
 
                         <EditableField
                           label="Middle Name"
-                          value={profile.middleName}
+                          value={draft.middleName}
                           onChange={value => updateField("middleName", value)}
                         />
 
                         <EditableField
                           label="Last Name"
-                          value={profile.lastName}
+                          value={draft.lastName}
                           onChange={value => updateField("lastName", value)}
                         />
 
                         <EditableField
                           label="Home Country"
-                          value={profile.homeCountry}
+                          value={draft.homeCountry}
                           onChange={value => updateField("homeCountry", value)}
                         />
 
-                        <InfoField
-                          label="Account Tier"
-                          value={profile.tier}
-                        />
+                        <InfoField label="Account Tier" value={draft.tier} />
                       </>
                     )
                   : (
@@ -360,7 +319,6 @@ export default function UserProfile() {
                         <InfoField
                           label="Mobile Number"
                           value={profile.mobileNumber}
-                          disabled
                         />
                         <InfoField
                           label="Email"
@@ -370,7 +328,10 @@ export default function UserProfile() {
                         <InfoField label="First Name" value={profile.firstName} />
                         <InfoField label="Middle Name" value={profile.middleName} />
                         <InfoField label="Last Name" value={profile.lastName} />
-                        <InfoField label="Home Country" value={profile.homeCountry} />
+                        <InfoField
+                          label="Home Country"
+                          value={profile.homeCountry}
+                        />
                         <InfoField label="Account Tier" value={profile.tier} />
                       </>
                     )}
@@ -392,68 +353,95 @@ export default function UserProfile() {
                       <>
                         <EditableField
                           label="Street Address"
-                          value={profile.address.street1}
+                          value={draft.address.street1}
                           onChange={value => updateAddressField("street1", value)}
                         />
 
                         <EditableField
                           label="Street Address 2 (Optional)"
-                          value={profile.address.street2}
+                          value={draft.address.street2}
                           onChange={value => updateAddressField("street2", value)}
                         />
 
                         <EditableField
                           label="City"
-                          value={profile.address.city}
+                          value={draft.address.city}
                           onChange={value => updateAddressField("city", value)}
                         />
 
                         <EditableField
                           label="State / Province"
-                          value={profile.address.state}
+                          value={draft.address.state}
                           onChange={value => updateAddressField("state", value)}
                         />
 
                         <EditableField
                           label="Postal Code"
-                          value={profile.address.postalCode}
+                          value={draft.address.postalCode}
                           onChange={value => updateAddressField("postalCode", value)}
                         />
 
                         <EditableField
                           label="Country"
-                          value={profile.address.country}
+                          value={draft.address.country}
                           onChange={value => updateAddressField("country", value)}
                         />
                       </>
                     )
                   : (
                       <>
-                        <InfoField label="Street Address" value={profile.address.street1} />
-                        <InfoField label="Street Address 2 (Optional)" value={profile.address.street2} />
+                        <InfoField
+                          label="Street Address"
+                          value={profile.address.street1}
+                        />
+                        <InfoField
+                          label="Street Address 2 (Optional)"
+                          value={profile.address.street2}
+                        />
                         <InfoField label="City" value={profile.address.city} />
-                        <InfoField label="State / Province" value={profile.address.state} />
-                        <InfoField label="Postal Code" value={profile.address.postalCode} />
-                        <InfoField label="Country" value={profile.address.country} />
+                        <InfoField
+                          label="State / Province"
+                          value={profile.address.state}
+                        />
+                        <InfoField
+                          label="Postal Code"
+                          value={profile.address.postalCode}
+                        />
+                        <InfoField
+                          label="Country"
+                          value={profile.address.country}
+                        />
                       </>
                     )}
               </div>
 
-              <Button
-                onClick={handleUpdate}
-                disabled={isSaving}
-                className="mt-8 h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 lg:hidden"
-              >
-                {isEditing
-                  ? <MdSave className="size-5" />
-                  : <MdEdit className="size-5" />}
+              <div className="mt-8 flex flex-col gap-2 lg:hidden">
+                <Button
+                  onClick={handleUpdate}
+                  disabled={isSaving}
+                  className="h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90"
+                >
+                  {isEditing
+                    ? (
+                        <MdSave className="size-5" />
+                      )
+                    : (
+                        <MdEdit className="size-5" />
+                      )}
+                  {isSaving ? "Saving..." : isEditing ? "Save" : "Edit"}
+                </Button>
 
-                {isSaving
-                  ? "Saving..."
-                  : isEditing
-                    ? "Save"
-                    : "Edit"}
-              </Button>
+                {isEditing && (
+                  <Button
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                    variant="outline"
+                    className="h-button-h w-full rounded-button font-rh-sb"
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </section>
           </div>
         </div>
