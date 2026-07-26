@@ -17,6 +17,7 @@ import { loginSchema } from "../../lib/schemas/schema";
 import { credentialsSet } from "../../store/authSlice";
 import FormInput from "../Form/FormInput";
 import GoogleAuth from "./GoogleAuth";
+import { trackEvent } from "@/utils/trackEvent";
 
 const LOGIN_URL = "/auth/login";
 
@@ -48,10 +49,12 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
 
       if (accessToken && refreshToken && user) {
         dispatch(credentialsSet({ accessToken, refreshToken, user }));
+        trackEvent("login_succeeded");
         toast.success("Logged in successfully!");
         onSuccess(Boolean(isPin));
       }
       else {
+        trackEvent("login_failed", { reason: "missing_session_data" });
         toast.error("Authentication data not found in server response.");
       }
     }
@@ -59,7 +62,8 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
       const message = axios.isAxiosError<{ message: string }>(error)
         ? error.response?.data?.message
         : "Something went wrong with login.";
-
+      
+      trackEvent("login_failed", { reason: message ?? "unknown_error" });
       toast.error(message ?? "Login failed");
     }
     finally {

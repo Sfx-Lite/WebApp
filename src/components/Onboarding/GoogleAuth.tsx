@@ -70,6 +70,9 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
                 if (isNewUser) {
                   trackEvent("signup_completed", { method: "google" });
                 }
+                else {
+                  trackEvent("login_succeeded");
+                }
                 toast.success("Logged in successfully!");
                 onSuccessRef.current(Boolean(isPin));
               }
