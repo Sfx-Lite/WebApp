@@ -10,9 +10,11 @@ const instance = axios.create({
 instance.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   const { store } = await import("../store");
   const token = store.getState().auth.token;
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
