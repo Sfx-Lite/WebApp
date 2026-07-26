@@ -64,7 +64,7 @@ export default function KycIntro() {
   };
 
   return (
-    <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
+    <div className="flex min-h-[calc(100dvh-4rem)] w-full flex-col bg-sfx-primary-tint overflow-y-auto">
       <div className="mx-auto flex w-full max-w-4xl lg:max-w-5xl flex-1 flex-col justify-between p-4 sm:p-6 lg:p-8">
         <header className="py-2 mb-4">
           <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function KycIntro() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 flex-1 items-start">
-          <div className="flex flex-col justify-between h-full">
+          <div className="flex flex-col h-full">
             <div>
               <div className="flex size-14 items-center justify-center rounded-2xl bg-sfx-primary/5 sm:size-16">
                 <MdOutlineShield className="size-7 text-sfx-primary sm:size-8" />
@@ -118,10 +118,10 @@ export default function KycIntro() {
               </ol>
             </div>
 
-            <div className="pt-6 pb-2 mt-auto">
+            <div className="mt-[35px]">
               <Button
                 onClick={() => navigate("/kyc/type")}
-                className="h-button-h rounded-button w-full bg-sfx-primary text-base font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90"
+                className="h-button-h rounded-button w-full bg-sfx-primary text-base font-rh-sb text-white shadow-brand button__hover"
               >
                 Get started
               </Button>

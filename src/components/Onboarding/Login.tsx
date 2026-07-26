@@ -90,7 +90,7 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
               <FormInput
                 label="Email or Username"
                 type="text"
-                placeholder="Sample@gmail.com"
+                placeholder="sample@gmail.com"
                 {...register("identifier")}
                 error={errors.identifier?.message}
               />
