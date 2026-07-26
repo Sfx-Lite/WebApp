@@ -9,8 +9,10 @@ import {
   MdOutlineWarningAmber,
 } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
-import { useUserStore } from "@/store/useUserStore";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { logout } from "@/store/authSlice";
 
 type SettingItemProps = {
   icon: React.ReactNode;
@@ -24,6 +26,27 @@ type SettingItemProps = {
   rightElement?: React.ReactNode;
   to?: string;
   onClick?: () => void;
+};
+
+type Address = {
+  street1: string;
+  street2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+};
+
+type UserProfileData = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  username: string;
+  mobileNumber: string;
+  email: string;
+  tier: string;
+  homeCountry: string;
+  address: Address;
 };
 
 function SettingItem({
@@ -79,22 +102,34 @@ function SettingItem({
   return content;
 }
 
+const USER_PROFILE_URL = "/users/profile";
+
 export default function Settings() {
   const navigate = useNavigate();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const profile = useUserStore(state => state.profile);
-  const fetchProfile = useUserStore(state => state.fetchProfile);
-  const clearUser = useUserStore(state => state.clearUser);
-  const isLoading = useUserStore(state => state.isLoading);
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!profile) {
-      fetchProfile();
-    }
-  });
+    const loadProfile = async () => {
+      try {
+        const res = await api.get(USER_PROFILE_URL);
+        setProfile(res.data.data);
+      }
+      catch {
+        setProfile(null);
+      }
+      finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleLogout = () => {
-    clearUser();
+    dispatch(logout());
     navigate("/login");
   };
 
