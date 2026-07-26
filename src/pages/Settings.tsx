@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MdChevronRight,
   MdOutlineChat,
@@ -10,6 +10,7 @@ import {
 } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/store/useUserStore";
 
 type SettingItemProps = {
   icon: React.ReactNode;
@@ -81,25 +82,41 @@ function SettingItem({
 export default function Settings() {
   const navigate = useNavigate();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const profile = useUserStore(state => state.profile);
+  const fetchProfile = useUserStore(state => state.fetchProfile);
+  const clearUser = useUserStore(state => state.clearUser);
+  const isLoading = useUserStore(state => state.isLoading);
+
+  useEffect(() => {
+    if (!profile) {
+      fetchProfile();
+    }
+  });
 
   const handleLogout = () => {
+    clearUser();
     navigate("/login");
   };
 
+  const fullName = profile
+    ? [profile.firstName, profile.lastName].filter(Boolean).join(" ")
+    : "";
+
+  const initial = profile?.firstName ? profile.firstName.charAt(0).toUpperCase() : "U";
   return (
     <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between p-4 sm:p-6">
         <div className="space-y-6">
           <div className="flex items-center gap-3 px-1 py-2">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-sfx-primary text-lg font-rh-b text-white shadow-sm">
-              A
+              {isLoading ? "..." : initial}
             </div>
             <div>
               <h1 className="font-rh-b text-lg leading-snug text-sfx-ink">
-                Amara Okafor
+                {isLoading ? "Loading..." : fullName || "Guest User"}
               </h1>
               <p className="font-rh-r text-xs text-sfx-muted">
-                @amara &middot; Joined Jul 2026
+                {profile?.username ? `@${profile.username}` : profile?.email || ""}
               </p>
             </div>
           </div>

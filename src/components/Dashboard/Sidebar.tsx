@@ -3,6 +3,7 @@
 import { History, Home, Settings, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router";
+import { useUserStore } from "@/store/useUserStore";
 import logo from "../../assets/imgs/sfx-logo-purple.png";
 import LogOutBtn from "../global/LogOutBtn";
 
@@ -27,6 +28,13 @@ const NAV_ITEMS = [
 export default function Sidebar({ user }: SidebarProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const profile = useUserStore(s => s.profile);
+  const isLoading = useUserStore(s => s.isLoading);
+
+  const displayName = profile
+    ? `${profile.firstName} ${profile.lastName}`.trim()
+    : "User Name";
+  const username = profile?.username ? `@${profile.username}` : "";
 
   useEffect(() => {
     if (!isProfileOpen)
@@ -66,18 +74,20 @@ export default function Sidebar({ user }: SidebarProps) {
                 >
                   <img
                     src={user?.photoURL ?? "/sneaks.jpg"}
-                    alt={user?.displayName ?? "User avatar"}
+                    alt={displayName}
                     className="h-full w-full rounded-[inherit] object-cover"
                   />
                 </button>
 
                 <div className="flex flex-col gap-1 leading-4">
-                  <span className="inline-block font-rh-b text-[15px]">
-                    Finney Charles
+                  <span className="font-rh-b inline-block text-[15px]">
+                    {isLoading ? "Loading..." : displayName}
                   </span>
-                  <span className="inline-block text-sfx-muted font-rh-m text-[14px]">
-                    @blandirony
-                  </span>
+                  {username && (
+                    <span className="font-rh-m inline-block text-[14px] text-sfx-muted">
+                      {username}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
