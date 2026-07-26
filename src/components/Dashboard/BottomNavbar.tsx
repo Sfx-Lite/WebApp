@@ -11,7 +11,7 @@ const navItems = [
 
 export default function BottomNavbar() {
   return (
-    <nav className="flex w-full absolute bottom-0 bg-sfx-card px-2 pt-2.5 pb-4 mt-auto">
+    <nav className="w-full flex bg-sfx-card p-2">
       {navItems.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
