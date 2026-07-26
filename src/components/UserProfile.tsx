@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useUserStore } from "@/store/useUserStore";
 
 type InfoFieldProps = {
   label: string;
@@ -84,23 +83,56 @@ function EditableField({ label, value, onChange }: EditableFieldProps) {
 }
 
 export default function UserProfile() {
-  const { profile, isLoading, error, fetchProfile, setProfile } = useUserStore();
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [draft, setDraft] = useState<UserProfileData | null>(null);
 
   //  Fetch profile on mount
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
 
-  //  Tis will sync draft state when store profile changes
-  useEffect(() => {
-    if (profile) {
-      // eslint-disable-next-line react/set-state-in-effect
-      setDraft(profile);
-    }
-  }, [profile]);
+        const res = await api.get(USER_PROFILE_URL);
+        const data = res.data.data;
+
+        const profileData: UserProfileData = {
+          firstName: data.firstName || "",
+          middleName: data.middleName || "",
+          lastName: data.lastName || "",
+          email: data.email || "",
+          username: data.username || "",
+          mobileNumber: data.mobileNumber || "",
+          tier: data.tier || "",
+          homeCountry: data.homeCountry || "",
+          address: {
+            street1: data.streetAddress1 || "",
+            street2: data.streetAddress2 || "",
+            city: data.city || "",
+            state: data.state || "",
+            postalCode: data.postalCode || "",
+            country: data.country || "",
+          },
+        };
+
+        setProfile(profileData);
+        setDraft(profileData);
+      }
+      catch (err: any) {
+        setError(
+          err.response?.data?.message || "Failed to load profile",
+        );
+      }
+      finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   // Update draft form state
   const updateField = (field: keyof UserProfileData, value: string) => {
@@ -147,7 +179,6 @@ export default function UserProfile() {
 
       await api.patch(USER_PROFILE_URL, payload);
 
-      // Save updated draft to Zustand global store
       setProfile(draft);
       setIsEditing(false);
       toast.success("Profile updated successfully");
