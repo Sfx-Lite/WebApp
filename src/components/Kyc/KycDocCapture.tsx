@@ -19,6 +19,7 @@ import {
   setDocumentData,
 } from "@/store/kycSlice";
 import { base64ToFile } from "@/utils/base64ToFile";
+import { trackEvent } from "@/utils/trackEvent";
 
 const Guide = [
   "All four corners",
@@ -284,6 +285,8 @@ export default function KycDocCapture() {
           ocrData: ocrResult,
         }),
       );
+
+      trackEvent("kyc_document_uploaded", { doc_type: documentType });
     };
 
   const handleCapture
