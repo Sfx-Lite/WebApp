@@ -15,35 +15,36 @@ const STATUS_LABEL: Record<Transaction["status"], string> = {
   failed: "Failed",
 };
 
-const ICON_CONFIG: Record<Transaction["type"], { icon: LucideIcon; iconBg: string; iconColor: string }> = {
-  deposit: { icon: ArrowDownLeft, iconBg: "bg-sfx-success-bg", iconColor: "text-sfx-success" },
-  send: { icon: ArrowUpRight, iconBg: "bg-sfx-primary-tint", iconColor: "text-sfx-primary" },
-  withdrawal: { icon: ArrowUpRight, iconBg: "bg-sfx-amber-bg", iconColor: "text-sfx-amber" },
+const ICON_CONFIG: Record<"credit" | "debit", { icon: LucideIcon; iconBg: string; iconColor: string }> = {
+  credit: { icon: ArrowDownLeft, iconBg: "bg-sfx-success-bg", iconColor: "text-sfx-success" },
+  debit: { icon: ArrowUpRight, iconBg: "bg-sfx-primary-tint", iconColor: "text-sfx-primary" },
 };
 
 function getTitle(transaction: Transaction): string {
-  switch (transaction.type) {
-    case "deposit":
-      return `Deposit · ${transaction.asset}`;
-    case "send":
-      return transaction.counterpartyName;
-    case "withdrawal":
-      return `Withdrawal · ${truncateAddress(transaction.address)}`;
-  }
+  if (transaction.counterpartyUsername)
+    return transaction.counterpartyUsername;
+  const typeFormatted = (transaction.type || "Unknown").split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  if (transaction.externalAddress)
+    return `${typeFormatted} · ${truncateAddress(transaction.externalAddress)}`;
+  return `${typeFormatted} · ${transaction.asset}`;
 }
 
 type Props = {
   transaction: Transaction;
+  onClick?: () => void;
 };
 
-export default function TransactionItem({ transaction }: Props) {
-  const { icon: Icon, iconBg, iconColor } = ICON_CONFIG[transaction.type];
+export default function TransactionItem({ transaction, onClick }: Props) {
+  const { icon: Icon, iconBg, iconColor } = ICON_CONFIG[transaction.direction];
   const title = getTitle(transaction);
-  const isCredit = transaction.type === "deposit";
+  const isCredit = transaction.direction === "credit";
   const amountDisplay = `${isCredit ? "+" : "-"}$${Number(transaction.amount).toFixed(2)}`;
 
   return (
-    <li className="flex items-center justify-between p-card-pad rounded-card bg-sfx-card">
+    <li
+      onClick={onClick}
+      className="flex items-center justify-between p-card-pad rounded-card bg-sfx-card cursor-pointer hover:bg-sfx-muted/5 transition-colors"
+    >
       <div className="flex items-center gap-3">
         <div className={`size-[45px] flex items-center justify-center p-[5px] rounded-[10px] ${iconBg}`}>
           <Icon className={`w-[25px] ${iconColor}`} />

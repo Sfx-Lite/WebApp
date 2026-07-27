@@ -73,7 +73,7 @@ export default function KycReviewSubmit() {
           "Content-Type": "multipart/form-data",
         },
       });
-      
+
       trackEvent("kyc_submitted");
       toast.success("KYC submitted successfully.");
 

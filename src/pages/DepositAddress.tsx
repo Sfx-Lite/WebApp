@@ -1,11 +1,10 @@
 import { Check, Copy } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router";
 import { useGetWalletAddressQuery } from "@/api/wallet";
 import QrCode from "@/components/global/qrcode/QrCode";
 import { trackEvent } from "@/utils/trackEvent";
-import { useEffect } from "react";
 
 type DepositAddressState = {
   assetSymbol?: string;

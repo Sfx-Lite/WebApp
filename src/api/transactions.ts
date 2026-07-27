@@ -31,6 +31,7 @@ export const transactions = createApi({
     }),
     getTransactionById: builder.query<Transaction, string>({
       query: id => ({ url: `/transactions/${id}`, method: "GET" }),
+      transformResponse: (response: { data: Transaction }) => response.data,
       providesTags: (_result, _error, id) => [{ type: "Transaction", id }],
     }),
   }),
