@@ -6,18 +6,18 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import { trackEvent } from "@/utils/trackEvent";
 import api from "../../api/axios";
 import appstoreIcon from "../../assets/icons/appstore.png";
 import playstoreIcon from "../../assets/icons/google-play.png";
 import sfxbarcode from "../../assets/imgs/sfx-barcode.svg";
-import heroImage from "../../assets/imgs/sfx-hero.webp";
 
+import heroImage from "../../assets/imgs/sfx-hero.webp";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { loginSchema } from "../../lib/schemas/schema";
 import { credentialsSet } from "../../store/authSlice";
 import FormInput from "../Form/FormInput";
 import GoogleAuth from "./GoogleAuth";
-import { trackEvent } from "@/utils/trackEvent";
 
 const LOGIN_URL = "/auth/login";
 
@@ -62,7 +62,7 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
       const message = axios.isAxiosError<{ message: string }>(error)
         ? error.response?.data?.message
         : "Something went wrong with login.";
-      
+
       trackEvent("login_failed", { reason: message ?? "unknown_error" });
       toast.error(message ?? "Login failed");
     }

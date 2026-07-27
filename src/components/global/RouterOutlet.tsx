@@ -20,6 +20,7 @@ import KycIntro from "../Kyc/KycIntro";
 import KycPending from "../Kyc/KycPending";
 import KycReviewSubmit from "../Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Kyc/KycSelfieCapture";
+import KycStatus from "../Kyc/KycStatus";
 import KycType from "../Kyc/KycType";
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
@@ -31,7 +32,6 @@ import PublicRoute from "./PublicRoute";
 export default function RouterOutlet() {
   return (
     <Routes>
-
       <Route element={<PublicRoute />}>
         <Route element={<OnboardingLayout />}>
           <Route path="/login" element={<LoginFlow />} />
@@ -57,10 +57,9 @@ export default function RouterOutlet() {
           <Route path="/kyc/selfie" element={<KycSelfieCapture />} />
           <Route path="/kyc/submit" element={<KycReviewSubmit />} />
           <Route path="/kyc/pending" element={<KycPending />} />
-
+          <Route path="/kyc/status" element={<KycStatus />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/password" element={<UserPassword />} />
-
         </Route>
 
         <Route element={<ChatLayout />}>
