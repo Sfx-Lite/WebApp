@@ -2,6 +2,7 @@ import { ChevronRight, User2Icon } from "lucide-react";
 import { useState } from "react";
 import { MdArrowBack, MdPhoneAndroid } from "react-icons/md";
 import { useNavigate } from "react-router";
+import { trackEvent } from "@/utils/trackEvent";
 
 export default function AddMoney() {
   const [isDisabled, setIsDisabled] = useState(true);
@@ -58,7 +59,10 @@ export default function AddMoney() {
               </div>
             </button>
             <button
-              onClick={() => navigate("/addmoney/depositcrypto")}
+              onClick={() => {
+                trackEvent("deposit_method_selected");
+                navigate("/addmoney/depositcrypto");
+              }}
               className="w-full p-(--spacing-card-pad) bg-sfx-card rounded-card"
             >
               <div className="flex items-center justify-between">
