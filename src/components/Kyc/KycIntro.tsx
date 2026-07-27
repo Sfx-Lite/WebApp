@@ -7,6 +7,7 @@ import {
 } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/utils/trackEvent";
 
 const STEPS = [
   {
@@ -118,9 +119,12 @@ export default function KycIntro() {
               </ol>
             </div>
 
-            <div className="mt-[35px]">
+           <div className="mt-[35px]">
               <Button
-                onClick={() => navigate("/kyc/type")}
+                onClick={() => {
+                  trackEvent("kyc_submission_started");
+                  navigate("/kyc/type");
+                }}
                 className="h-button-h rounded-button w-full bg-sfx-primary text-base font-rh-sb text-white shadow-brand button__hover"
               >
                 Get started

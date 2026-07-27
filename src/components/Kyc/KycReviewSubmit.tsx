@@ -7,6 +7,7 @@ import api from "@/api/axios";
 
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/reduxHooks";
+import { trackEvent } from "@/utils/trackEvent";
 
 const KYC_SUBMISSION_URL = "/kyc/submission";
 
@@ -72,7 +73,8 @@ export default function KycReviewSubmit() {
           "Content-Type": "multipart/form-data",
         },
       });
-
+      
+      trackEvent("kyc_submitted");
       toast.success("KYC submitted successfully.");
 
       navigate("/kyc/pending");
