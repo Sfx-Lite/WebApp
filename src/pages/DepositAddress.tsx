@@ -4,6 +4,8 @@ import { MdArrowBack } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router";
 import { useGetWalletAddressQuery } from "@/api/wallet";
 import QrCode from "@/components/global/qrcode/QrCode";
+import { trackEvent } from "@/utils/trackEvent";
+import { useEffect } from "react";
 
 type DepositAddressState = {
   assetSymbol?: string;
@@ -26,12 +28,17 @@ export default function DepositAddress() {
   const { data, isLoading, isError } = useGetWalletAddressQuery();
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    trackEvent("deposit_address_viewed");
+  }, []);
+
   const handleCopy = async () => {
     if (isLoading || !data?.depositAddress)
       return;
     try {
       await navigator.clipboard.writeText(data.depositAddress);
       setCopied(true);
+      trackEvent("deposit_address_copied");
       setTimeout(setCopied, 1800, false);
     }
     catch {
