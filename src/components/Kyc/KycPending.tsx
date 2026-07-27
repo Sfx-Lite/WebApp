@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { getKycStatus } from "@/api/kyc";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "../ui/spinner";
 
 const Doc_Labels: Record<string, string> = {
   "passport": "International passport",
@@ -57,6 +58,7 @@ export default function KycPending() {
         <p className="font-rh-sb text-sfx-ink">
           Loading verification status...
         </p>
+        <Spinner />
       </div>
     );
   }

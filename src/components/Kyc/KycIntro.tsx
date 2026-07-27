@@ -119,7 +119,7 @@ export default function KycIntro() {
               </ol>
             </div>
 
-           <div className="mt-[35px]">
+            <div className="mt-[35px]">
               <Button
                 onClick={() => {
                   trackEvent("kyc_submission_started");

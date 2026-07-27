@@ -73,15 +73,24 @@ export default function KycReviewSubmit() {
           "Content-Type": "multipart/form-data",
         },
       });
-      
+
       trackEvent("kyc_submitted");
       toast.success("KYC submitted successfully.");
 
       navigate("/kyc/pending");
     }
-    catch (error) {
-      console.error(error);
-      toast.error("Failed to submit KYC.");
+    catch (error: any) {
+      const message = error.response?.data?.message;
+
+      console.error("KYC SUBMIT ERROR:", error.response?.data);
+
+      if (message === "You already have a KYC submission awaiting review") {
+        toast.info("Your KYC is already under review.");
+        navigate("/kyc/pending");
+        return;
+      }
+
+      toast.error(message || "Failed to submit KYC.");
     }
   };
 
