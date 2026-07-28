@@ -19,7 +19,7 @@ export default function Home() {
 
   return (
     <section className="py-[25px] px-[12px] md:px-screen-x">
-      <div className="mt-2 mb-4">
+      <div className="block md:hidden mt-2 mb-4">
         <ProfileCard />
       </div>
       <div className="space-y-[1rem] md:space-y-[1.5rem]">

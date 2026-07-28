@@ -7,7 +7,7 @@ export default function DashboardLayout() {
   return (
     <div className="relative min-h-dvh">
       <div className="hidden md:block h-full sticky top-0 z-[15] w-full md:fixed md:left-0 md:top-0 md:h-dvh md:w-[17rem] bg-white">
-        <div className="">
+        <div className="h-full">
           <Sidebar />
         </div>
       </div>
@@ -15,7 +15,7 @@ export default function DashboardLayout() {
         <BottomNavbar />
       </div>
 
-      <div className="min-h-dvh w-full overflow-y-auto mb-[4rem] md:ml-[17rem] md:h-dvh md:w-[calc(100vw-17rem)]">
+      <div className="min-h-dvh w-full overflow-y-auto mb-[4rem] md:mb-0 md:ml-[17rem] md:h-dvh md:w-[calc(100vw-17rem)]">
         <div className="hidden md:block">
           <TopBar />
         </div>
