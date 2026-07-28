@@ -1,22 +1,25 @@
 /* eslint-disable react/no-array-index-key */
+import { useState } from "react";
 import { Link } from "react-router";
 import { useGetTransactionsQuery } from "@/api/transactions";
 import TransactionEmptyState from "@/components/global/emptyStates/TransactionEmptyState";
 import VerifyIdentity from "@/components/global/VerifyIdentity";
 import TransactionItemSkeleton from "@/components/Home/loaders/TransactionItemSkeleton";
 import ProfileCard from "@/components/Home/ProfileCard";
+import TransactionDetailsModal from "@/components/Home/TransactionDetailsModal";
 import TransactionItem from "@/components/Home/TransactionItem";
 import WalletBalance from "@/components/Home/WalletBalance";
 
 export default function Home() {
   const { data, isLoading } = useGetTransactionsQuery({ limit: 5, offset: 0 });
   const transactions = data?.items ?? [];
+  const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
 
   // console.log(data);
 
   return (
     <section className="py-[25px] px-[12px] md:px-screen-x">
-      <div className="mt-2 mb-4">
+      <div className="block md:hidden mt-2 mb-4">
         <ProfileCard />
       </div>
       <div className="space-y-[1rem] md:space-y-[1.5rem]">
@@ -58,12 +61,21 @@ export default function Home() {
               : (
                   <ul className="space-y-3">
                     {transactions.map(transaction => (
-                      <TransactionItem key={transaction.id} transaction={transaction} />
+                      <TransactionItem
+                        key={transaction.id}
+                        transaction={transaction}
+                        onClick={() => setSelectedTxId(transaction.id)}
+                      />
                     ))}
                   </ul>
                 )}
         </div>
       </div>
+
+      <TransactionDetailsModal
+        transactionId={selectedTxId}
+        onClose={() => setSelectedTxId(null)}
+      />
     </section>
   );
 }

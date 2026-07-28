@@ -9,8 +9,10 @@ import {
   MdOutlineWarningAmber,
 } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
-import { useUserStore } from "@/store/useUserStore";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { logout } from "@/store/authSlice";
 
 type SettingItemProps = {
   icon: React.ReactNode;
@@ -24,6 +26,27 @@ type SettingItemProps = {
   rightElement?: React.ReactNode;
   to?: string;
   onClick?: () => void;
+};
+
+type Address = {
+  street1: string;
+  street2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+};
+
+type UserProfileData = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  username: string;
+  mobileNumber: string;
+  email: string;
+  tier: string;
+  homeCountry: string;
+  address: Address;
 };
 
 function SettingItem({
@@ -79,22 +102,34 @@ function SettingItem({
   return content;
 }
 
+const USER_PROFILE_URL = "/users/profile";
+
 export default function Settings() {
   const navigate = useNavigate();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const profile = useUserStore(state => state.profile);
-  const fetchProfile = useUserStore(state => state.fetchProfile);
-  const clearUser = useUserStore(state => state.clearUser);
-  const isLoading = useUserStore(state => state.isLoading);
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!profile) {
-      fetchProfile();
-    }
-  });
+    const loadProfile = async () => {
+      try {
+        const res = await api.get(USER_PROFILE_URL);
+        setProfile(res.data.data);
+      }
+      catch {
+        setProfile(null);
+      }
+      finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleLogout = () => {
-    clearUser();
+    dispatch(logout());
     navigate("/login");
   };
 
@@ -105,7 +140,7 @@ export default function Settings() {
   const initial = profile?.firstName ? profile.firstName.charAt(0).toUpperCase() : "U";
   return (
     <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between p-4 sm:p-6">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-around p-4 sm:p-6">
         <div className="space-y-6">
           <div className="flex items-center gap-3 px-1 py-2">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-sfx-primary text-lg font-rh-b text-white shadow-sm">
@@ -219,11 +254,11 @@ export default function Settings() {
           </section>
         </div>
 
-        <div className="pt-8 pb-4 text-center">
+        <div className="pb-4 text-center">
           <Button
             type="button"
             onClick={handleLogout}
-            className="font-rh-sb border border-sfx-ink/10 w-full bg-white text-sm text-red-500 hover:text-red-600 transition-colors py-2 px-4 focus:outline-none"
+            className="font-rh-sb h-[button-h] hover:bg-sfx-primary-soft border border-sfx-ink/15 w-full bg-white text-sm text-red-500 hover:text-red-600 transition-colors py-2 px-4 focus:outline-none"
           >
             Log out
           </Button>
