@@ -12,7 +12,9 @@ import { Link, useNavigate } from "react-router";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch } from "@/hooks/reduxHooks";
+import { useKycStatus } from "@/hooks/useKycStatus";
 import { logout } from "@/store/authSlice";
+import { KYC_BADGES } from "@/utils/kycBadge";
 
 type SettingItemProps = {
   icon: React.ReactNode;
@@ -110,6 +112,7 @@ export default function Settings() {
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useAppDispatch();
+  const { kycData, loading: kycLoading } = useKycStatus();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -138,6 +141,11 @@ export default function Settings() {
     : "";
 
   const initial = profile?.firstName ? profile.firstName.charAt(0).toUpperCase() : "U";
+
+  const currentKycBadge = kycData
+    ? KYC_BADGES[kycData.kycStatus]
+    : null;
+
   return (
     <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-around p-4 sm:p-6">
@@ -172,15 +180,43 @@ export default function Settings() {
 
               <SettingItem
                 icon={
-                  <MdOutlineCheckCircle className="size-6 text-emerald-600" />
+                  <MdOutlineCheckCircle className="size-6 text-sfx-success" />
                 }
-                iconBgClass="bg-emerald-100/70"
+                iconBgClass="bg-sfx-success/10"
                 title="Identity verification"
-                subtitle="Your identity was approved on 9 Jul."
-                badge={{
-                  text: "Verified",
-                  className: "bg-emerald-100 text-emerald-700",
-                }}
+                subtitle={
+                  kycLoading
+                    ? "Checking verification status."
+                    : kycData?.kycStatus === "verified"
+                      ? `Your identity was approved on ${
+                        new Date(kycData.submission?.reviewedAt ?? "")
+                          .toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                      }.`
+                      : kycData?.kycStatus === "pending"
+                        ? "Your documents are currently being reviewed."
+                        : kycData?.kycStatus === "rejected"
+                          ? `Your verification was rejected on ${
+                            new Date(kycData.submission?.reviewedAt ?? "")
+                              .toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })
+                          }.`
+                          : "Complete verification to unlock all features."
+                }
+                badge={
+                  currentKycBadge
+                    ? {
+                        text: currentKycBadge.text,
+                        className: currentKycBadge.className,
+                      }
+                    : undefined
+                }
                 to="/kyc/status"
               />
 
@@ -234,8 +270,8 @@ export default function Settings() {
             <div className="space-y-3">
               {/* Help & Support */}
               <SettingItem
-                icon={<MdOutlineChat className="size-6 text-emerald-600" />}
-                iconBgClass="bg-emerald-100/70"
+                icon={<MdOutlineChat className="size-6 text-sfx-success" />}
+                iconBgClass="bg-sfx-success/10"
                 title="Help & support"
                 subtitle="Chat with the SFx Lite assistant."
                 to="/support"

@@ -9,7 +9,10 @@ export type KycStatus
 export type KycSubmission = {
   id: string;
   docType: DocumentType;
-  status: string;
+  status:
+    | "under_review"
+    | "verified"
+    | "rejected";
   reason: string | null;
   createdAt: string;
   reviewedAt: string | null;

@@ -199,7 +199,7 @@ export default function KycSelfieCapture() {
                       <p
                         className={`absolute bottom-4 text-sm font-rh-b tracking-wide text-center ${
                           faceDetected
-                            ? "text-emerald-400"
+                            ? "text-sfx-success"
                             : "text-sfx-danger"
                         }`}
                       >
@@ -212,7 +212,7 @@ export default function KycSelfieCapture() {
             <div className="my-4 flex items-center justify-center gap-3 sm:gap-4 flex-wrap text-xs text-white/80 font-rh-r">
               {Guide.map(item => (
                 <span key={item} className="flex items-center gap-1">
-                  <MdCheck className="size-4 text-emerald-400" />
+                  <MdCheck className="size-4 text-sfx-success" />
                   {item}
                 </span>
               ))}
