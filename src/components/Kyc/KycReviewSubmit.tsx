@@ -13,6 +13,7 @@ const KYC_SUBMISSION_URL = "/kyc/submission";
 
 export default function KycReviewSubmit() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
@@ -61,6 +62,8 @@ export default function KycReviewSubmit() {
       toast.error("Please upload all required documents.");
       return;
     }
+
+    setIsSubmitting(true);
 
     const formData = new FormData();
 
@@ -242,7 +245,7 @@ export default function KycReviewSubmit() {
 
         <div className="mt-8">
           <Button
-            disabled={!canSubmit}
+            disabled={!canSubmit || isSubmitting}
             onClick={handleSubmit}
             className="
               h-button-h
@@ -256,7 +259,7 @@ export default function KycReviewSubmit() {
               hover:bg-sfx-ink/90
             "
           >
-            Submit for Review
+            {isSubmitting ? "Submitting..." : "Submit for Review"}
           </Button>
         </div>
       </div>
