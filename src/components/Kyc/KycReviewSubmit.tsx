@@ -16,6 +16,7 @@ export default function KycReviewSubmit() {
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
+  const [previewIsPdf, setPreviewIsPdf] = useState(false);
 
   const {
     documentType,
@@ -77,16 +78,16 @@ export default function KycReviewSubmit() {
       trackEvent("kyc_submitted");
       toast.success("KYC submitted successfully.");
 
-      navigate("/kyc/pending");
+      navigate("/kyc/status");
     }
     catch (error: any) {
       const message = error.response?.data?.message;
 
-      console.error("KYC SUBMIT ERROR:", error.response?.data);
+      // console.error("KYC SUBMIT ERROR:", error.response?.data);
 
       if (message === "You already have a KYC submission awaiting review") {
         toast.info("Your KYC is already under review.");
-        navigate("/kyc/pending");
+        navigate("/kyc/status");
         return;
       }
 
@@ -94,13 +95,14 @@ export default function KycReviewSubmit() {
     }
   };
 
-  const handleView = (image: string | null, title: string) => {
+  const handleView = (image: string | null, title: string, pdf: boolean) => {
     if (!image) {
       return;
     }
 
     setPreviewImage(image);
     setPreviewTitle(title);
+    setPreviewIsPdf(pdf);
   };
 
   return (
@@ -186,7 +188,7 @@ export default function KycReviewSubmit() {
                   <Button
                     variant="outline"
                     disabled={!card.image}
-                    onClick={() => handleView(card.image, card.title)}
+                    onClick={() => handleView(card.image, card.title, card.isPdf)}
                     className="
                       flex-1
                       rounded-full
@@ -286,7 +288,7 @@ export default function KycReviewSubmit() {
 
             {/* Full Document View Container */}
             <div className="relative flex flex-1 items-center justify-center overflow-auto rounded-2xl bg-[#13111C] p-2 sm:p-4">
-              {isPdf && previewTitle.includes("Passport")
+              {previewIsPdf && previewTitle.includes("Passport")
                 ? (
                     <iframe
                       src={previewImage}

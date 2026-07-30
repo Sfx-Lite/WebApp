@@ -1,12 +1,8 @@
-import { useEffect, useState } from "react";
+import type { KycSubmission } from "@/lib/types/kyc";
 import { GoClock } from "react-icons/go";
 import { MdCheckCircleOutline, MdInfoOutline } from "react-icons/md";
 import { useNavigate } from "react-router";
-import { toast } from "sonner";
-
-import { getKycStatus } from "@/api/kyc";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "../ui/spinner";
 
 const Doc_Labels: Record<string, string> = {
   "passport": "International passport",
@@ -27,45 +23,18 @@ const Guidelines = [
     desc: "If any document requires resubmission, we will email you directly with clear instructions.",
   },
 ];
+type KycPendingProps = {
+  submission: KycSubmission | null;
+};
 
-export default function KycPending() {
+export default function KycPending({
+  submission,
+}: KycPendingProps) {
   const navigate = useNavigate();
 
-  const [kycData, setKycData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchKycStatus() {
-      try {
-        const response = await getKycStatus();
-
-        setKycData(response.data);
-      }
-      catch {
-        toast.error("Failed to load KYC status");
-      }
-      finally {
-        setLoading(false);
-      }
-    }
-
-    fetchKycStatus();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex h-dvh items-center justify-center bg-sfx-primary-tint">
-        <p className="font-rh-sb text-sfx-ink">
-          Loading verification status...
-        </p>
-        <Spinner />
-      </div>
-    );
-  }
-
-  const submission = kycData?.submission;
-
-  const documentLabel = Doc_Labels[submission?.docType] ?? "Unknown document";
+  const documentLabel = submission
+    ? Doc_Labels[submission.docType]
+    : "Unknown document";
 
   const submittedDate = submission?.createdAt
     ? new Date(submission.createdAt).toLocaleString([], {
@@ -74,10 +43,7 @@ export default function KycPending() {
       })
     : "Not available";
 
-  const statusLabel
-    = kycData?.kycStatus === "pending"
-      ? "Pending review"
-      : (kycData?.kycStatus ?? "Unknown");
+  const statusLabel = "Pending review";
 
   const details = [
     {
