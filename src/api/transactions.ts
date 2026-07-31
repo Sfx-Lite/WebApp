@@ -15,6 +15,26 @@ type TransactionsEnvelope = {
   data: PaginatedResponse<Transaction>;
 };
 
+export type TransferPayload = {
+  recipientUsername: string;
+  amount: string;
+  note?: string;
+};
+
+export type TransferResult = {
+  transactionId: string;
+  amount: string;
+  asset: string;
+  recipient: string;
+  balanceAfter: string;
+};
+
+type TransferEnvelope = {
+  status: boolean;
+  message: string;
+  data: TransferResult;
+};
+
 export const transactions = createApi({
   reducerPath: "transactionsApi",
   baseQuery: axiosBaseQuery(),
@@ -34,7 +54,20 @@ export const transactions = createApi({
       transformResponse: (response: { data: Transaction }) => response.data,
       providesTags: (_result, _error, id) => [{ type: "Transaction", id }],
     }),
+    transferToUser: builder.mutation<TransferResult, TransferPayload>({
+      query: payload => ({
+        url: "/transactions/transfer",
+        method: "POST",
+        data: payload,
+      }),
+      transformResponse: (response: TransferEnvelope) => response.data,
+      invalidatesTags: ["Transaction"],
+    }),
   }),
 });
 
-export const { useGetTransactionsQuery, useGetTransactionByIdQuery } = transactions;
+export const {
+  useGetTransactionsQuery,
+  useGetTransactionByIdQuery,
+  useTransferToUserMutation,
+} = transactions;

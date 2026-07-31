@@ -38,7 +38,7 @@ export const notifications = createApi({
       query: id => ({ url: `/notifications/${id}/read`, method: "PATCH" }),
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          notifications.util.updateQueryData("listNotifications", undefined, (draft) => {
+          notifications.util.updateQueryData("listNotifications", undefined, (draft: PaginatedNotifications) => {
             const target = draft.items.find(item => item.id === id);
             if (target && !target.readAt) {
               target.readAt = new Date().toISOString();
