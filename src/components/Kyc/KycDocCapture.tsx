@@ -456,7 +456,7 @@ export default function KycDocCapture() {
                     <div className="w-full max-w-xs bg-white/20 rounded-full h-2 overflow-hidden mb-2">
 
                       <div
-                        className="bg-emerald-400 h-full transition-all duration-300"
+                        className="bg-sfx-success h-full transition-all duration-300"
                         style={{
                           width: `${ocrProgress}%`,
                         }}
@@ -545,7 +545,7 @@ export default function KycDocCapture() {
 
                               ${
                       docDetected
-                        ? "border-emerald-400 bg-emerald-500/10"
+                        ? "border-sfx-success bg-sfx-success/10"
                         : "border-red-400/80 bg-red-500/5"
                       }
                             `}
@@ -559,7 +559,7 @@ export default function KycDocCapture() {
 
                                 ${
                       docDetected
-                        ? "border-emerald-500/30 bg-[#13111C]/90 text-emerald-400"
+                        ? "border-emerald-500/30 bg-[#13111C]/90 text-sfx-success"
                         : "border-red-500/30 bg-[#13111C]/90 text-red-400"
                       }
                               `}
@@ -590,7 +590,7 @@ export default function KycDocCapture() {
                     className="flex items-center gap-1"
                   >
 
-                    <MdCheck className="size-4 text-emerald-400" />
+                    <MdCheck className="size-4 text-sfx-success" />
 
                     {item}
 

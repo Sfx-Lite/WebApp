@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router";
 import DashboardLayout from "@/layouts/Dashboard/DashboardLayout";
+import About from "@/pages/About";
 import AddMoney from "@/pages/AddMoney";
 import Amount from "@/pages/Amount";
 
@@ -20,11 +21,10 @@ import Rates from "../../pages/Rates";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
 import KycDocCapture from "../Kyc/KycDocCapture";
+import KycGate from "../Kyc/KycGate";
 import KycIntro from "../Kyc/KycIntro";
-import KycPending from "../Kyc/KycPending";
 import KycReviewSubmit from "../Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Kyc/KycSelfieCapture";
-import KycStatus from "../Kyc/KycStatus";
 import KycType from "../Kyc/KycType";
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
@@ -65,10 +65,11 @@ export default function RouterOutlet() {
           <Route path="/kyc/doc" element={<KycDocCapture />} />
           <Route path="/kyc/selfie" element={<KycSelfieCapture />} />
           <Route path="/kyc/submit" element={<KycReviewSubmit />} />
-          <Route path="/kyc/pending" element={<KycPending />} />
-          <Route path="/kyc/status" element={<KycStatus />} />
+          <Route path="/kyc/status" element={<KycGate />} />
+
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/password" element={<UserPassword />} />
+          <Route path="/about" element={<About />} />
           <Route path="/support" element={<SupportChat />} />
         </Route>
 
