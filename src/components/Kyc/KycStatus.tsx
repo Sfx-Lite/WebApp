@@ -42,7 +42,7 @@ export default function KycStatus({
           </p>
 
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/settings")}
             className="h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-base text-white shadow-brand hover:bg-sfx-primary-strong"
           >
             Continue
