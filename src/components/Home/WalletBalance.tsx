@@ -73,6 +73,7 @@ export default function WalletBalance() {
           </span>
         </button>
         <button
+          onClick={() => navigate("/sendmoney")}
           className="w-1/2 py-[12px] px-[25px] flex items-center justify-center gap-1 rounded-full bg-sfx-card border border-sfx-primary hover:scale-95 transition-transform duration-300"
         >
           <Send className="w-[20px] text-sfx-primary" />

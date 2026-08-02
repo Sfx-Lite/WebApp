@@ -2,23 +2,27 @@ import { Route, Routes } from "react-router";
 import DashboardLayout from "@/layouts/Dashboard/DashboardLayout";
 import About from "@/pages/About";
 import AddMoney from "@/pages/AddMoney";
+import Amount from "@/pages/Amount";
 
 import DepositAddress from "@/pages/DepositAddress";
 import DepositCrypto from "@/pages/DepositCrypto";
 import Notifications from "@/pages/Notifications";
 import ReceiveFromSFx from "@/pages/ReceiveFromSfx";
-import ChatLayout from "../../layouts/Chat/ChatLayout";
-import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
+import ReviewTransfer from "@/pages/ReviewTransfer";
 
+import SendMoney from "@/pages/SendMoney";
+import SendToSfx from "@/pages/SendToSfx";
+import SuccessTransfer from "@/pages/SuccessTransfer";
+import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
 import History from "../../pages/History";
 import Home from "../../pages/Home";
+
 import Rates from "../../pages/Rates";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
 import KycDocCapture from "../Kyc/KycDocCapture";
-import KycGate from "../Kyc/KycGate";
-
 import KycIntro from "../Kyc/KycIntro";
+import KycPending from "../Kyc/KycPending";
 import KycReviewSubmit from "../Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Kyc/KycSelfieCapture";
 import KycType from "../Kyc/KycType";
@@ -50,6 +54,11 @@ export default function RouterOutlet() {
           <Route path="/addmoney/sfxr" element={<ReceiveFromSFx />} />
           <Route path="/addmoney/depositcrypto" element={<DepositCrypto />} />
           <Route path="/addmoney/depositaddress" element={<DepositAddress />} />
+          <Route path="/sendmoney" element={<SendMoney />} />
+          <Route path="/sendmoney/sfxs" element={<SendToSfx />} />
+          <Route path="/sendmoney/sfxs/amount" element={<Amount />} />
+          <Route path="/sendmoney/sfxs/review" element={<ReviewTransfer />} />
+          <Route path="/sendmoney/sfxs/success" element={<SuccessTransfer />} />
 
           <Route path="/kyc" element={<KycIntro />} />
           <Route path="/kyc/type" element={<KycType />} />
@@ -60,13 +69,11 @@ export default function RouterOutlet() {
 
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/password" element={<UserPassword />} />
-          <Route path="/about" element={<About />} />
-
-        </Route>
-
-        <Route element={<ChatLayout />}>
           <Route path="/support" element={<SupportChat />} />
         </Route>
+
+        {/* <Route element={<ChatLayout />}>
+        </Route> */}
       </Route>
     </Routes>
   );

@@ -42,7 +42,6 @@ export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSF
         });
       }
       catch {
-        // user cancelled share — no-op
       }
     }
     else {

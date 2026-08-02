@@ -41,7 +41,7 @@ export default function DepositAddress() {
       setTimeout(setCopied, 1800, false);
     }
     catch {
-      // clipboard unavailable — fail silently
+
     }
   };
 
