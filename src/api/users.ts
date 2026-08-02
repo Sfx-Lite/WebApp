@@ -8,6 +8,18 @@ type UserProfileEnvelope = {
   data: UserProfileData;
 };
 
+export type UsernameAvailability = {
+  username: string;
+  available: boolean;
+  profileImage: string | null;
+};
+
+type UsernameAvailabilityEnvelope = {
+  status: boolean;
+  message: string;
+  data: UsernameAvailability;
+};
+
 export const users = createApi({
   reducerPath: "users",
   baseQuery: axiosBaseQuery(),
@@ -18,7 +30,11 @@ export const users = createApi({
       transformResponse: (response: UserProfileEnvelope) => response.data,
       providesTags: ["UserProfile"],
     }),
+    checkUsername: builder.query<UsernameAvailability, string>({
+      query: username => ({ url: `/users/search/${username}`, method: "GET" }),
+      transformResponse: (response: UsernameAvailabilityEnvelope) => response.data,
+    }),
   }),
 });
 
-export const { useGetUserProfileQuery } = users;
+export const { useGetUserProfileQuery, useCheckUsernameQuery, useLazyCheckUsernameQuery } = users;

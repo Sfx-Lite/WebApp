@@ -3,10 +3,11 @@
 /* eslint-disable unicorn/no-new-array */
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from "react";
 import axios from "axios";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Delete } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import api from "../../api/axios";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 type PinMode = "set" | "verify";
 type PinPhase = "enter" | "confirm";
@@ -20,6 +21,8 @@ type PinSetupProps = {
 
 const SET_PIN_URL = "/auth/pin";
 const VERIFY_PIN_URL = "/auth/pin/verify";
+
+const KEYPAD_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"] as const;
 
 const COPY: Record<PinMode, Record<PinPhase, { title: string; subtitle: (length: number) => string }>> = {
   set: {
@@ -45,6 +48,8 @@ const COPY: Record<PinMode, Record<PinPhase, { title: string; subtitle: (length:
 };
 
 export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSetupProps) {
+  const isMobile = useIsMobile();
+
   const [phase, setPhase] = useState<PinPhase>("enter");
   const [firstPin, setFirstPin] = useState("");
   const [digits, setDigits] = useState<string[]>(() => new Array(length).fill(""));
@@ -54,8 +59,10 @@ export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSe
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, [phase]);
+    if (!isMobile) {
+      inputRefs.current[0]?.focus();
+    }
+  }, [phase, isMobile]);
 
   const setDigitAt = (index: number, value: string) => {
     setDigits((prev) => {
@@ -74,7 +81,8 @@ export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSe
 
   const clearForRetry = () => {
     setDigits(new Array(length).fill(""));
-    inputRefs.current[0]?.focus();
+    if (!isMobile)
+      inputRefs.current[0]?.focus();
   };
 
   const submitPin = async (pin: string) => {
@@ -133,6 +141,54 @@ export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSe
     }
   };
 
+  // Shared entry point for both native typing and on-screen taps: appends
+  // one digit into the first empty slot, then checks for completion.
+  const pushDigit = (digit: string) => {
+    if (isSubmitting)
+      return;
+
+    const nextIndex = digits.findIndex(d => d === "");
+    if (nextIndex === -1)
+      return; // already full
+
+    setError(null);
+    const next = [...digits];
+    next[nextIndex] = digit;
+    setDigits(next);
+
+    if (!isMobile) {
+      inputRefs.current[nextIndex + 1]?.focus();
+    }
+
+    const completed = next.join("");
+    if (completed.length === length && next.every(d => d !== "")) {
+      handleCompletedEntry(completed);
+    }
+  };
+
+  const popDigit = () => {
+    if (isSubmitting)
+      return;
+
+    setError(null);
+    setDigits((prev) => {
+      const lastFilledIndex = [...prev].reverse().findIndex(d => d !== "");
+      if (lastFilledIndex === -1)
+        return prev;
+
+      const index = prev.length - 1 - lastFilledIndex;
+      const next = [...prev];
+      next[index] = "";
+
+      if (!isMobile) {
+        requestAnimationFrame(() => inputRefs.current[index]?.focus());
+      }
+
+      return next;
+    });
+  };
+
+  // Desktop-only native input handlers
   const handleChange = (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, "");
     if (!raw) {
@@ -188,6 +244,16 @@ export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSe
     handleCompletedEntry(pasted);
   };
 
+  const handleKeypadPress = (key: (typeof KEYPAD_KEYS)[number]) => {
+    if (!key)
+      return;
+    if (key === "back") {
+      popDigit();
+      return;
+    }
+    pushDigit(key);
+  };
+
   const copy = COPY[mode][phase];
 
   return (
@@ -224,9 +290,11 @@ export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSe
                 maxLength={1}
                 value={digit}
                 disabled={isSubmitting}
-                onChange={handleChange(index)}
-                onKeyDown={handleKeyDown(index)}
-                onPaste={handlePaste}
+                readOnly={isMobile}
+                onChange={isMobile ? undefined : handleChange(index)}
+                onKeyDown={isMobile ? undefined : handleKeyDown(index)}
+                onPaste={isMobile ? undefined : handlePaste}
+                onFocus={e => isMobile && e.target.blur()}
                 className={`w-[3.25rem] h-[3.25rem] rounded-2xl border-2 bg-white text-center
                            text-lg font-rh-sb outline-none transition-colors
                            disabled:opacity-50
@@ -253,6 +321,22 @@ export default function PinSetup({ mode, length = 4, onComplete, onBack }: PinSe
             <span className="w-4 h-4 border-2 border-sfx-primary border-t-transparent rounded-full animate-spin" />
             {mode === "set" ? "Setting your PIN..." : "Verifying your PIN..."}
           </p>
+        )}
+
+        {isMobile && (
+          <div className="grid grid-cols-3 gap-y-4 max-w-[280px] mx-auto pt-2">
+            {KEYPAD_KEYS.map((key, i) => (
+              <button
+                key={i}
+                type="button"
+                disabled={isSubmitting || !key}
+                onClick={() => handleKeypadPress(key)}
+                className="flex items-center justify-center text-[24px] font-rh-m py-3 disabled:opacity-0"
+              >
+                {key === "back" ? <Delete className="size-5" /> : key}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>
