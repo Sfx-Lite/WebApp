@@ -21,8 +21,8 @@ export default function SuccessTransfer() {
     if (state?.result) {
       trackEvent("send_completed", {
         amount: state.result.amount,
-        transaction_id: state.result.transactionId
-      }); 
+        transaction_id: state.result.transactionId,
+      });
       dispatch(resetSendMoney());
     }
   }, [state?.result, dispatch]);

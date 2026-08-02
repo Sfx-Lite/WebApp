@@ -64,7 +64,7 @@ function SettingItem({
   const content = (
     <div
       onClick={onClick}
-      className="flex mb-2 items-center justify-between rounded-2xl border border-sfx-primary-tint/20 bg-white p-4 shadow-brand transition-all hover:border-sfx-primary/20 cursor-pointer"
+      className="flex mb-2 items-center justify-between rounded-2xl border border-sfx-primary-tint/20 bg-white shadow-brand transition-all hover:border-sfx-primary/20 cursor-pointer"
     >
       <div className="flex items-center gap-3">
         <div
@@ -147,7 +147,7 @@ export default function Settings() {
     : null;
 
   return (
-    <div className="flex h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
+    <div className="flex h-dvh w-full flex-col overflow-y-auto">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-around p-4 sm:p-6">
         <div className="space-y-6">
           <div className="flex items-center gap-3 px-1 py-2">

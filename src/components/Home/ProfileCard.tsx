@@ -10,12 +10,16 @@ export default function ProfileCard() {
 
   const navigate = useNavigate();
 
+  const initial = user?.lastName?.charAt(0).toUpperCase() ?? "A";
+
+  const isVerified = user?.kycStatus === "verified";
+
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-(--spacing-gutter)">
         <div className="user__gradient size-[2.5rem] rounded-full flex items-center justify-center">
           <span className="font-rh-b text-white">
-            A
+            {initial}
           </span>
         </div>
         <div>
@@ -23,16 +27,19 @@ export default function ProfileCard() {
             <span className="inline-block">
               {isLoading ? "…" : `${user?.firstName} ${user?.lastName}`}
             </span>
-            <span className="inline-block">
-              <Check className="w-[16px] text-sfx-success" />
-            </span>
+            { isVerified && (
+              <span className="inline-block">
+                <Check className="w-[16px] text-sfx-success" />
+              </span>
+            )}
           </span>
           <div className="flex items-center">
             <span className="inline-block">
               {isLoading ? "…" : `@${user?.username}`}
             </span>
+            {" "}
             <span className="inline-block">
-              · verified
+              {isVerified ? "· verified " : "· not verified"}
             </span>
           </div>
         </div>

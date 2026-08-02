@@ -62,7 +62,7 @@ export default function Notifications() {
   };
 
   return (
-    <section className="py-[25px] px-screen-x">
+    <section>
       <div className="space-y-[1.5rem]">
         <div className="flex items-center justify-between border-b border-sfx-primary-tint/30 pb-4">
           <div className="flex items-center gap-3">

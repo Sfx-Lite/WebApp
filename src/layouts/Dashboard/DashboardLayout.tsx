@@ -19,7 +19,7 @@ export default function DashboardLayout() {
         <div className="hidden md:block">
           <TopBar />
         </div>
-        <div>
+        <div className="px-[16px] md:px-screen-x py-[25px]">
           <Outlet />
         </div>
       </div>
