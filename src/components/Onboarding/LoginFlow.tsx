@@ -1,5 +1,7 @@
-import { useState } from "react";
+/* eslint-disable react/set-state-in-effect */
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { pinStatusSet } from "../../store/authSlice";
 import PinSetup from "../Form/PinSetup";
@@ -18,6 +20,13 @@ export default function LoginFlow() {
     (token && user && !hasPin ? "pin" : "login"));
 
   const [pinMode, setPinMode] = useState<PinMode>("verify");
+
+  useEffect(() => {
+    if (step === "pin" && (!token || !user)) {
+      toast.error("Your session has expired. Please log in again.");
+      setStep("login");
+    }
+  }, [step, token, user]);
 
   const handleAuthSuccess = (isPin: boolean) => {
     setPinMode(isPin ? "verify" : "set");

@@ -16,18 +16,13 @@ export default defineConfig({
         name: "SFx Lite",
         short_name: "SFx",
         description: "Financial application",
-        theme_color: "#ffffff",
-        background_color: "#f6f2ff",
+        theme_color: "#8c52ff",
+        background_color: "#8c52ff",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
         start_url: "/",
         icons: [
-          // {
-          //   src: "pwa-64x64.png",
-          //   sizes: "64x64",
-          //   type: "image/png",
-          // },
           {
             src: "icon-192.png",
             sizes: "192x192",

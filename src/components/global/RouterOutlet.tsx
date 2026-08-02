@@ -21,8 +21,8 @@ import Rates from "../../pages/Rates";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
 import KycDocCapture from "../Kyc/KycDocCapture";
+import KycGate from "../Kyc/KycGate";
 import KycIntro from "../Kyc/KycIntro";
-import KycPending from "../Kyc/KycPending";
 import KycReviewSubmit from "../Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Kyc/KycSelfieCapture";
 import KycType from "../Kyc/KycType";
@@ -69,6 +69,7 @@ export default function RouterOutlet() {
 
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/password" element={<UserPassword />} />
+          <Route path="/about" element={<About />} />
           <Route path="/support" element={<SupportChat />} />
         </Route>
 
