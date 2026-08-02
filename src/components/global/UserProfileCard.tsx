@@ -19,7 +19,7 @@ export default function UserProfileCard() {
       <div className="flex items-center gap-2">
         <button className="h-[2.25rem] w-[2.25rem] rounded-full">
           <img
-            src={user?.avatarUrl ?? "/sneaks.jpg"}
+            src={user?.profileImage ?? "/avatar.jpg"}
             alt={user?.firstName ?? "User avatar"}
             className="h-full w-full rounded-[inherit] object-cover"
           />

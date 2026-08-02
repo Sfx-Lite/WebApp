@@ -1,3 +1,4 @@
+import type { Address } from "@/lib/types/user";
 import { useEffect, useState } from "react";
 import { MdArrowBack, MdEdit, MdOutlinePerson, MdSave } from "react-icons/md";
 import { Link } from "react-router";
@@ -12,15 +13,6 @@ type InfoFieldProps = {
   disabled?: boolean;
 };
 
-type Address = {
-  street1: string;
-  street2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-};
-
 type UserProfileData = {
   firstName: string;
   middleName: string;
@@ -31,6 +23,8 @@ type UserProfileData = {
   tier: string;
   homeCountry: string;
   address: Address;
+  profileImage: string;
+  kycStatus: string;
 };
 
 const USER_PROFILE_URL = "/users/profile";
@@ -116,6 +110,8 @@ export default function UserProfile() {
             postalCode: data.postalCode || "",
             country: data.country || "",
           },
+          profileImage: data.profileImage || "",
+          kycStatus: data.kycStatus || "",
         };
 
         setProfile(profileData);
