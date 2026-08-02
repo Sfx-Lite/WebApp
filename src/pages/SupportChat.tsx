@@ -6,7 +6,7 @@ export default function SupportChat() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-[25px] px-screen-x">
+    <section>
       <div className="space-y-[4rem]">
         <div className="flex items-center gap-3">
           <button
