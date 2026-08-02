@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import { resetSendMoney } from "@/store/sendMoneySlice";
+import { trackEvent } from "@/utils/trackEvent";
 
 type SuccessState = {
   result: TransferResult;
@@ -18,6 +19,10 @@ export default function SuccessTransfer() {
 
   useEffect(() => {
     if (state?.result) {
+      trackEvent("send_completed", {
+        amount: state.result.amount,
+        transaction_id: state.result.transactionId
+      }); 
       dispatch(resetSendMoney());
     }
   }, [state?.result, dispatch]);

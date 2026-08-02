@@ -2,6 +2,7 @@ import { ChevronRight, User2Icon } from "lucide-react";
 import { useState } from "react";
 import { MdArrowBack, MdPhoneAndroid } from "react-icons/md";
 import { useNavigate } from "react-router";
+import { trackEvent } from "@/utils/trackEvent";
 
 export default function SendMoney() {
   const [isDisabled, setIsDisabled] = useState(true);
@@ -33,7 +34,10 @@ export default function SendMoney() {
 
           <div className="w-full space-y-2.5 md:space-y-4">
             <button
-              onClick={() => navigate("/sendmoney/sfxs")}
+              onClick={() => {
+                trackEvent("send_money_started", { method: "sfx_user" });
+                navigate("/sendmoney/sfxs");
+              }}
               className="w-full p-(--spacing-card-pad) bg-sfx-card rounded-card"
             >
               <div className="flex items-center justify-between">
