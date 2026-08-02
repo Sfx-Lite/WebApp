@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useVerifyPinMutation } from "@/api/auth";
 import { useTransferToUserMutation } from "@/api/transactions";
+import { trackEvent } from "@/utils/trackEvent";
 
 const PIN_LENGTH = 4;
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"] as const;
@@ -31,6 +32,10 @@ export default function ReviewTransfer() {
   useEffect(() => {
     if (!draft.recipientUsername || !draft.amount) {
       navigate("/sendmoney/sfxs", { replace: true });
+    }
+
+    else {
+      trackEvent("send_review_started", { amount: draft.amount });
     }
   }, [draft.recipientUsername, draft.amount, navigate]);
 
