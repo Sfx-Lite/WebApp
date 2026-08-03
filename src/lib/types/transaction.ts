@@ -1,9 +1,10 @@
+export type TransactionType = "deposit" | "send" | "withdrawal";
 export type TransactionStatus = "successful" | "processing" | "failed";
 export type TransactionDirection = "debit" | "credit";
 
 export type Transaction = {
   id: string;
-  type: string;
+  type: TransactionType;
   status: TransactionStatus;
   direction: TransactionDirection;
   asset: string;
