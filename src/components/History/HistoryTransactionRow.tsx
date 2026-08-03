@@ -19,6 +19,7 @@ const ICON_CONFIG: Record<Transaction["type"], { icon: LucideIcon; iconBg: strin
   deposit: { icon: ArrowDownLeft, iconBg: "bg-sfx-success-bg", iconColor: "text-sfx-success" },
   send: { icon: ArrowUpRight, iconBg: "bg-sfx-primary-bg", iconColor: "text-sfx-primary" },
   withdrawal: { icon: ArrowUpRight, iconBg: "bg-sfx-amber-bg", iconColor: "text-sfx-amber" },
+  internal_transfer: { icon: ArrowUpRight, iconBg: "bg-sfx-info-bg", iconColor: "text-sfx-info" },
 };
 
 function getTitle(transaction: Transaction) {
@@ -31,6 +32,10 @@ function getTitle(transaction: Transaction) {
       return transaction.externalAddress
         ? `Withdrawal · ${truncateAddress(transaction.externalAddress)}`
         : `Withdrawal · ${transaction.asset}`;
+    case "internal_transfer":
+      return transaction.counterpartyUsername
+        ? `Transfer · ${transaction.counterpartyUsername}`
+        : `Transfer · ${transaction.asset}`;
   }
 }
 

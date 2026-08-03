@@ -1,4 +1,4 @@
-export type TransactionType = "deposit" | "send" | "withdrawal";
+export type TransactionType = "deposit" | "send" | "withdrawal" | "internal_transfer";
 export type TransactionStatus = "successful" | "processing" | "failed";
 export type TransactionDirection = "debit" | "credit";
 

@@ -92,7 +92,7 @@ export default function History() {
   };
 
   return (
-    <section className="py-[25px] px-screen-x">
+    <section>
       <div className="w-full md:max-w-[50%] mx-auto space-y-[1.5rem]">
         <h1 className="font-rh-b text-[22px]">History</h1>
 
