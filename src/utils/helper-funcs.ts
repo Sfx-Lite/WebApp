@@ -60,3 +60,23 @@ export function truncateMiddle(value: string, start = 8, end = 6): string {
     return value;
   return `${value.slice(0, start)}…${value.slice(-end)}`;
 }
+
+export function formatClockTime(date: Date): string {
+  return date
+    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+    .toLowerCase()
+    .replace(" ", "");
+}
+
+export function formatHistoryTimestamp(isoDate: string): string {
+  const date = new Date(isoDate);
+  const time = date
+    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+    .toLowerCase();
+  const day = date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+  return `${time} · ${day}`;
+}
+
+export function formatMonthLabel(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase();
+}
