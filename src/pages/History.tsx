@@ -92,73 +92,71 @@ export default function History() {
   };
 
   return (
-    <section className="py-[25px] px-screen-x">
-      <div className="w-full md:max-w-[50%] mx-auto space-y-[1.5rem]">
-        <h1 className="font-rh-b text-[22px]">History</h1>
+    <div className="w-full md:max-w-[50%] mx-auto space-y-[1.5rem]">
+      <h1 className="font-rh-b text-[22px]">History</h1>
 
-        <div className="flex items-center gap-3">
-          <FilterDropdown
-            label="All categories"
-            value={category}
-            options={CATEGORY_OPTIONS}
-            onChange={setCategory}
-            variant="filled"
-          />
-          <FilterDropdown
-            label="All status"
-            value={status}
-            options={STATUS_OPTIONS}
-            onChange={setStatus}
-            variant="outline"
-          />
-        </div>
-
-        {isLoading
-          ? (
-              <ul className="space-y-3">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <TransactionItemSkeleton key={i} />
-                ))}
-              </ul>
-            )
-          : filtered.length === 0
-            ? (
-                <TransactionEmptyState />
-              )
-            : (
-                <div className="space-y-6">
-                  {grouped.map(([key, group]) => {
-                    const { sent, received } = monthSummary(group.items);
-                    return (
-                      <div key={key} className="space-y-2">
-                        <div className="flex items-center justify-between px-1">
-                          <span className="text-[13px] font-rh-sb text-sfx-muted tracking-wider">
-                            {group.label}
-                          </span>
-                          <span className="text-[13px] text-sfx-muted">
-                            Sent $
-                            {sent.toFixed(2)}
-                            {" "}
-                            · Received $
-                            {received.toFixed(2)}
-                          </span>
-                        </div>
-
-                        <ul className="space-y-3">
-                          {group.items.map(tx => (
-                            <HistoryTransactionRow
-                              key={tx.id}
-                              transaction={tx}
-                              balanceAfter={showBalanceColumn ? balanceByTransactionId.get(tx.id) : undefined}
-                            />
-                          ))}
-                        </ul>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+      <div className="flex items-center gap-3">
+        <FilterDropdown
+          label="All categories"
+          value={category}
+          options={CATEGORY_OPTIONS}
+          onChange={setCategory}
+          variant="filled"
+        />
+        <FilterDropdown
+          label="All status"
+          value={status}
+          options={STATUS_OPTIONS}
+          onChange={setStatus}
+          variant="outline"
+        />
       </div>
-    </section>
+
+      {isLoading
+        ? (
+            <ul className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <TransactionItemSkeleton key={i} />
+              ))}
+            </ul>
+          )
+        : filtered.length === 0
+          ? (
+              <TransactionEmptyState />
+            )
+          : (
+              <div className="space-y-6">
+                {grouped.map(([key, group]) => {
+                  const { sent, received } = monthSummary(group.items);
+                  return (
+                    <div key={key} className="space-y-2">
+                      <div className="flex items-center justify-between px-1">
+                        <span className="text-[13px] font-rh-sb text-sfx-muted tracking-wider">
+                          {group.label}
+                        </span>
+                        <span className="text-[13px] text-sfx-muted">
+                          Sent $
+                          {sent.toFixed(2)}
+                          {" "}
+                          · Received $
+                          {received.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <ul className="space-y-3">
+                        {group.items.map(tx => (
+                          <HistoryTransactionRow
+                            key={tx.id}
+                            transaction={tx}
+                            balanceAfter={showBalanceColumn ? balanceByTransactionId.get(tx.id) : undefined}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+    </div>
   );
 }

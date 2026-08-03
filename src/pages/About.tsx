@@ -67,7 +67,7 @@ export default function About() {
         </Link>
 
         <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
-          Password
+          About Sfx
         </h1>
       </header>
 

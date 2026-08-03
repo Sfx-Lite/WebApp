@@ -9,6 +9,7 @@ import {
   MdOutlineWarningAmber,
 } from "react-icons/md";
 import { Link, useNavigate } from "react-router";
+
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch } from "@/hooks/reduxHooks";
@@ -30,27 +31,6 @@ type SettingItemProps = {
   onClick?: () => void;
 };
 
-type Address = {
-  street1: string;
-  street2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-};
-
-type UserProfileData = {
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  username: string;
-  mobileNumber: string;
-  email: string;
-  tier: string;
-  homeCountry: string;
-  address: Address;
-};
-
 function SettingItem({
   icon,
   iconBgClass,
@@ -64,32 +44,86 @@ function SettingItem({
   const content = (
     <div
       onClick={onClick}
-      className="flex mb-2 items-center justify-between rounded-2xl border border-sfx-primary-tint/20 bg-white shadow-brand transition-all hover:border-sfx-primary/20 cursor-pointer"
+      className="
+        flex
+        min-h-[64px]
+        items-center
+        justify-between
+        gap-3
+        rounded-2xl
+        border
+        border-sfx-primary-tint/20
+        bg-white
+        px-4
+        py-3
+        mb-3
+        shadow-brand
+        transition-all
+        hover:border-sfx-primary/20
+        cursor-pointer
+      "
     >
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <div
-          className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${iconBgClass}`}
+          className={`
+            flex
+            size-11
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            ${iconBgClass}
+          `}
         >
           {icon}
         </div>
-        <div>
+
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-rh-b text-sm sm:text-base text-sfx-ink leading-tight">
+            <h3
+              className="
+              truncate
+              font-rh-b
+              text-sm
+              sm:text-base
+              text-sfx-ink
+            "
+            >
               {title}
             </h3>
+
             {badge && (
               <span
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-rh-sb ${badge.className}`}
+                className={`
+                  shrink-0
+                  rounded-full
+                  px-2.5
+                  py-0.5
+                  text-[11px]
+                  font-rh-sb
+                  ${badge.className}
+                `}
               >
                 {badge.text}
               </span>
             )}
           </div>
-          <p className="font-rh-r text-xs text-sfx-muted mt-0.5">{subtitle}</p>
+
+          <p
+            className="
+            truncate
+            font-rh-r
+            text-xs
+            text-sfx-muted
+            mt-1
+          "
+          >
+            {subtitle}
+          </p>
         </div>
       </div>
 
-      <div className="pl-2">
+      <div className="shrink-0">
         {rightElement || (
           <MdChevronRight className="size-5 text-sfx-muted/60" />
         )}
@@ -108,16 +142,22 @@ const USER_PROFILE_URL = "/users/profile";
 
 export default function Settings() {
   const navigate = useNavigate();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [profile, setProfile] = useState<UserProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+
   const dispatch = useAppDispatch();
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  const [profile, setProfile] = useState<any>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
+
   const { kycData, loading: kycLoading } = useKycStatus();
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const res = await api.get(USER_PROFILE_URL);
+
         setProfile(res.data.data);
       }
       catch {
@@ -133,43 +173,109 @@ export default function Settings() {
 
   const handleLogout = () => {
     dispatch(logout());
+
     navigate("/login");
   };
 
-  const fullName = profile
-    ? [profile.firstName, profile.lastName].filter(Boolean).join(" ")
-    : "";
+  const fullName = profile ? `${profile.firstName} ${profile.lastName}` : "";
 
-  const initial = profile?.firstName ? profile.firstName.charAt(0).toUpperCase() : "U";
+  const initial = profile?.firstName
+    ? profile.firstName.charAt(0).toUpperCase()
+    : "U";
 
-  const currentKycBadge = kycData
-    ? KYC_BADGES[kycData.kycStatus]
-    : null;
+  const currentKycBadge = kycData ? KYC_BADGES[kycData.kycStatus] : null;
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-around p-4 sm:p-6">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 px-1 py-2">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-sfx-primary text-lg font-rh-b text-white shadow-sm">
+    <div
+      className="
+          flex
+          min-h-dvh
+          w-full
+          flex-col
+          overflow-y-auto
+          "
+    >
+      <div
+        className="
+          mx-auto
+          flex
+          w-full
+          max-w-lg
+          flex-1
+          flex-col
+          px-4
+          py-8
+          sm:px-6
+          lg:px-8
+          "
+      >
+        <div className="space-y-8">
+          {/* PROFILE */}
+
+          <div
+            className="
+          flex
+          items-center
+          gap-4
+          "
+          >
+            <div
+              className="
+          flex
+          size-12
+          shrink-0
+          items-center
+          justify-center
+          rounded-full
+          bg-sfx-primary
+          text-lg
+          font-rh-b
+          text-white
+          "
+            >
               {isLoading ? "..." : initial}
             </div>
-            <div>
-              <h1 className="font-rh-b text-lg leading-snug text-sfx-ink">
+
+            <div className="min-w-0">
+              <h1
+                className="
+          truncate
+          font-rh-b
+          text-lg
+          sm:text-xl
+          text-sfx-ink
+          "
+              >
                 {isLoading ? "Loading..." : fullName || "Guest User"}
               </h1>
-              <p className="font-rh-r text-xs text-sfx-muted">
-                {profile?.username ? `@${profile.username}` : profile?.email || ""}
+
+              <p
+                className="
+          text-xs
+          font-rh-r
+          text-sfx-muted
+          "
+              >
+                {profile?.username && `@${profile.username}`}
               </p>
             </div>
           </div>
 
-          <section className="space-y-3">
-            <h2 className="px-1 font-rh-b text-xs uppercase tracking-widest text-sfx-muted">
+          <section className="space-y-4">
+            <h2
+              className="
+          px-1
+          font-rh-b
+          text-xs
+          uppercase
+          tracking-widest
+          text-sfx-muted
+          "
+            >
               Account
             </h2>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <SettingItem
                 icon={<MdOutlinePerson className="size-6 text-sfx-primary" />}
                 iconBgClass="bg-sfx-primary/10"
@@ -187,27 +293,7 @@ export default function Settings() {
                 subtitle={
                   kycLoading
                     ? "Checking verification status."
-                    : kycData?.kycStatus === "verified"
-                      ? `Your identity was approved on ${
-                        new Date(kycData.submission?.reviewedAt ?? "")
-                          .toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })
-                      }.`
-                      : kycData?.kycStatus === "pending"
-                        ? "Your documents are currently being reviewed."
-                        : kycData?.kycStatus === "rejected"
-                          ? `Your verification was rejected on ${
-                            new Date(kycData.submission?.reviewedAt ?? "")
-                              .toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })
-                          }.`
-                          : "Complete verification to unlock all features."
+                    : "Your identity was approved."
                 }
                 badge={
                   currentKycBadge
@@ -232,14 +318,17 @@ export default function Settings() {
                 to="/password"
               />
 
-              {/* Notifications */}
               <SettingItem
                 icon={
                   <MdOutlineNotifications className="size-6 text-sfx-primary" />
                 }
+
                 iconBgClass="bg-sfx-primary/10"
+
                 title="Notifications"
+
                 subtitle="In-app notification preferences."
+
                 rightElement={(
                   <button
                     type="button"
@@ -247,14 +336,28 @@ export default function Settings() {
                       e.stopPropagation();
                       setNotificationsEnabled(!notificationsEnabled);
                     }}
-                    className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      notificationsEnabled ? "bg-sfx-primary" : "bg-gray-200"
-                    }`}
+
+                    className={`
+          relative
+          inline-flex
+          h-7
+          w-12
+          rounded-full
+          transition
+          ${notificationsEnabled ? "bg-sfx-primary" : "bg-gray-200"}
+          `}
                   >
                     <span
-                      className={`pointer-events-none inline-block size-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        notificationsEnabled ? "translate-x-5" : "translate-x-0"
-                      }`}
+                      className={`
+          absolute
+          top-0.5
+          size-6
+          rounded-full
+          bg-white
+          shadow
+          transition-transform
+          ${notificationsEnabled ? "translate-x-5" : "translate-x-0"}
+          `}
                     />
                   </button>
                 )}
@@ -262,13 +365,21 @@ export default function Settings() {
             </div>
           </section>
 
-          <section className="space-y-3">
-            <h2 className="px-1 font-rh-b text-xs uppercase tracking-widest text-sfx-muted">
+          <section className="space-y-4">
+            <h2
+              className="
+          px-1
+          font-rh-b
+          text-xs
+          uppercase
+          tracking-widest
+          text-sfx-muted
+          "
+            >
               Support
             </h2>
 
-            <div className="space-y-3">
-              {/* Help & Support */}
+            <div className="space-y-4">
               <SettingItem
                 icon={<MdOutlineChat className="size-6 text-sfx-success" />}
                 iconBgClass="bg-sfx-success/10"
@@ -290,11 +401,26 @@ export default function Settings() {
           </section>
         </div>
 
-        <div className="pb-4 text-center">
+        <div
+          className="
+          mt-auto
+          pt-10
+          pb-4
+          "
+        >
           <Button
-            type="button"
             onClick={handleLogout}
-            className="font-rh-sb h-[button-h] hover:bg-sfx-primary-soft border border-sfx-ink/15 w-full bg-white text-sm text-red-500 hover:text-red-600 transition-colors py-2 px-4 focus:outline-none"
+            className="
+          w-full
+          h-11
+          border
+          border-sfx-ink/15
+          bg-white
+          text-sm
+          font-rh-sb
+          text-red-500
+          hover:bg-sfx-primary-soft
+          "
           >
             Log out
           </Button>
