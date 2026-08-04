@@ -7,14 +7,15 @@ import { useNavigate } from "react-router";
 import { useCalculateFeeQuery } from "@/api/fee";
 import { useGetWalletBalanceQuery } from "@/api/wallet";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { setAmount } from "@/store/sendMoneySlice";
+import { setWithdrawAmount } from "@/store/withdrawSlice";
+import { truncateAddress } from "@/utils/helper-funcs";
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "back"] as const;
 
-export default function Amount() {
+export default function WithdrawAmount() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const draft = useSelector((state: RootState) => state.sendMoney);
+  const draft = useSelector((state: RootState) => state.withdraw);
   const { data: balanceData } = useGetWalletBalanceQuery();
 
   const [amountInput, setAmountInput] = useState(draft.amount || "0");
@@ -22,7 +23,7 @@ export default function Amount() {
   const numericAmount = Number(debouncedAmount || 0);
 
   const { data: feeData, isFetching: isFeeLoading } = useCalculateFeeQuery(
-    { amount: numericAmount, from: "USDC", to: "USDC" },
+    { amount: numericAmount, from: "USD", to: "USD" },
     { skip: numericAmount <= 0 },
   );
 
@@ -54,12 +55,12 @@ export default function Amount() {
   const handleReview = () => {
     if (!isValid)
       return;
-    dispatch(setAmount(amountInput));
-    navigate("/sendmoney/sfx/review");
+    dispatch(setWithdrawAmount(amountInput));
+    navigate("/withdraw/review");
   };
 
-  if (!draft.recipientUsername) {
-    navigate("/sendmoney/sfx");
+  if (!draft.externalAddress) {
+    navigate("/withdraw/address");
     return null;
   }
 
@@ -68,7 +69,7 @@ export default function Amount() {
       <div className="space-y-[2rem]">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/sendmoney/sfx")}
+            onClick={() => navigate("/withdraw/address")}
             className="p-[10px] rounded-full bg-sfx-card"
           >
             <MdArrowBack className="text-[20px]" />
@@ -80,20 +81,17 @@ export default function Amount() {
 
         <div className="w-full md:max-w-[50%] mx-auto space-y-6">
           <div className="flex items-center gap-3 p-(--spacing-card-pad) bg-sfx-card rounded-card">
-            <div className="flex size-10 items-center justify-center rounded-full bg-pink-500 text-white font-rh-b">
-              {draft.recipientDisplayName?.charAt(0).toUpperCase()}
+            <div className="flex size-10 items-center justify-center rounded-full bg-sfx-amber-bg text-sfx-amber font-rh-b">
+              #
             </div>
             <div>
               <p className="font-rh-b text-[15px]">
-                To
-                {" "}
-                {draft.recipientDisplayName}
+                To external wallet
               </p>
-              <p className="text-[13px] text-sfx-muted">
-                @
-                {draft.recipientUsername}
+              <p className="text-[13px] text-sfx-muted font-mono">
+                {truncateAddress(draft.externalAddress, 8, 6)}
                 {" "}
-                · instant · free
+                · Polygon Amoy
               </p>
             </div>
           </div>

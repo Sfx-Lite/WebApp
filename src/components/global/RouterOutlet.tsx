@@ -13,6 +13,10 @@ import ReviewTransfer from "@/pages/ReviewTransfer";
 import SendMoney from "@/pages/SendMoney";
 import SendToSfx from "@/pages/SendToSfx";
 import SuccessTransfer from "@/pages/SuccessTransfer";
+import WithdrawAddress from "@/pages/WithdrawAddress";
+import WithdrawAmount from "@/pages/WithdrawAmount";
+import WithdrawReview from "@/pages/WithdrawReview";
+import WithdrawSuccess from "@/pages/WithdrawSuccess";
 import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
 import History from "../../pages/History";
 import Home from "../../pages/Home";
@@ -59,6 +63,11 @@ export default function RouterOutlet() {
           <Route path="/sendmoney/sfxs/amount" element={<Amount />} />
           <Route path="/sendmoney/sfxs/review" element={<ReviewTransfer />} />
           <Route path="/sendmoney/sfxs/success" element={<SuccessTransfer />} />
+
+          <Route path="/withdraw/address" element={<WithdrawAddress />} />
+          <Route path="/withdraw/amount" element={<WithdrawAmount />} />
+          <Route path="/withdraw/review" element={<WithdrawReview />} />
+          <Route path="/withdraw/success" element={<WithdrawSuccess />} />
 
           <Route path="/kyc" element={<KycIntro />} />
           <Route path="/kyc/type" element={<KycType />} />
