@@ -2,13 +2,13 @@
 import type { RootState } from "@/store";
 import { Delete } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useCalculateFeeQuery } from "@/api/fee";
 import { useWithdrawMutation } from "@/api/withdrawal";
-import { resetWithdraw } from "@/store/withdrawSlice";
+// import { resetWithdraw } from "@/store/withdrawSlice";
 import { truncateAddress } from "@/utils/helper-funcs";
 
 const PIN_LENGTH = 4;
@@ -16,7 +16,7 @@ const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"] as c
 
 export default function WithdrawReview() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  //   const dispatch = useDispatch();
   const draft = useSelector((state: RootState) => state.withdraw);
   const [withdraw, { isLoading }] = useWithdrawMutation();
 
@@ -24,15 +24,20 @@ export default function WithdrawReview() {
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const amountNumber = Number(draft.amount);
+  const amountNumber = Number(draft.amount || 0);
 
   const { data: feeData, isFetching: isFeeLoading } = useCalculateFeeQuery(
     { amount: amountNumber, from: "USD", to: "USD" },
     { skip: amountNumber <= 0 },
   );
 
+  useEffect(() => {
+    if (!draft.externalAddress || !draft.amount) {
+      navigate("/withdraw/address");
+    }
+  }, [draft.externalAddress, draft.amount, navigate]);
+
   if (!draft.externalAddress || !draft.amount) {
-    navigate("/withdraw/address");
     return null;
   }
 
@@ -61,8 +66,8 @@ export default function WithdrawReview() {
           note: draft.note || undefined,
         }).unwrap();
 
-        dispatch(resetWithdraw());
         navigate("/withdraw/success", { state: { result } });
+        // dispatch(resetWithdraw());
       }
       catch (err: any) {
         setPin("");
