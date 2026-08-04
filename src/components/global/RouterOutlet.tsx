@@ -13,7 +13,7 @@ import ReviewTransfer from "@/pages/ReviewTransfer";
 import SendMoney from "@/pages/SendMoney";
 import SendToSfx from "@/pages/SendToSfx";
 import SuccessTransfer from "@/pages/SuccessTransfer";
-import WithdrawAddress from "@/pages/withdrawAddress";
+import WithdrawAddress from "@/pages/WithdrawAddress";
 import WithdrawAmount from "@/pages/WithdrawAmount";
 import WithdrawReview from "@/pages/WithdrawReview";
 import WithdrawSuccess from "@/pages/WithdrawSuccess";
