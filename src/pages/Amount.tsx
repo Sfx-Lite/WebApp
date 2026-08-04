@@ -55,11 +55,11 @@ export default function Amount() {
     if (!isValid)
       return;
     dispatch(setAmount(amountInput));
-    navigate("/sendmoney/sfx/review");
+    navigate("/sendmoney/sfxs/review");
   };
 
   if (!draft.recipientUsername) {
-    navigate("/sendmoney/sfx");
+    navigate("/sendmoney/sfxs");
     return null;
   }
 

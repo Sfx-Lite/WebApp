@@ -2,14 +2,14 @@
 import type { RootState } from "@/store";
 import { Delete } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useVerifyPinMutation } from "@/api/auth";
 import { useCalculateFeeQuery } from "@/api/fee";
 import { useTransferToUserMutation } from "@/api/transactions";
-import { resetSendMoney } from "@/store/sendMoneySlice";
+import { trackEvent } from "@/utils/trackEvent";
 
 const PIN_LENGTH = 4;
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"] as const;
@@ -17,7 +17,7 @@ const MAX_ATTEMPTS = 5;
 
 export default function ReviewTransfer() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const draft = useSelector((state: RootState) => state.sendMoney);
   const [verifyPin, { isLoading: isVerifying }] = useVerifyPinMutation();
   const [transfer, { isLoading: isTransferring }] = useTransferToUserMutation();
@@ -30,15 +30,24 @@ export default function ReviewTransfer() {
 
   const isBusy = isVerifying || isTransferring;
 
-  const amountNumber = Number(draft.amount);
+  const amountNumber = Number(draft.amount || 0);
 
   const { data: feeData, isFetching: isFeeLoading } = useCalculateFeeQuery(
-    { amount: amountNumber, from: "USDC", to: "USDC" },
+    { amount: amountNumber, from: "USD", to: "USD" },
     { skip: amountNumber <= 0 },
   );
 
+  useEffect(() => {
+    if (!draft.recipientUsername || !draft.amount) {
+      navigate("/sendmoney/sfxs", { replace: true });
+    }
+
+    else {
+      trackEvent("send_review_started", { amount: draft.amount });
+    }
+  }, [draft.recipientUsername, draft.amount, navigate]);
+
   if (!draft.recipientUsername || !draft.amount) {
-    navigate("/sendmoney/sfx");
     return null;
   }
 
@@ -75,8 +84,9 @@ export default function ReviewTransfer() {
           note: draft.note || undefined,
         }).unwrap();
 
-        dispatch(resetSendMoney());
-        navigate("/sendmoney/sfx/success", { state: { result, recipientUsername: draft.recipientUsername } });
+        navigate("/sendmoney/sfxs/success", {
+          state: { result, recipientUsername: draft.recipientUsername },
+        });
       }
       catch (err: any) {
         setPin("");
@@ -109,7 +119,7 @@ export default function ReviewTransfer() {
       <div className="space-y-[2rem]">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/sendmoney/sfx/amount")}
+            onClick={() => navigate("/sendmoney/sfxs/amount")}
             className="p-[10px] rounded-full bg-sfx-card"
           >
             <MdArrowBack className="text-[20px]" />
@@ -142,13 +152,14 @@ export default function ReviewTransfer() {
             <div className="flex items-center justify-between py-3">
               <span className="text-[14px] text-sfx-muted">Fee</span>
               <span className="font-rh-sb text-[15px]">
-                {isFeeLoading ? "…" : `$${fee.toFixed(2)}`}
+                { isFeeLoading ? "..." : `$${fee.toFixed(2)}` }
               </span>
             </div>
             <div className="flex items-center justify-between py-3 last:pb-0">
               <span className="text-[14px] text-sfx-muted">Total</span>
               <span className="font-rh-sb text-[15px]">
-                {isFeeLoading ? "…" : `$${total.toFixed(2)}`}
+                $
+                { isFeeLoading ? "..." : `${total.toFixed(2)}` }
               </span>
             </div>
           </div>
@@ -157,8 +168,7 @@ export default function ReviewTransfer() {
         <div className="w-full md:max-w-[50%] mx-auto">
           <button
             onClick={() => setIsPinOpen(true)}
-            disabled={isFeeLoading}
-            className="w-full py-4 rounded-button bg-sfx-primary text-white font-rh-m text-[15px] disabled:opacity-40"
+            className="w-full py-4 rounded-button bg-sfx-primary text-white font-rh-m text-[15px]"
           >
             Confirm and send
           </button>
