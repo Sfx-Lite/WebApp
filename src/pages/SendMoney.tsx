@@ -50,10 +50,10 @@ export default function SendMoney() {
                       SFx User
                     </h3>
                     <p className="text-[14px] leading-[13px] md:text-[15px] md:leading-[18px] text-sfx-muted ">
-                      Receive from another SFx Lite user
+                      Instant and free, with a username or
                       {" "}
                       <br className="hidden md:block" />
-                      with your username or QR.
+                      QR code.
                     </p>
                   </div>
                 </div>
@@ -63,7 +63,7 @@ export default function SendMoney() {
             </button>
             <button
               onClick={() => {
-                navigate("/sendmoney/sfxs");
+                navigate("/withdraw/address");
               }}
               className="w-full p-(--spacing-card-pad) bg-sfx-card rounded-card"
             >
@@ -75,14 +75,14 @@ export default function SendMoney() {
 
                   <div className="space-y-1 text-left">
                     <h3 className="font-rh-b text-[16px] leading-[16px]">
-                      Wallet address
+                      Crypto wallet
                     </h3>
 
                     <p className="text-[14px] leading-[13px] md:text-[15px] md:leading-[18px] text-sfx-muted">
-                      Deposit USDC from any wallet on
+                      Send USDC to any address on
                       {" "}
                       <br className="hidden md:block" />
-                      Polygon Amoy. Arrives in ~1 min.
+                      Polygon Amoy.
                     </p>
                   </div>
                 </div>

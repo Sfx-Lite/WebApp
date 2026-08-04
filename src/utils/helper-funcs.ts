@@ -80,3 +80,7 @@ export function formatHistoryTimestamp(isoDate: string): string {
 export function formatMonthLabel(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase();
 }
+
+export function isValidEvmAddress(value: string): boolean {
+  return /^0x[a-f0-9]{40}$/i.test(value.trim());
+}

@@ -6,39 +6,33 @@ import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { useVerifyPinMutation } from "@/api/auth";
 import { useCalculateFeeQuery } from "@/api/fee";
-import { useTransferToUserMutation } from "@/api/transactions";
-import { resetSendMoney } from "@/store/sendMoneySlice";
+import { useWithdrawMutation } from "@/api/withdrawal";
+import { resetWithdraw } from "@/store/withdrawSlice";
+import { truncateAddress } from "@/utils/helper-funcs";
 
 const PIN_LENGTH = 4;
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"] as const;
-const MAX_ATTEMPTS = 5;
 
-export default function ReviewTransfer() {
+export default function WithdrawReview() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const draft = useSelector((state: RootState) => state.sendMoney);
-  const [verifyPin, { isLoading: isVerifying }] = useVerifyPinMutation();
-  const [transfer, { isLoading: isTransferring }] = useTransferToUserMutation();
+  const draft = useSelector((state: RootState) => state.withdraw);
+  const [withdraw, { isLoading }] = useWithdrawMutation();
 
   const [isPinOpen, setIsPinOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [isLockedOut, setIsLockedOut] = useState(false);
-
-  const isBusy = isVerifying || isTransferring;
 
   const amountNumber = Number(draft.amount);
 
   const { data: feeData, isFetching: isFeeLoading } = useCalculateFeeQuery(
-    { amount: amountNumber, from: "USDC", to: "USDC" },
+    { amount: amountNumber, from: "USD", to: "USD" },
     { skip: amountNumber <= 0 },
   );
 
-  if (!draft.recipientUsername || !draft.amount) {
-    navigate("/sendmoney/sfx");
+  if (!draft.externalAddress || !draft.amount) {
+    navigate("/withdraw/address");
     return null;
   }
 
@@ -46,9 +40,6 @@ export default function ReviewTransfer() {
   const total = amountNumber + fee;
 
   const handlePinKey = async (key: string) => {
-    if (isLockedOut)
-      return;
-
     if (key === "back") {
       setPin(prev => prev.slice(0, -1));
       return;
@@ -63,42 +54,27 @@ export default function ReviewTransfer() {
       setError(null);
 
       try {
-        const verifyResult = await verifyPin(nextPin).unwrap();
-
-        if (!verifyResult.verified) {
-          throw new Error("PIN not verified");
-        }
-
-        const result = await transfer({
-          recipientUsername: draft.recipientUsername!,
+        const result = await withdraw({
           amount: draft.amount,
+          externalAddress: draft.externalAddress!,
+          pin: nextPin,
           note: draft.note || undefined,
         }).unwrap();
 
-        dispatch(resetSendMoney());
-        navigate("/sendmoney/sfx/success", { state: { result, recipientUsername: draft.recipientUsername } });
+        dispatch(resetWithdraw());
+        navigate("/withdraw/success", { state: { result } });
       }
       catch (err: any) {
         setPin("");
 
-        if (err?.status === 401) {
-          const attemptsSoFar = failedAttempts + 1;
-          setFailedAttempts(attemptsSoFar);
-
-          if (attemptsSoFar >= MAX_ATTEMPTS) {
-            setIsLockedOut(true);
-            setError("Too many incorrect attempts. Try again in 15 minutes.");
-          }
-          else {
-            const remaining = MAX_ATTEMPTS - attemptsSoFar;
-            setError(`Incorrect PIN. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`);
-          }
+        if (err?.status === 403) {
+          setError(err?.data?.message ?? "Unable to authorize this withdrawal. Check your PIN or verification status.");
         }
-        else if (err?.status === 403) {
-          setError("You need to complete identity verification before sending.");
+        else if (err?.status === 422) {
+          setError("Insufficient balance to cover the amount plus fee.");
         }
         else {
-          setError("Transfer failed. Please try again.");
+          setError("Withdrawal failed. Please try again.");
         }
       }
     }
@@ -109,13 +85,13 @@ export default function ReviewTransfer() {
       <div className="space-y-[2rem]">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/sendmoney/sfx/amount")}
+            onClick={() => navigate("/withdraw/amount")}
             className="p-[10px] rounded-full bg-sfx-card"
           >
             <MdArrowBack className="text-[20px]" />
           </button>
           <span className="inline-block font-rh-m">
-            Review transfer
+            Review withdrawal
           </span>
         </div>
 
@@ -123,14 +99,13 @@ export default function ReviewTransfer() {
           <div className="p-(--spacing-card-pad) bg-sfx-card rounded-card divide-y divide-sfx-muted/15">
             <div className="flex items-center justify-between py-3 first:pt-0">
               <span className="text-[14px] text-sfx-muted">To</span>
-              <span className="font-rh-sb text-[15px]">
-                {draft.recipientDisplayName}
-                {" "}
-                ·
-                {" "}
-                @
-                {draft.recipientUsername}
+              <span className="font-rh-sb text-[15px] font-mono">
+                {truncateAddress(draft.externalAddress, 8, 6)}
               </span>
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <span className="text-[14px] text-sfx-muted">Network</span>
+              <span className="font-rh-sb text-[15px]">Polygon Amoy</span>
             </div>
             <div className="flex items-center justify-between py-3">
               <span className="text-[14px] text-sfx-muted">Amount</span>
@@ -152,6 +127,12 @@ export default function ReviewTransfer() {
               </span>
             </div>
           </div>
+
+          <div className="p-(--spacing-card-pad) rounded-card border border-sfx-danger/30 bg-sfx-danger-bg">
+            <p className="text-[13px] leading-[18px] text-sfx-danger">
+              This transaction is irreversible once broadcast. Double-check the address before confirming.
+            </p>
+          </div>
         </div>
 
         <div className="w-full md:max-w-[50%] mx-auto">
@@ -160,7 +141,7 @@ export default function ReviewTransfer() {
             disabled={isFeeLoading}
             className="w-full py-4 rounded-button bg-sfx-primary text-white font-rh-m text-[15px] disabled:opacity-40"
           >
-            Confirm and send
+            Confirm and withdraw
           </button>
         </div>
       </div>
@@ -173,7 +154,7 @@ export default function ReviewTransfer() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/40 z-40"
-              onClick={() => !isBusy && setIsPinOpen(false)}
+              onClick={() => !isLoading && setIsPinOpen(false)}
             />
             <motion.div
               initial={{ y: "100%" }}
@@ -187,11 +168,8 @@ export default function ReviewTransfer() {
               <div className="text-center space-y-1">
                 <h3 className="font-rh-b text-[18px]">Enter your PIN</h3>
                 <p className="text-[14px] text-sfx-muted">
-                  Confirm sending $
+                  Confirm withdrawing $
                   {amountNumber.toFixed(2)}
-                  {" "}
-                  to @
-                  {draft.recipientUsername}
                 </p>
               </div>
 
@@ -212,7 +190,7 @@ export default function ReviewTransfer() {
                 {KEYS.map((key, i) => (
                   <button
                     key={i}
-                    disabled={isBusy || isLockedOut || !key}
+                    disabled={isLoading || !key}
                     onClick={() => handlePinKey(key)}
                     className="flex items-center justify-center text-[24px] font-rh-m py-2 disabled:opacity-0"
                   >
