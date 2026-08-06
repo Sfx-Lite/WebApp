@@ -197,7 +197,7 @@ export default function UserProfile() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-dvh w-full items-center justify-center bg-sfx-primary-tint">
+      <div className="flex min-h-screen w-full items-center justify-center ">
         <p className="font-rh-sb text-sfx-ink">
           <Spinner />
         </p>

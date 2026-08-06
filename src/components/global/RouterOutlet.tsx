@@ -4,21 +4,24 @@ import About from "@/pages/About";
 import AddMoney from "@/pages/AddMoney";
 import Amount from "@/pages/Amount";
 
+import ChatThread from "@/pages/ChatThread";
+import ConversationList from "@/pages/ConversationList";
 import DepositAddress from "@/pages/DepositAddress";
+
 import DepositCrypto from "@/pages/DepositCrypto";
 import Notifications from "@/pages/Notifications";
-
 import ReceiveFromSFx from "@/pages/ReceiveFromSfx";
 import ReviewTransfer from "@/pages/ReviewTransfer";
+import Security from "@/pages/Security";
 import SendMoney from "@/pages/SendMoney";
 import SendToSfx from "@/pages/SendToSfx";
 import SuccessTransfer from "@/pages/SuccessTransfer";
 import WithdrawAddress from "@/pages/WithdrawAddress";
+
 import WithdrawAmount from "@/pages/WithdrawAmount";
 import WithdrawReview from "@/pages/WithdrawReview";
 import WithdrawSuccess from "@/pages/WithdrawSuccess";
 import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
-
 import History from "../../pages/History";
 import Home from "../../pages/Home";
 import Rates from "../../pages/Rates";
@@ -80,7 +83,12 @@ export default function RouterOutlet() {
           <Route path="/password" element={<UserPassword />} />
           <Route path="/change-pin" element={<UserPinChange />} />
           <Route path="/about" element={<About />} />
-          <Route path="/support" element={<SupportChat />} />
+          <Route path="/security" element={<Security />} />
+          {/* <Route path="/support" element={<SupportChat />} /> */}
+
+          <Route path="/support" element={<ConversationList />} />
+          <Route path="/support/chat" element={<ChatThread />} />
+          <Route path="/support/chat/:conversationId" element={<ChatThread />} />
         </Route>
 
         {/* <Route element={<ChatLayout />}>
