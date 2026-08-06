@@ -63,7 +63,7 @@ export default function DepositAddress() {
             <div className="w-full aspect-square max-w-[220px] mx-auto">
               {isLoading
                 ? <div className="w-full h-full rounded-[10px] bg-sfx-muted/20 animate-pulse" />
-                : <QrCode />}
+                : <QrCode value={data?.depositAddress ?? ""} />}
             </div>
 
             <div className="flex items-center justify-center gap-4 text-[14px]">

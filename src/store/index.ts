@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { beneficiaries } from "@/api/beneficiaries";
+import { chat } from "@/api/chat";
 import { fees } from "@/api/fee";
 import { notifications } from "@/api/notifications";
 import { transactions } from "@/api/transactions";
@@ -24,6 +25,7 @@ export const store = configureStore({
     [users.reducerPath]: users.reducer,
     [notifications.reducerPath]: notifications.reducer,
     [beneficiaries.reducerPath]: beneficiaries.reducer,
+    [chat.reducerPath]: chat.reducer,
     [fees.reducerPath]: fees.reducer,
     [withdrawals.reducerPath]: withdrawals.reducer,
   },
@@ -33,6 +35,7 @@ export const store = configureStore({
     users.middleware,
     notifications.middleware,
     beneficiaries.middleware,
+    chat.middleware,
     fees.middleware,
     withdrawals.middleware,
   ),
