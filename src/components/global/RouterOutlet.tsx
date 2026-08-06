@@ -22,6 +22,7 @@ import History from "../../pages/History";
 import Home from "../../pages/Home";
 
 import Rates from "../../pages/Rates";
+import Security from "../../pages/Security";
 import Settings from "../../pages/Settings";
 import SupportChat from "../../pages/SupportChat";
 import KycDocCapture from "../Kyc/KycDocCapture";
@@ -33,6 +34,7 @@ import KycType from "../Kyc/KycType";
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
 import UserPassword from "../UserPassword";
+import UserPinChange from "../UserPinChange";
 import UserProfile from "../UserProfile";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -78,7 +80,9 @@ export default function RouterOutlet() {
 
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/password" element={<UserPassword />} />
+          <Route path="/change-pin" element={<UserPinChange />} />
           <Route path="/about" element={<About />} />
+          <Route path="/security" element={<Security />} />
           <Route path="/support" element={<SupportChat />} />
         </Route>
 
