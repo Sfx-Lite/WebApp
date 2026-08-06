@@ -1,7 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
-export type DocumentType = "passport" | "national-id";
+export type DocumentType = "passport" | "national_id";
 
 export type Country = {
   alpha2Code: string;
