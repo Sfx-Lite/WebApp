@@ -5,23 +5,23 @@ import { useNavigate } from "react-router";
 import { useGetUserProfileQuery } from "@/api/users";
 import QrCode from "@/components/global/qrcode/QrCode";
 
-type ReceiveFromSFxProps = {
-  domain?: string;
-};
+// type ReceiveFromSFxProps = {
+//   domain?: string;
+// };
 
-export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSFxProps) {
+export default function ReceiveFromSFx() {
   const { data: user, isLoading } = useGetUserProfileQuery();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
-  const payLink = `${domain}/pay/@${user?.username ?? ""}`;
+  // const payLink = `${domain}/pay/@${user?.username ?? ""}`;
   const fullName = user ? `${user.firstName} ${user.lastName}` : "";
 
   const handleCopy = async () => {
     if (isLoading || !user)
       return;
     try {
-      await navigator.clipboard.writeText(`https://${payLink}`);
+      await navigator.clipboard.writeText(`${user.username}`);
       setCopied(true);
       setTimeout(setCopied, 1800, false);
     }
@@ -38,7 +38,7 @@ export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSF
         await navigator.share({
           title: `${fullName} on SFx Lite`,
           text: `Send money to @${user.username} on SFx Lite`,
-          url: `https://${payLink}`,
+          url: `${user.username}`,
         });
       }
       catch {
@@ -71,7 +71,7 @@ export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSF
 
           <div className="w-full p-(--spacing-card-pad) bg-sfx-card rounded-card space-y-5">
             <div className="w-full aspect-square max-w-[260px] mx-auto">
-              <QrCode />
+              <QrCode value={`${user?.username}`} />
             </div>
 
             <div className="text-center space-y-1">
@@ -111,7 +111,7 @@ export default function ReceiveFromSFx({ domain = "sfxlite.app" }: ReceiveFromSF
                   <Copy className="size-4 shrink-0" />
                 )}
             <span className="truncate">
-              {isLoading ? "Loading…" : copied ? "Copied!" : payLink}
+              {isLoading ? "Loading…" : copied ? "Copied!" : user?.username}
             </span>
           </button>
         </div>

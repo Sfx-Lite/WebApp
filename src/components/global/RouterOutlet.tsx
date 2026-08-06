@@ -7,9 +7,9 @@ import Amount from "@/pages/Amount";
 import DepositAddress from "@/pages/DepositAddress";
 import DepositCrypto from "@/pages/DepositCrypto";
 import Notifications from "@/pages/Notifications";
+
 import ReceiveFromSFx from "@/pages/ReceiveFromSfx";
 import ReviewTransfer from "@/pages/ReviewTransfer";
-
 import SendMoney from "@/pages/SendMoney";
 import SendToSfx from "@/pages/SendToSfx";
 import SuccessTransfer from "@/pages/SuccessTransfer";
@@ -18,13 +18,11 @@ import WithdrawAmount from "@/pages/WithdrawAmount";
 import WithdrawReview from "@/pages/WithdrawReview";
 import WithdrawSuccess from "@/pages/WithdrawSuccess";
 import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
+
 import History from "../../pages/History";
 import Home from "../../pages/Home";
-
 import Rates from "../../pages/Rates";
-import Security from "../../pages/Security";
 import Settings from "../../pages/Settings";
-import SupportChat from "../../pages/SupportChat";
 import KycDocCapture from "../Kyc/KycDocCapture";
 import KycGate from "../Kyc/KycGate";
 import KycIntro from "../Kyc/KycIntro";
@@ -82,7 +80,6 @@ export default function RouterOutlet() {
           <Route path="/password" element={<UserPassword />} />
           <Route path="/change-pin" element={<UserPinChange />} />
           <Route path="/about" element={<About />} />
-          <Route path="/security" element={<Security />} />
           <Route path="/support" element={<SupportChat />} />
         </Route>
 

@@ -1,5 +1,5 @@
 import type { RootState } from "@/store";
-import { Check, Loader2, ScanLine, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -103,13 +103,13 @@ export default function SendToSfx() {
                 placeholder="@username"
                 className="w-full px-4 py-3 rounded-2xl bg-sfx-card font-rh-m text-[16px] outline-none focus:ring-2 focus:ring-sfx-primary/30"
               />
-              <button
+              {/* <button
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-sfx-primary"
                 aria-label="Scan QR code"
               >
                 <ScanLine className="size-5" />
-              </button>
+              </button> */}
             </div>
 
             {isChecking && cleanUsername.length >= 2 && (
