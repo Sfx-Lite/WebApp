@@ -178,161 +178,159 @@ export default function UserPassword() {
   const strength = getStrengthLabel();
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-sfx-primary-tint overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl lg:max-w-5xl flex-1 flex-col p-4 sm:p-6 lg:p-8">
-        <header className="mb-8 flex items-center gap-2">
-          <Link
-            to="/settings"
-            className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
-          >
-            <MdArrowBack className="size-6 text-sfx-ink" />
-          </Link>
+    <div className="mx-auto flex w-full max-w-4xl lg:max-w-5xl flex-1 flex-col p-4 sm:p-6 lg:p-8">
+      <header className="mb-8 flex items-center gap-2">
+        <Link
+          to="/security"
+          className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
+        >
+          <MdArrowBack className="size-6 text-sfx-ink" />
+        </Link>
 
-          <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
-            Password
-          </h1>
-        </header>
+        <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
+          Password
+        </h1>
+      </header>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-          <section className="rounded-2xl border border-sfx-ink/20 bg-white p-6 shadow-brand h-fit">
-            <div className="flex flex-col items-center text-center">
-              <div className="flex size-20 items-center justify-center rounded-full bg-sfx-primary/10">
-                <MdLock className="size-10 text-sfx-primary" />
-              </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <section className="rounded-2xl border border-sfx-ink/20 bg-white p-6 shadow-brand h-fit">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex size-20 items-center justify-center rounded-full bg-sfx-primary/10">
+              <MdLock className="size-10 text-sfx-primary" />
+            </div>
 
-              <h2 className="mt-4 font-rh-b text-xl text-sfx-ink">
-                Password Settings
+            <h2 className="mt-4 font-rh-b text-xl text-sfx-ink">
+              Password Settings
+            </h2>
+
+            <p className="mt-2 text-xs leading-relaxed text-sfx-muted">
+              Keep your account secure by using a unique password that you do
+              not use anywhere else.
+            </p>
+          </div>
+        </section>
+
+        <div className="space-y-6 lg:col-span-3">
+          <form onSubmit={handlePasswordChange}>
+            <section className="rounded-2xl border border-sfx-ink/20 bg-white p-6 shadow-brand">
+              <h2 className="font-rh-b text-lg text-sfx-ink">
+                Change Password
               </h2>
 
-              <p className="mt-2 text-xs leading-relaxed text-sfx-muted">
-                Keep your account secure by using a unique password that you do
-                not use anywhere else.
+              <p className="mt-1 text-sm text-sfx-muted">
+                Update your account password below.
               </p>
-            </div>
-          </section>
 
-          <div className="space-y-6 lg:col-span-3">
-            <form onSubmit={handlePasswordChange}>
-              <section className="rounded-2xl border border-sfx-ink/20 bg-white p-6 shadow-brand">
-                <h2 className="font-rh-b text-lg text-sfx-ink">
-                  Change Password
-                </h2>
+              {success && (
+                <div className="mt-6 flex items-center gap-2 rounded-xl border border-sfx-success bg-white p-4 text-sm font-rh-sb text-sfx-ink">
+                  <MdCheck className="size-5 text-sfx-success shrink-0" />
+                  Your password has been updated successfully!
+                </div>
+              )}
 
-                <p className="mt-1 text-sm text-sfx-muted">
-                  Update your account password below.
-                </p>
+              {error && (
+                <div className="mt-6 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-rh-sb text-sfx-danger">
+                  <MdClose className="size-5 text-sfx-danger shrink-0" />
+                  {error}
+                </div>
+              )}
 
-                {success && (
-                  <div className="mt-6 flex items-center gap-2 rounded-xl border border-sfx-success bg-white p-4 text-sm font-rh-sb text-sfx-ink">
-                    <MdCheck className="size-5 text-sfx-success shrink-0" />
-                    Your password has been updated successfully!
-                  </div>
-                )}
+              <div className="mt-8 space-y-6">
+                <PasswordInput
+                  label="Current Password"
+                  value={currentPassword}
+                  onChange={setCurrentPassword}
+                  placeholder="Enter current password"
+                />
 
-                {error && (
-                  <div className="mt-6 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-rh-sb text-sfx-danger">
-                    <MdClose className="size-5 text-sfx-danger shrink-0" />
-                    {error}
-                  </div>
-                )}
+                <hr className="border-sfx-ink/10" />
 
-                <div className="mt-8 space-y-6">
+                <div className="space-y-4">
                   <PasswordInput
-                    label="Current Password"
-                    value={currentPassword}
-                    onChange={setCurrentPassword}
-                    placeholder="Enter current password"
+                    label="New Password"
+                    value={newPassword}
+                    onChange={setNewPassword}
+                    placeholder="Enter new password"
                   />
 
-                  <hr className="border-sfx-ink/10" />
-
-                  <div className="space-y-4">
-                    <PasswordInput
-                      label="New Password"
-                      value={newPassword}
-                      onChange={setNewPassword}
-                      placeholder="Enter new password"
-                    />
-
-                    {newPassword.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-rh-sb">
-                          <span className="text-sfx-muted">Strength:</span>
-                          <span className="text-sfx-ink">{strength.text}</span>
-                        </div>
-                        <div className="h-1.5 w-full rounded-full bg-sfx-ink/10 overflow-hidden">
-                          <div
-                            className={`h-full transition-all duration-300 ${strength.color}`}
-                            style={{
-                              width: `${(passedRequirements / requirements.length) * 100}%`,
-                            }}
-                          />
-                        </div>
+                  {newPassword.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-rh-sb">
+                        <span className="text-sfx-muted">Strength:</span>
+                        <span className="text-sfx-ink">{strength.text}</span>
                       </div>
-                    )}
-
-                    <div className="rounded-xl border border-sfx-ink/10 bg-sfx-primary-tint/20 p-4">
-                      <p className="mb-3 text-xs font-rh-sb text-sfx-ink">
-                        Password Requirements:
-                      </p>
-                      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                        {requirements.map((req) => {
-                          const isMet = req.test(newPassword);
-                          return (
-                            <div
-                              key={req.id}
-                              className="flex items-center gap-2 text-xs"
-                            >
-                              <div
-                                className={`flex size-4 items-center justify-center rounded-full ${
-                                  isMet
-                                    ? "bg-sfx-success text-white"
-                                    : "bg-sfx-ink/10 text-sfx-muted"
-                                }`}
-                              >
-                                {isMet
-                                  ? (
-                                      <MdCheck className="size-3" />
-                                    )
-                                  : (
-                                      <span className="size-1 rounded-full bg-sfx-muted" />
-                                    )}
-                              </div>
-                              <span
-                                className={
-                                  isMet
-                                    ? "font-rh-sb text-sfx-ink"
-                                    : "text-sfx-muted"
-                                }
-                              >
-                                {req.label}
-                              </span>
-                            </div>
-                          );
-                        })}
+                      <div className="h-1.5 w-full rounded-full bg-sfx-ink/10 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${strength.color}`}
+                          style={{
+                            width: `${(passedRequirements / requirements.length) * 100}%`,
+                          }}
+                        />
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  <PasswordInput
-                    label="Confirm New Password"
-                    value={confirmPassword}
-                    onChange={setConfirmPassword}
-                    placeholder="Re-enter new password"
-                  />
+                  <div className="rounded-xl border border-sfx-ink/10 bg-sfx-primary-tint/20 p-4">
+                    <p className="mb-3 text-xs font-rh-sb text-sfx-ink">
+                      Password Requirements:
+                    </p>
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                      {requirements.map((req) => {
+                        const isMet = req.test(newPassword);
+                        return (
+                          <div
+                            key={req.id}
+                            className="flex items-center gap-2 text-xs"
+                          >
+                            <div
+                              className={`flex size-4 items-center justify-center rounded-full ${
+                                isMet
+                                  ? "bg-sfx-success text-white"
+                                  : "bg-sfx-ink/10 text-sfx-muted"
+                              }`}
+                            >
+                              {isMet
+                                ? (
+                                    <MdCheck className="size-3" />
+                                  )
+                                : (
+                                    <span className="size-1 rounded-full bg-sfx-muted" />
+                                  )}
+                            </div>
+                            <span
+                              className={
+                                isMet
+                                  ? "font-rh-sb text-sfx-ink"
+                                  : "text-sfx-muted"
+                              }
+                            >
+                              {req.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={loading || !canSubmit}
-                  className="mt-8 h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 flex items-center justify-center gap-2"
-                >
-                  <MdSave className="size-5" />
-                  {loading ? "Updating..." : "Change Password"}
-                </Button>
-              </section>
-            </form>
-          </div>
+                <PasswordInput
+                  label="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  placeholder="Re-enter new password"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading || !canSubmit}
+                className="mt-8 h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-white shadow-brand hover:bg-sfx-ink/90 flex items-center justify-center gap-2"
+              >
+                <MdSave className="size-5" />
+                {loading ? "Updating..." : "Change Password"}
+              </Button>
+            </section>
+          </form>
         </div>
       </div>
     </div>

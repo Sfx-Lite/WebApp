@@ -186,17 +186,9 @@ export default function Settings() {
   const currentKycBadge = kycData ? KYC_BADGES[kycData.kycStatus] : null;
 
   return (
+
     <div
       className="
-          flex
-          min-h-dvh
-          w-full
-          flex-col
-          overflow-y-auto
-          "
-    >
-      <div
-        className="
           mx-auto
           flex
           w-full
@@ -208,19 +200,19 @@ export default function Settings() {
           sm:px-6
           lg:px-8
           "
-      >
-        <div className="space-y-8">
-          {/* PROFILE */}
+    >
+      <div className="space-y-8">
+        {/* PROFILE */}
 
-          <div
-            className="
+        <div
+          className="
           flex
           items-center
           gap-4
           "
-          >
-            <div
-              className="
+        >
+          <div
+            className="
           flex
           size-12
           shrink-0
@@ -232,38 +224,38 @@ export default function Settings() {
           font-rh-b
           text-white
           "
-            >
-              {isLoading ? "..." : initial}
-            </div>
+          >
+            {isLoading ? "..." : initial}
+          </div>
 
-            <div className="min-w-0">
-              <h1
-                className="
+          <div className="min-w-0">
+            <h1
+              className="
           truncate
           font-rh-b
           text-lg
           sm:text-xl
           text-sfx-ink
           "
-              >
-                {isLoading ? "Loading..." : fullName || "Guest User"}
-              </h1>
+            >
+              {isLoading ? "Loading..." : fullName || "Guest User"}
+            </h1>
 
-              <p
-                className="
+            <p
+              className="
           text-xs
           font-rh-r
           text-sfx-muted
           "
-              >
-                {profile?.username && `@${profile.username}`}
-              </p>
-            </div>
+            >
+              {profile?.username && `@${profile.username}`}
+            </p>
           </div>
+        </div>
 
-          <section className="space-y-4">
-            <h2
-              className="
+        <section className="space-y-4">
+          <h2
+            className="
           px-1
           font-rh-b
           text-xs
@@ -271,73 +263,69 @@ export default function Settings() {
           tracking-widest
           text-sfx-muted
           "
-            >
-              Account
-            </h2>
+          >
+            Account
+          </h2>
 
-            <div className="space-y-4">
-              <SettingItem
-                icon={<MdOutlinePerson className="size-6 text-sfx-primary" />}
-                iconBgClass="bg-sfx-primary/10"
-                title="Profile"
-                subtitle="Personal details and home country."
-                to="/profile"
-              />
+          <div className="space-y-4">
+            <SettingItem
+              icon={<MdOutlinePerson className="size-6 text-sfx-primary" />}
+              iconBgClass="bg-sfx-primary/10"
+              title="Profile"
+              subtitle="Personal details and home country."
+              to="/profile"
+            />
 
-              <SettingItem
-                icon={
-                  <MdOutlineCheckCircle className="size-6 text-sfx-success" />
-                }
-                iconBgClass="bg-sfx-success/10"
-                title="Identity verification"
-                subtitle={
-                  kycLoading
-                    ? "Checking verification status."
-                    : "Your identity was approved."
-                }
-                badge={
-                  currentKycBadge
-                    ? {
-                        text: currentKycBadge.text,
-                        className: currentKycBadge.className,
-                      }
-                    : undefined
-                }
-                to="/kyc/status"
-              />
+            <SettingItem
+              icon={
+                <MdOutlineCheckCircle className="size-6 text-sfx-success" />
+              }
+              iconBgClass="bg-sfx-success/10"
+              title="Identity verification"
+              subtitle={
+                kycLoading
+                  ? "Checking verification status."
+                  : "Your identity was approved."
+              }
+              badge={
+                currentKycBadge
+                  ? {
+                      text: currentKycBadge.text,
+                      className: currentKycBadge.className,
+                    }
+                  : undefined
+              }
+              to="/kyc/status"
+            />
 
-              <SettingItem
-                icon={<MdOutlineShield className="size-6 text-sfx-primary" />}
-                iconBgClass="bg-sfx-primary/10"
-                title="Security"
-                subtitle="Manage Password."
-                badge={{
-                  text: "Medium",
-                  className: "bg-amber-100 text-amber-700",
-                }}
-                to="/password"
-              />
+            <SettingItem
+              icon={<MdOutlineShield className="size-6 text-sfx-primary" />}
+              iconBgClass="bg-sfx-primary/10"
+              title="Security"
+              subtitle="Manage your account security."
+              to="/security"
+            />
 
-              <SettingItem
-                icon={
-                  <MdOutlineNotifications className="size-6 text-sfx-primary" />
-                }
+            <SettingItem
+              icon={
+                <MdOutlineNotifications className="size-6 text-sfx-primary" />
+              }
 
-                iconBgClass="bg-sfx-primary/10"
+              iconBgClass="bg-sfx-primary/10"
 
-                title="Notifications"
+              title="Notifications"
 
-                subtitle="In-app notification preferences."
+              subtitle="In-app notification preferences."
 
-                rightElement={(
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setNotificationsEnabled(!notificationsEnabled);
-                    }}
+              rightElement={(
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNotificationsEnabled(!notificationsEnabled);
+                  }}
 
-                    className={`
+                  className={`
           relative
           inline-flex
           h-7
@@ -346,9 +334,9 @@ export default function Settings() {
           transition
           ${notificationsEnabled ? "bg-sfx-primary" : "bg-gray-200"}
           `}
-                  >
-                    <span
-                      className={`
+                >
+                  <span
+                    className={`
           absolute
           top-0.5
           size-6
@@ -358,16 +346,16 @@ export default function Settings() {
           transition-transform
           ${notificationsEnabled ? "translate-x-5" : "translate-x-0"}
           `}
-                    />
-                  </button>
-                )}
-              />
-            </div>
-          </section>
+                  />
+                </button>
+              )}
+            />
+          </div>
+        </section>
 
-          <section className="space-y-4">
-            <h2
-              className="
+        <section className="space-y-4">
+          <h2
+            className="
           px-1
           font-rh-b
           text-xs
@@ -375,42 +363,41 @@ export default function Settings() {
           tracking-widest
           text-sfx-muted
           "
-            >
-              Support
-            </h2>
+          >
+            Support
+          </h2>
 
-            <div className="space-y-4">
-              <SettingItem
-                icon={<MdOutlineChat className="size-6 text-sfx-success" />}
-                iconBgClass="bg-sfx-success/10"
-                title="Help & support"
-                subtitle="Chat with the SFx Lite assistant."
-                to="/support"
-              />
+          <div className="space-y-4">
+            <SettingItem
+              icon={<MdOutlineChat className="size-6 text-sfx-success" />}
+              iconBgClass="bg-sfx-success/10"
+              title="Help & support"
+              subtitle="Chat with the SFx Lite assistant."
+              to="/support"
+            />
 
-              <SettingItem
-                icon={
-                  <MdOutlineWarningAmber className="size-6 text-amber-600" />
-                }
-                iconBgClass="bg-amber-100/70"
-                title="About us"
-                subtitle="FAQ, privacy policy, terms."
-                to="/about"
-              />
-            </div>
-          </section>
-        </div>
+            <SettingItem
+              icon={
+                <MdOutlineWarningAmber className="size-6 text-amber-600" />
+              }
+              iconBgClass="bg-amber-100/70"
+              title="About us"
+              subtitle="FAQ, privacy policy, terms."
+              to="/about"
+            />
+          </div>
+        </section>
+      </div>
 
-        <div
-          className="
-          mt-auto
-          pt-10
+      <div
+        className="
+          mt-6
           pb-4
           "
-        >
-          <Button
-            onClick={handleLogout}
-            className="
+      >
+        <Button
+          onClick={handleLogout}
+          className="
           w-full
           h-11
           border
@@ -421,10 +408,9 @@ export default function Settings() {
           text-red-500
           hover:bg-sfx-primary-soft
           "
-          >
-            Log out
-          </Button>
-        </div>
+        >
+          Log out
+        </Button>
       </div>
     </div>
   );

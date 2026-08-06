@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { setDocumentType } from "@/store/kycSlice";
 
-type DocumentId = "passport" | "national-id";
+type DocumentId = "passport" | "national_id";
 
 const Docs: {
   id: DocumentId;
@@ -26,7 +26,7 @@ const Docs: {
     iconColor: "text-sfx-primary",
   },
   {
-    id: "national-id",
+    id: "national_id",
     Icon: AiOutlineUser,
     title: "National ID Card",
     description: "Front side, all corners visible.",
