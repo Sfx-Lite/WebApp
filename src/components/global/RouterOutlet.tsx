@@ -7,20 +7,21 @@ import Amount from "@/pages/Amount";
 import ChatThread from "@/pages/ChatThread";
 import ConversationList from "@/pages/ConversationList";
 import DepositAddress from "@/pages/DepositAddress";
+
 import DepositCrypto from "@/pages/DepositCrypto";
 import Notifications from "@/pages/Notifications";
-
 import ReceiveFromSFx from "@/pages/ReceiveFromSfx";
 import ReviewTransfer from "@/pages/ReviewTransfer";
+import Security from "@/pages/Security";
 import SendMoney from "@/pages/SendMoney";
 import SendToSfx from "@/pages/SendToSfx";
 import SuccessTransfer from "@/pages/SuccessTransfer";
 import WithdrawAddress from "@/pages/WithdrawAddress";
+
 import WithdrawAmount from "@/pages/WithdrawAmount";
 import WithdrawReview from "@/pages/WithdrawReview";
 import WithdrawSuccess from "@/pages/WithdrawSuccess";
 import OnboardingLayout from "../../layouts/Onboarding/OnboardingLayout";
-
 import History from "../../pages/History";
 import Home from "../../pages/Home";
 import Rates from "../../pages/Rates";
@@ -34,6 +35,7 @@ import KycType from "../Kyc/KycType";
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
 import UserPassword from "../UserPassword";
+import UserPinChange from "../UserPinChange";
 import UserProfile from "../UserProfile";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -79,7 +81,9 @@ export default function RouterOutlet() {
 
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/password" element={<UserPassword />} />
+          <Route path="/change-pin" element={<UserPinChange />} />
           <Route path="/about" element={<About />} />
+          <Route path="/security" element={<Security />} />
           {/* <Route path="/support" element={<SupportChat />} /> */}
 
           <Route path="/support" element={<ConversationList />} />

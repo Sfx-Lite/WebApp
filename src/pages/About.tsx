@@ -67,7 +67,7 @@ export default function About() {
         </Link>
 
         <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
-          About Sfx
+          About SFx Money
         </h1>
       </header>
 
@@ -75,9 +75,6 @@ export default function About() {
         <div className="mx-auto mb-8 flex items-center justify-center">
           <img src={logo} alt="SFx Money logo" className="w-30" />
         </div>
-
-        <h1 className="font-rh-sb text-2xl">About Us</h1>
-
         <p className="mt-2 text-sm opacity-90">
           Secure, simple and borderless financial services.
         </p>
