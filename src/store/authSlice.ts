@@ -48,6 +48,13 @@ const authSlice = createSlice({
         sessionStorage.removeItem("hasPin");
       }
     },
+    tokensRefreshed(state, action: PayloadAction<{
+      accessToken: string;
+      refreshToken: string;
+    }>) {
+      state.token = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+    },
     logout(state) {
       state.user = null;
       state.token = null;
@@ -67,5 +74,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { credentialsSet, pinStatusSet, logout } = authSlice.actions;
+export const { credentialsSet, pinStatusSet, logout, tokensRefreshed } = authSlice.actions;
 export default authSlice.reducer;

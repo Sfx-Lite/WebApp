@@ -1,4 +1,5 @@
 /* eslint-disable react/no-array-index-key */
+import { MessageCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useGetTransactionsQuery } from "@/api/transactions";
@@ -22,7 +23,7 @@ export default function Home() {
       <div className="block md:hidden mt-2 mb-4">
         <ProfileCard />
       </div>
-      <div className="space-y-[1.25rem] md:space-y-[1.5rem]">
+      <div className="relative space-y-[1.25rem] md:space-y-[1.5rem]">
         <div className="flex gap-6">
           <WalletBalance />
         </div>
@@ -70,6 +71,13 @@ export default function Home() {
                   </ul>
                 )}
         </div>
+
+        <Link
+          to="/support"
+          className="fixed bottom-15 right-15 p-[1rem] bg-sfx-primary rounded-full"
+        >
+          <MessageCircleIcon className="text-[2rem] text-white" />
+        </Link>
       </div>
 
       <TransactionDetailsModal

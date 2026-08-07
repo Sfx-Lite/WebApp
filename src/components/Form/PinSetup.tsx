@@ -168,8 +168,6 @@ export default function PinSetup({
     }
   };
 
-  // Shared entry point for both native typing and on-screen taps: appends
-  // one digit into the first empty slot, then checks for completion.
   const pushDigit = (digit: string) => {
     if (isSubmitting)
       return;
