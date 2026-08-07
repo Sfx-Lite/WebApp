@@ -35,7 +35,7 @@ export default function SuccessTransfer() {
   const { result, recipientUsername } = state;
 
   return (
-    <section className="py-[25px] px-screen-x">
+    <section className="py-[25px] md:px-screen-x">
       <div className="w-full md:max-w-[50%] mx-auto space-y-6 text-center pt-[3rem]">
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-sfx-success-bg">
           <Check className="size-8 text-sfx-success" />

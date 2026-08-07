@@ -12,7 +12,7 @@ export default function TopBar() {
   const navigate = useNavigate();
 
   return (
-    <div className="py-[14px] px-screen-x bg-sfx-card">
+    <div className="py-[14px] md:px-screen-x bg-sfx-card">
       <div className="flex justify-between items-center gap-4">
         <h2 className="font-rh-b text-[20px]">
           { title }

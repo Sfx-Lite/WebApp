@@ -6,7 +6,7 @@ export default function UserPinChange() {
   const navigate = useNavigate();
 
   return (
-    <div className="mx-auto max-w-xl space-y-5 px-screen-x py-6">
+    <div className="mx-auto max-w-xl space-y-5 md:px-screen-x py-6">
       <header className="mb-8 flex items-center gap-2">
         <Link
           to="/security"

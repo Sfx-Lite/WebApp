@@ -86,7 +86,7 @@ export default function Notifications() {
         </div>
 
         <div className="w-full md:max-w-[50%] mx-auto space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-2 border-b border-sfx-primary-tint/30">
               {[{ id: "all", label: "All" }, ...typeTabs].map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -124,7 +124,7 @@ export default function Notifications() {
             <button
               onClick={handleMarkAllAsRead}
               disabled={isMarkingAll || unreadCount === 0}
-              className="font-rh-b text-[15px] text-sfx-primary-strong underline disabled:opacity-40 disabled:no-underline"
+              className="w-fit mt-4 md:mt-0 font-rh-b text-[15px] text-sfx-primary-strong underline disabled:opacity-40 disabled:no-underline"
             >
               Mark all as read
             </button>

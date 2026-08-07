@@ -64,7 +64,7 @@ export default function Amount() {
   }
 
   return (
-    <section className="py-[25px] px-screen-x">
+    <section className="py-[25px] md:px-screen-x">
       <div className="space-y-[2rem]">
         <div className="flex items-center gap-3">
           <button
