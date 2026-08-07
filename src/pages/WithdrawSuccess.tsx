@@ -21,7 +21,7 @@ export default function WithdrawSuccess() {
   const isProcessing = result.status === "processing";
 
   return (
-    <section className="py-[25px] px-screen-x">
+    <section className="py-[25px] md:px-screen-x">
       <div className="w-full md:max-w-[50%] mx-auto space-y-6 text-center pt-[3rem]">
         <div className={`mx-auto flex size-16 items-center justify-center rounded-full ${
           isProcessing ? "bg-sfx-amber-bg" : "bg-sfx-success-bg"

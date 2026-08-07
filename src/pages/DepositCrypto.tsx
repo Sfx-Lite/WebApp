@@ -42,7 +42,7 @@ export default function DepositCrypto() {
   };
 
   return (
-    <section className="py-[25px] px-screen-x pb-[110px]">
+    <section className="py-[25px] md:px-screen-x pb-[110px]">
       <div className="space-y-[2rem]">
         <div className="flex items-center gap-3">
           <button

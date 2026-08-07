@@ -1,6 +1,6 @@
 import { ChevronRight, KeyRound, Lock, Shield } from "lucide-react";
 import { MdArrowBack } from "react-icons/md";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 type SecurityItemProps = {
   title: string;
@@ -49,17 +49,22 @@ function SecurityItem({
 }
 
 export default function SecurityOptions() {
-  return (
-    <div className="mx-auto max-w-xl space-y-5 px-screen-x py-6">
-      <header className="mb-8 flex items-center gap-2">
-        <Link
-          to="/settings"
-          className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
-        >
-          <MdArrowBack className="size-6 text-sfx-ink" />
-        </Link>
+  const navigate = useNavigate();
 
-        <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">Security</h1>
+  return (
+    <div className="mx-auto max-w-xl space-y-5 md:px-screen-x">
+      <header className="mb-8 flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/settings")}
+            className="p-[10px] rounded-full bg-sfx-card"
+          >
+            <MdArrowBack className="text-[20px]" />
+          </button>
+          <span className="inline-block font-rh-m">
+            Security
+          </span>
+        </div>
       </header>
 
       <div className="rounded-xl bg-sfx-primary p-6 text-center text-white shadow-brand">

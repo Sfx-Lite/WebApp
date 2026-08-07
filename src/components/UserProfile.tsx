@@ -1,7 +1,7 @@
 import type { Address } from "@/lib/types/user";
 import { useEffect, useState } from "react";
 import { MdArrowBack, MdEdit, MdOutlinePerson, MdSave } from "react-icons/md";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
@@ -83,6 +83,8 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [draft, setDraft] = useState<UserProfileData | null>(null);
+
+  const navigate = useNavigate();
 
   //  Fetch profile on mount
   useEffect(() => {
@@ -216,18 +218,19 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col p-4 sm:p-6 lg:max-w-5xl lg:p-8">
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col lg:max-w-5xl lg:p-8">
       <header className="mb-8 flex items-center gap-2">
-        <Link
-          to="/settings"
-          className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
-        >
-          <MdArrowBack className="size-6 text-sfx-ink" />
-        </Link>
-
-        <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
-          My Profile
-        </h1>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/settings")}
+            className="p-[10px] rounded-full bg-sfx-card"
+          >
+            <MdArrowBack className="text-[20px]" />
+          </button>
+          <span className="inline-block font-rh-m">
+            My Profile
+          </span>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">

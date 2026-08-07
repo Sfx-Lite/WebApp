@@ -115,7 +115,7 @@ export default function ReviewTransfer() {
   };
 
   return (
-    <section className="py-[25px] px-screen-x relative">
+    <section className="py-[25px] md:px-screen-x relative">
       <div className="space-y-[2rem]">
         <div className="flex items-center gap-3">
           <button
