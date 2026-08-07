@@ -5,8 +5,8 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 
 const Doc_Labels: Record<string, string> = {
-  "passport": "International passport",
-  "national-id": "National ID Card",
+  passport: "International passport",
+  national_id: "National ID Card",
 };
 
 const Guidelines = [

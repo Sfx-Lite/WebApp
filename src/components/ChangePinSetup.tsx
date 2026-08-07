@@ -6,21 +6,19 @@ import axios from "axios";
 import { ArrowLeft, Delete } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import api from "../../api/axios";
-import { useIsMobile } from "../../hooks/useIsMobile";
+import api from "../api/axios";
+import { useIsMobile } from "../hooks/useIsMobile";
 
-type PinMode = "set" | "verify";
-type PinPhase = "enter" | "confirm";
+type ChangePinPhase = "current" | "new" | "confirm";
 
-type PinSetupProps = {
-  mode: PinMode;
+type ChangePinSetupProps = {
   length?: number;
   onComplete: () => void;
   onBack?: () => void;
 };
 
-const SET_PIN_URL = "/auth/pin";
 const VERIFY_PIN_URL = "/auth/pin/verify";
+const CHANGE_PIN_URL = "/auth/pin/reset";
 
 const KEYPAD_KEYS = [
   "1",
@@ -38,46 +36,46 @@ const KEYPAD_KEYS = [
 ] as const;
 
 const COPY: Record<
-  PinMode,
-  Record<PinPhase, { title: string; subtitle: (length: number) => string }>
+  ChangePinPhase,
+  {
+    title: string;
+    subtitle: (length: number) => string;
+  }
 > = {
-  set: {
-    enter: {
-      title: "Set your transaction PIN",
-      subtitle: length =>
-        `Choose a ${length}-digit PIN to authorize your transactions`,
-    },
-    confirm: {
-      title: "Confirm your PIN",
-      subtitle: () => "Enter the same PIN again to confirm",
-    },
+  current: {
+    title: "Enter your current PIN",
+    subtitle: length => `Enter your ${length}-digit PIN`,
   },
-  verify: {
-    enter: {
-      title: "Enter your transaction PIN",
-      subtitle: length => `Enter your ${length}-digit PIN to continue`,
-    },
-    confirm: {
-      title: "Enter your transaction PIN",
-      subtitle: length => `Enter your ${length}-digit PIN to continue`,
-    },
+
+  new: {
+    title: "Create a new PIN",
+    subtitle: length => `Enter your new ${length}-digit PIN`,
+  },
+
+  confirm: {
+    title: "Confirm your new PIN",
+    subtitle: length => `Re-enter your ${length}-digit PIN`,
   },
 };
 
-export default function PinSetup({
-  mode,
+export default function ChangePinSetup({
   length = 4,
   onComplete,
   onBack,
-}: PinSetupProps) {
+}: ChangePinSetupProps) {
   const isMobile = useIsMobile();
 
-  const [phase, setPhase] = useState<PinPhase>("enter");
-  const [firstPin, setFirstPin] = useState("");
+  const [phase, setPhase] = useState<ChangePinPhase>("current");
+
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+
   const [digits, setDigits] = useState<string[]>(() =>
     new Array(length).fill(""),
   );
+
   const [error, setError] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -97,10 +95,15 @@ export default function PinSetup({
   };
 
   const resetToStart = () => {
-    setPhase("enter");
-    setFirstPin("");
+    setPhase("current");
+    setCurrentPin("");
+    setNewPin("");
     setDigits(new Array(length).fill(""));
     setError(null);
+
+    if (!isMobile) {
+      requestAnimationFrame(() => inputRefs.current[0]?.focus());
+    }
   };
 
   const clearForRetry = () => {
@@ -109,65 +112,93 @@ export default function PinSetup({
       inputRefs.current[0]?.focus();
   };
 
-  const submitPin = async (pin: string) => {
+  const verifyCurrentPin = async (pin: string) => {
     setIsSubmitting(true);
+
     try {
-      if (mode === "set") {
-        await api.post(SET_PIN_URL, { pin });
-        toast.success("Transaction PIN set successfully!");
-      }
-      else {
-        await api.post(VERIFY_PIN_URL, { pin });
-        toast.success("PIN verified successfully!");
-      }
-      onComplete();
+      await api.post(VERIFY_PIN_URL, {
+        pin,
+      });
+
+      setError(null);
+      setCurrentPin(pin);
+      setDigits(new Array(length).fill(""));
+      setPhase("new");
     }
     catch (err) {
-      const fallback
-        = mode === "set"
-          ? "Failed to set PIN."
-          : "Incorrect PIN. Please try again.";
       const message = axios.isAxiosError<{ message: string }>(err)
-        ? (err.response?.data?.message ?? fallback)
-        : fallback;
+        ? (err.response?.data?.message ?? "Incorrect PIN")
+        : "Incorrect PIN";
 
       setError(message);
       toast.error(message);
-
-      if (mode === "set") {
-        resetToStart();
-      }
-      else {
-        clearForRetry();
-      }
+      clearForRetry();
     }
     finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleCompletedEntry = (completed: string) => {
-    if (mode === "verify") {
-      submitPin(completed);
+  const changePin = async (confirmedPin: string) => {
+    setIsSubmitting(true);
+
+    try {
+      await api.post(CHANGE_PIN_URL, {
+        oldPin: currentPin,
+        newPin: confirmedPin,
+      });
+
+      toast.success("PIN changed successfully!");
+
+      onComplete();
+    }
+    catch (err) {
+      const message = axios.isAxiosError<{ message: string }>(err)
+        ? (err.response?.data?.message ?? "Failed to change PIN.")
+        : "Failed to change PIN.";
+
+      setError(message);
+      toast.error(message);
+      clearForRetry();
+    }
+    finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCompletedEntry = (pin: string) => {
+    if (phase === "current") {
+      verifyCurrentPin(pin);
       return;
     }
 
-    if (phase === "enter") {
-      setFirstPin(completed);
+    if (phase === "new") {
+      if (pin === currentPin) {
+        setError("Your new PIN must be different from your current PIN.");
+        clearForRetry();
+        return;
+      }
+
+      setError(null);
+      setNewPin(pin);
       setDigits(new Array(length).fill(""));
       setPhase("confirm");
       return;
     }
 
-    if (completed === firstPin) {
-      submitPin(completed);
-    }
-    else {
-      setError("PINs don't match. Try again.");
-      clearForRetry();
+    if (phase === "confirm") {
+      if (pin !== newPin) {
+        setError("PINs do not match.");
+        clearForRetry();
+        return;
+      }
+
+      changePin(pin);
     }
   };
 
+  // Shared entry point for both native typing and on-screen taps: appends
+  // one digit into the first empty slot, then checks for completion.
   const pushDigit = (digit: string) => {
     if (isSubmitting)
       return;
@@ -286,18 +317,18 @@ export default function PinSetup({
     pushDigit(key);
   };
 
-  const copy = COPY[mode][phase];
+  const copy = COPY[phase];
 
   return (
     <div className="w-full">
       <div className="space-y-[2.25rem]">
-        <div>
+        <div className="flex flex-col items-center text-center">
           {onBack && (
             <button
               type="button"
               onClick={onBack}
               aria-label="Go back"
-              className="mb-4 text-sfx-ink hover:text-sfx-primary transition-colors"
+              className="mb-4 self-start text-sfx-ink hover:text-sfx-primary transition-colors"
             >
               <ArrowLeft size={20} />
             </button>
@@ -307,6 +338,16 @@ export default function PinSetup({
           <p className="text-[1rem] leading-[1.25rem] text-sfx-muted">
             {copy.subtitle(length)}
           </p>
+          <div className="mt-8">
+            {isSubmitting && (
+              <p className="text-sm text-sfx-muted flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-sfx-primary border-t-transparent rounded-full animate-spin" />
+                {phase === "current"
+                  ? "Verifying your PIN..."
+                  : "Changing your PIN..."}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-3 flex flex-col items-center">
@@ -337,7 +378,7 @@ export default function PinSetup({
 
           {error && <p className="text-sm text-sfx-danger">{error}</p>}
 
-          {mode === "set" && phase === "confirm" && (
+          {phase === "confirm" && (
             <button
               type="button"
               onClick={resetToStart}
@@ -347,13 +388,6 @@ export default function PinSetup({
             </button>
           )}
         </div>
-
-        {isSubmitting && (
-          <p className="text-sm text-sfx-muted flex items-center gap-2">
-            <span className="w-4 h-4 border-2 border-sfx-primary border-t-transparent rounded-full animate-spin" />
-            {mode === "set" ? "Setting your PIN..." : "Verifying your PIN..."}
-          </p>
-        )}
 
         {isMobile && (
           <div className="grid grid-cols-3 gap-y-4 max-w-[280px] mx-auto pt-2">
