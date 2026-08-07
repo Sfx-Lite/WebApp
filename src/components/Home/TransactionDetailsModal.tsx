@@ -133,11 +133,19 @@ export default function TransactionDetailsModal({ transactionId, onClose }: Prop
             </div>
 
             {/* ID & Reference */}
-            <div className="mt-6 flex flex-col items-center justify-center space-y-1">
-              <p className="text-[12px] text-sfx-muted font-rh-m uppercase tracking-widest">Transaction ID</p>
-              <p className="text-[13px] text-sfx-ink/70 font-mono bg-sfx-muted/10 px-3 py-1 rounded-md">
-                {transaction.id}
-              </p>
+            <div className="flex gap-8 justify-center">
+              <div className="mt-6 flex flex-col items-center justify-center space-y-1">
+                <p className="text-[12px] text-sfx-muted font-rh-m uppercase tracking-widest">Transaction ID</p>
+                <p className="text-[13px] text-sfx-ink/70 font-mono bg-sfx-muted/10 px-3 py-1 rounded-md">
+                  {transaction.id}
+                </p>
+              </div>
+              <div className="mt-6 flex flex-col items-center justify-center space-y-1">
+                <p className="text-[12px] text-sfx-muted font-rh-m uppercase tracking-widest">Transaction Hash</p>
+                <p className="text-[13px] text-sfx-ink/70 font-mono bg-sfx-muted/10 px-3 py-1 rounded-md">
+                  {transaction.txHash}
+                </p>
+              </div>
             </div>
           </div>
         )}

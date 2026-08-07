@@ -22,6 +22,7 @@ export default function ConversationList() {
   const { data, isLoading } = useListConversationsQuery();
 
   const conversations = data ?? [];
+  const hasConversations = conversations.length > 0;
 
   return (
     <section className="py-[25px] px-screen-x">
@@ -44,44 +45,56 @@ export default function ConversationList() {
                 ))}
               </div>
             )
-          : conversations.length === 0
-            ? (
-                <div className="flex flex-col items-center justify-center gap-6 py-[2rem] text-center">
-                  <p className="text-[15px] text-sfx-muted max-w-[260px]">
-                    Messages from the team will appear here when you receive one.
-                  </p>
-                  <button
-                    onClick={() => navigate("/support/chat")}
-                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-white shadow-brand font-rh-sb text-[15px] text-sfx-primary"
-                  >
-                    <MessageCircle className="size-4" />
-                    Message us
-                  </button>
-                </div>
-              )
-            : (
-                <div className="divide-y divide-sfx-muted/15 rounded-card bg-white shadow-brand overflow-hidden">
-                  {conversations.map(conversation => (
+          : !hasConversations
+              ? (
+                  <div className="flex flex-col items-center justify-center gap-6 py-[2rem] text-center">
+                    <p className="text-[15px] text-sfx-muted max-w-[260px]">
+                      Messages from the team will appear here when you receive one.
+                    </p>
                     <button
-                      key={conversation.id}
-                      onClick={() => navigate(`/support/chat/${conversation.id}`)}
-                      className="w-full flex items-center gap-3 p-(--spacing-card-pad) text-left"
+                      onClick={() => navigate("/support/chat")}
+                      className="flex items-center gap-2 px-6 py-3 rounded-full bg-white shadow-brand font-rh-sb text-[15px] text-sfx-primary"
                     >
-                      <div className="flex size-11 items-center justify-center rounded-full bg-sfx-primary-tint shrink-0">
-                        <MessageCircle className="size-5 text-sfx-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-rh-b text-[15px] truncate">
-                          {conversation.conversationTitle || "SFx Assistant"}
-                        </p>
-                      </div>
-                      <span className="shrink-0 text-[13px] text-sfx-muted">
-                        {formatRelativeTime(conversation.lastMessageAt)}
-                      </span>
+                      <MessageCircle className="size-4" />
+                      Message us
                     </button>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )
+              : (
+                  <>
+                    <div className="divide-y divide-sfx-muted/15 rounded-card bg-white shadow-brand overflow-hidden">
+                      {conversations.map(conversation => (
+                        <button
+                          key={conversation.id}
+                          onClick={() => navigate(`/support/chat/${conversation.id}`)}
+                          className="w-full flex items-center gap-3 p-(--spacing-card-pad) text-left"
+                        >
+                          <div className="flex size-11 items-center justify-center rounded-full bg-sfx-primary-tint shrink-0">
+                            <MessageCircle className="size-5 text-sfx-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-rh-b text-[15px] truncate">
+                              {conversation.conversationTitle || "SFx Assistant"}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-[13px] text-sfx-muted">
+                            {formatRelativeTime(conversation.lastMessageAt)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={() => navigate("/support/chat")}
+                        className="w-fit mt-[2rem] flex items-center justify-center gap-2 py-3.5 px-[3rem] rounded-button bg-sfx-primary text-white font-rh-sb text-[15px]"
+                      >
+                        <MessageCircle className="size-6" />
+                        New conversation
+                      </button>
+                    </div>
+                  </>
+                )}
       </div>
     </section>
   );
