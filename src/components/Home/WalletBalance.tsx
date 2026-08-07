@@ -36,7 +36,7 @@ export default function WalletBalance() {
       <div className="space-y-1">
         <div className="flex items-end gap-0.5">
           <h1 className="text-[36px] leading-[36px] font-rh-sb">
-            {isVisible ? balanceDisplay : "••••••"}
+            {isVisible ? balanceDisplay : "******"}
           </h1>
           <span className="uppercase tracking-tight text-sfx-muted">
             {data?.asset ?? "USDC"}
@@ -44,7 +44,7 @@ export default function WalletBalance() {
         </div>
         <div className="flex items-end gap-0.5">
           <span className="text-[15px] text-sfx-muted font-rh-sb">
-            {isVisible ? `≈ ${balanceDisplay}` : "≈ ••••••"}
+            {isVisible ? `≈ ${balanceDisplay}` : "≈ ******"}
           </span>
           <span className="text-[15px] text-sfx-muted">
             USD
