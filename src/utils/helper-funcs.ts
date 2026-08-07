@@ -55,6 +55,12 @@ export function truncateAddress(address: string, start = 4, end = 4): string {
   return `${address.slice(0, start)}...${address.slice(-end)}`;
 }
 
+export function truncateHash(hash: string, start = 6, end = 6): string {
+  if (hash.length <= start + end)
+    return hash;
+  return `${hash.slice(0, start)}...${hash.slice(-end)}`;
+}
+
 export function truncateMiddle(value: string, start = 8, end = 6): string {
   if (value.length <= start + end)
     return value;

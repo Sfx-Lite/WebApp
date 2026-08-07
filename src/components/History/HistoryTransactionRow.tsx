@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { Transaction } from "@/lib/types/transaction";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { motion } from "motion/react";
 import { formatHistoryTimestamp, truncateAddress } from "@/utils/helper-funcs";
 
 const STATUS_STYLES: Record<Transaction["status"], string> = {
@@ -42,16 +43,28 @@ function getTitle(transaction: Transaction) {
 type Props = {
   transaction: Transaction;
   balanceAfter?: number;
+  onClick?: () => void;
+  index?: number;
 };
 
-export default function HistoryTransactionRow({ transaction, balanceAfter }: Props) {
+export default function HistoryTransactionRow({ transaction, balanceAfter, onClick, index = 0 }: Props) {
   const { icon: Icon, iconBg, iconColor } = ICON_CONFIG[transaction.type];
   const title = getTitle(transaction);
   const isCredit = transaction.direction === "credit";
   const amountDisplay = `${isCredit ? "+" : "−"}$${Number(transaction.amount).toFixed(2)}`;
 
   return (
-    <li className="flex items-center justify-between p-card-pad rounded-card bg-sfx-card">
+    <motion.li
+      initial={{ opacity: 0, filter: "blur(6px)", y: 6 }}
+      animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+      transition={{
+        duration: 0.25,
+        delay: index * 0.04,
+        ease: "easeOut",
+      }}
+      onClick={onClick}
+      className={`flex items-center justify-between p-card-pad rounded-card bg-sfx-card ${onClick ? "cursor-pointer hover:scale-95 transition-transform duration-300" : ""}`}
+    >
       <div className="flex items-center gap-3">
         <div className={`size-[45px] flex items-center justify-center p-[5px] rounded-[10px] ${iconBg}`}>
           <Icon className={`w-[25px] ${iconColor}`} />
@@ -85,6 +98,6 @@ export default function HistoryTransactionRow({ transaction, balanceAfter }: Pro
           </p>
         )}
       </div>
-    </li>
+    </motion.li>
   );
 }

@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import ChatLayout from "@/layouts/Chat/ChatLayout";
 import DashboardLayout from "@/layouts/Dashboard/DashboardLayout";
 import About from "@/pages/About";
 import AddMoney from "@/pages/AddMoney";
@@ -32,8 +33,10 @@ import KycIntro from "../Kyc/KycIntro";
 import KycReviewSubmit from "../Kyc/KycReviewSubmit";
 import KycSelfieCapture from "../Kyc/KycSelfieCapture";
 import KycType from "../Kyc/KycType";
+import ForgotPassword from "../Onboarding/ForgotPassword";
 import LoginFlow from "../Onboarding/LoginFlow";
 import AuthFlow from "../Onboarding/RegistrationFlow";
+import ResetPassword from "../Onboarding/ResetPassword";
 import UserPassword from "../UserPassword";
 import UserPinChange from "../UserPinChange";
 import UserProfile from "../UserProfile";
@@ -47,6 +50,8 @@ export default function RouterOutlet() {
         <Route element={<OnboardingLayout />}>
           <Route path="/login" element={<LoginFlow />} />
           <Route path="/register" element={<AuthFlow />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Route>
       </Route>
 
@@ -84,15 +89,13 @@ export default function RouterOutlet() {
           <Route path="/change-pin" element={<UserPinChange />} />
           <Route path="/about" element={<About />} />
           <Route path="/security" element={<Security />} />
-          {/* <Route path="/support" element={<SupportChat />} /> */}
+        </Route>
 
+        <Route element={<ChatLayout />}>
           <Route path="/support" element={<ConversationList />} />
           <Route path="/support/chat" element={<ChatThread />} />
           <Route path="/support/chat/:conversationId" element={<ChatThread />} />
         </Route>
-
-        {/* <Route element={<ChatLayout />}>
-        </Route> */}
       </Route>
     </Routes>
   );
