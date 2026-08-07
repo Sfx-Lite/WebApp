@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { Transaction } from "@/lib/types/transaction";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { motion } from "motion/react";
 import { formatTransactionTime, truncateAddress } from "@/utils/helper-funcs";
 
 const STATUS_STYLES: Record<Transaction["status"], string> = {
@@ -32,16 +33,24 @@ function getTitle(transaction: Transaction): string {
 type Props = {
   transaction: Transaction;
   onClick?: () => void;
+  index?: number;
 };
 
-export default function TransactionItem({ transaction, onClick }: Props) {
+export default function TransactionItem({ transaction, onClick, index = 0 }: Props) {
   const { icon: Icon, iconBg, iconColor } = ICON_CONFIG[transaction.direction];
   const title = getTitle(transaction);
   const isCredit = transaction.direction === "credit";
   const amountDisplay = `${isCredit ? "+" : "-"}$${Number(transaction.amount).toFixed(2)}`;
 
   return (
-    <li
+    <motion.li
+      initial={{ opacity: 0, filter: "blur(6px)", y: 6 }}
+      animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+      transition={{
+        duration: 0.25,
+        delay: index * 0.04,
+        ease: "easeOut",
+      }}
       onClick={onClick}
       className="flex items-center justify-between p-card-pad rounded-card bg-sfx-card cursor-pointer hover:bg-sfx-muted/5 transition-colors"
     >
@@ -70,6 +79,6 @@ export default function TransactionItem({ transaction, onClick }: Props) {
       <p className={`md:text-[20px] font-rh-sb ${isCredit ? "text-sfx-success" : ""}`}>
         {amountDisplay}
       </p>
-    </li>
+    </motion.li>
   );
 }

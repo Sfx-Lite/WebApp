@@ -61,10 +61,11 @@ export default function Home() {
                 )
               : (
                   <ul className="space-y-3">
-                    {transactions.map(transaction => (
+                    {transactions.map((transaction, index) => (
                       <TransactionItem
                         key={transaction.id}
                         transaction={transaction}
+                        index={index}
                         onClick={() => setSelectedTxId(transaction.id)}
                       />
                     ))}
@@ -74,7 +75,7 @@ export default function Home() {
 
         <Link
           to="/support"
-          className="fixed bottom-15 right-15 p-[1rem] bg-sfx-primary rounded-full"
+          className="fixed bottom-20 right-[1rem] md:bottom-15 md:right-15 p-[1rem] bg-sfx-primary rounded-full"
         >
           <MessageCircleIcon className="text-[2rem] text-white" />
         </Link>

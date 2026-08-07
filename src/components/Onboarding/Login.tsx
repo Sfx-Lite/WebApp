@@ -106,7 +106,7 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
                 error={errors.password?.message}
               />
               <Link
-                to="/"
+                to="/forgot-password"
                 className="text-sfx-primary font-rh-sb text-[15px] underline"
               >
                 Forgot password?

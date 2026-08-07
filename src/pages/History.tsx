@@ -7,6 +7,7 @@ import TransactionEmptyState from "@/components/global/emptyStates/TransactionEm
 import FilterDropdown from "@/components/History/FilterDropDown";
 import HistoryTransactionRow from "@/components/History/HistoryTransactionRow";
 import TransactionItemSkeleton from "@/components/Home/loaders/TransactionItemSkeleton";
+import TransactionDetailsModal from "@/components/Home/TransactionDetailsModal";
 import { formatMonthLabel } from "@/utils/helper-funcs";
 
 type CategoryFilter = TransactionType | "all";
@@ -34,6 +35,7 @@ function monthKey(isoDate: string): string {
 export default function History() {
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
 
   const { data, isLoading } = useGetTransactionsQuery({ limit: 20, offset: 0 });
   const { data: walletBalance } = useGetWalletBalanceQuery();
@@ -145,11 +147,13 @@ export default function History() {
                         </div>
 
                         <ul className="space-y-3">
-                          {group.items.map(tx => (
+                          {group.items.map((tx, index) => (
                             <HistoryTransactionRow
                               key={tx.id}
                               transaction={tx}
+                              index={index}
                               balanceAfter={showBalanceColumn ? balanceByTransactionId.get(tx.id) : undefined}
+                              onClick={() => setSelectedTxId(tx.id)}
                             />
                           ))}
                         </ul>
@@ -159,6 +163,11 @@ export default function History() {
                 </div>
               )}
       </div>
+
+      <TransactionDetailsModal
+        transactionId={selectedTxId}
+        onClose={() => setSelectedTxId(null)}
+      />
     </section>
   );
 }

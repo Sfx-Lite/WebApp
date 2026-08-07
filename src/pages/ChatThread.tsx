@@ -1,5 +1,5 @@
 import type { ChatMessage } from "@/lib/types/chat";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { useNavigate, useParams } from "react-router";
@@ -8,19 +8,19 @@ import {
   useSendChatMessageMutation,
 } from "@/api/chat";
 
-const QUICK_ACTIONS = [
-  "Card Creation",
-  "Add money",
-  "Send money",
-  "Account Creation",
-  "Report A Failed Transaction",
-  "Account Issue/Request",
-  "Cash deposit",
-];
+const QUICK_ACTIONS = ["What are the fees?", "Is my money safe?"];
+
+function AssistantAvatar() {
+  return (
+    <div className="flex items-center justify-center size-9 rounded-full bg-sfx-primary shrink-0">
+      <MessageCircle className="size-4.5 text-white" />
+    </div>
+  );
+}
 
 function TypingIndicator() {
   return (
-    <div className="inline-flex items-center gap-1 rounded-2xl bg-white px-4 py-3">
+    <div className="inline-flex items-center gap-1 rounded-2xl bg-white px-4 py-3 w-fit">
       {[0, 1, 2].map(i => (
         <span
           key={i}
@@ -34,15 +34,37 @@ function TypingIndicator() {
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
-  return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-3 text-[15px] leading-[20px] ${
-          isUser ? "bg-sfx-primary text-white" : "bg-white text-sfx-ink"
-        }`}
-      >
-        {message.content}
+
+  if (isUser) {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[85%] md:max-w-[70%] rounded-3xl bg-sfx-primary px-4 py-3 text-[15px] leading-[20px] text-white">
+          {message.content}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[85%] md:max-w-[70%] rounded-3xl bg-white px-4 py-3 text-[15px] leading-[20px] text-sfx-ink space-y-2">
+        <p>{message.content}</p>
+        {"source" in message && (message as any).source && (
+          <p className="pt-1.5 border-t border-sfx-muted/15 text-[12px] text-sfx-muted">
+            Source:
+            {" "}
+            {(message as any).source}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyGreeting() {
+  return (
+    <div className="max-w-[85%] md:max-w-[70%] rounded-3xl bg-white px-4 py-3 text-[15px] leading-[20px] text-sfx-ink">
+      Hi 👋 I'm the SFx Lite assistant. Ask me anything about adding money, sending, fees or security.
     </div>
   );
 }
@@ -64,8 +86,6 @@ export default function ChatThread() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasHydratedRef = useRef(false);
 
-  // Hydrate local message list from server history once, when a
-  // conversation's data first arrives.
   useEffect(() => {
     if (conversation && !hasHydratedRef.current) {
       setMessages(conversation.messages);
@@ -100,16 +120,9 @@ export default function ChatThread() {
 
       if (!activeConversationId) {
         setActiveConversationId(result.conversationId);
-        // Swap the URL to include the new conversation id without a full navigation,
-        // so refreshing the page keeps working and history stays correct.
         navigate(`/support/chat/${result.conversationId}`, { replace: true });
       }
 
-      // Defensive: only append the response as a new bubble if it's
-      // actually the assistant speaking. If the endpoint really does
-      // just echo the user's own message back (per the docs' literal
-      // example), this silently no-ops instead of duplicating the
-      // bubble already added optimistically above.
       if (result.message.role === "assistant") {
         setMessages(prev => [...prev, result.message]);
       }
@@ -128,60 +141,53 @@ export default function ChatThread() {
   const showEmptyGreeting = messages.length === 0 && !isLoadingHistory;
 
   return (
-    <section className="flex flex-col h-screen">
-      <div className="py-[14px] px-screen-x">
-        <div className="w-full md:max-w-[50%] mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-[10px] rounded-full bg-sfx-card"
-            >
-              <MdArrowBack className="text-[20px]" />
-            </button>
-            <span className="font-rh-b text-[18px]">SFx Assistant</span>
-          </div>
-
-          {/* No endpoint provided for human handoff — UI stub only. */}
+    <div className="flex flex-col h-full w-full bg-sfx-bg overflow-hidden">
+      <div className="flex-shrink-0 px-4 md:px-6 pt-4 pb-3 md:py-4">
+        <div className="w-full max-w-2xl mx-auto flex items-center gap-3">
           <button
-            type="button"
-            className="px-4 py-2 rounded-full bg-sfx-primary text-white text-[14px] font-rh-m"
+            onClick={() => navigate("/support")}
+            className="flex items-center justify-center size-9 rounded-full bg-white shrink-0"
+            aria-label="Go back"
           >
-            Talk to agent
+            <MdArrowBack className="text-[18px] text-sfx-ink" />
           </button>
+
+          <AssistantAvatar />
+
+          <div className="flex flex-col">
+            <span className="font-rh-b text-[15px] md:text-[16px] text-sfx-ink">SFx Lite Assistant</span>
+            <span className="text-[12px] md:text-[13px] text-sfx-success font-rh-m flex items-center gap-1">
+              <span className="size-1.5 rounded-full bg-sfx-success" />
+              Online · answers in seconds
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-screen-x py-[20px]">
-        <div className="w-full md:max-w-[50%] mx-auto space-y-4">
-          {showEmptyGreeting && (
-            <div className="rounded-2xl bg-white px-4 py-3 text-[15px] leading-[20px] text-sfx-ink max-w-[85%] md:max-w-[70%]">
-              Hi 👋 I'm the SFx Money AI assistant, and I'm here to help you with questions about your account, transactions, balances, cards, and how to use the app. What can I help you with today?
-            </div>
-          )}
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-2">
+        <div className="w-full max-w-2xl mx-auto space-y-4">
+          {showEmptyGreeting && <EmptyGreeting />}
 
           {messages.map(message => (
             <MessageBubble key={message.id} message={message} />
           ))}
 
-          {isSending && (
-            <div className="flex justify-start">
-              <TypingIndicator />
-            </div>
-          )}
+          {isSending && <TypingIndicator />}
 
           <div ref={scrollRef} />
         </div>
       </div>
 
-      <div className="px-screen-x pb-[20px] pt-[10px] bg-sfx-bg">
-        <div className="w-full md:max-w-[50%] mx-auto space-y-3">
+      <div className="flex-shrink-0 px-4 md:px-6 pt-2 pb-4 md:pb-5">
+        <div className="w-full max-w-2xl mx-auto space-y-3">
           {messages.length === 0 && (
             <div className="flex flex-wrap gap-2">
               {QUICK_ACTIONS.map(action => (
                 <button
                   key={action}
+                  type="button"
                   onClick={() => sendMessage(action)}
-                  className="px-4 py-2 rounded-full border border-sfx-primary/30 text-sfx-primary text-[14px] font-rh-m"
+                  className="px-4 py-2 rounded-full border border-sfx-primary/30 bg-white text-sfx-primary text-[14px] font-rh-m"
                 >
                   {action}
                 </button>
@@ -193,19 +199,19 @@ export default function ChatThread() {
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Type message here…"
-              className="flex-1 px-4 py-3 rounded-full bg-white font-rh-m text-[15px] outline-none focus:ring-2 focus:ring-sfx-primary/30"
+              placeholder="Ask a question…"
+              className="flex-1 min-w-0 px-4 py-3 rounded-full bg-white font-rh-m text-[15px] outline-none focus:ring-2 focus:ring-sfx-primary/30 text-sfx-ink placeholder:text-sfx-muted"
             />
             <button
               type="submit"
               disabled={!input.trim() || isSending}
-              className="flex items-center justify-center size-[46px] rounded-full bg-sfx-primary text-white shrink-0 disabled:opacity-40"
+              className="flex items-center justify-center size-11 rounded-full bg-sfx-primary text-white shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ArrowUp className="size-5" />
             </button>
           </form>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
