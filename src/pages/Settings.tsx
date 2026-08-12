@@ -185,6 +185,16 @@ export default function Settings() {
 
   const currentKycBadge = kycData ? KYC_BADGES[kycData.kycStatus] : null;
 
+  const kycSubtitle = kycLoading
+    ? "Checking verification status."
+    : currentKycBadge?.text === "Verified"
+      ? "Your identity was approved."
+      : currentKycBadge?.text === "Pending"
+        ? "Your identity verification is being reviewed."
+        : currentKycBadge?.text === "Rejected"
+          ? "Your identity verification was rejected."
+          : "Verification status unavailable.";
+
   return (
 
     <div
@@ -279,11 +289,7 @@ export default function Settings() {
               }
               iconBgClass="bg-sfx-success/10"
               title="Identity verification"
-              subtitle={
-                kycLoading
-                  ? "Checking verification status."
-                  : "Your identity was approved."
-              }
+              subtitle={kycSubtitle}
               badge={
                 currentKycBadge
                   ? {
