@@ -418,374 +418,371 @@ export default function KycDocCapture() {
   };
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-y-auto bg-sfx-primary-tint">
-      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-between p-4 sm:p-6 lg:max-w-5xl lg:p-8">
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-between p-4 sm:p-6 lg:max-w-5xl lg:p-8">
 
-        <header className="mb-4 py-2">
-          <div className="flex items-center gap-2">
+      <header className="mb-4 py-2">
+        <div className="flex items-center gap-2">
 
-            <Link
-              to="/kyc/type"
-              className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
-            >
-              <MdArrowBack className="size-6 text-sfx-ink" />
-            </Link>
+          <Link
+            to="/kyc/type"
+            className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
+          >
+            <MdArrowBack className="size-6 text-sfx-ink" />
+          </Link>
 
-            <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
-              {
-                documentType === "passport"
-                  ? "Capture Passport Photo page"
-                  : "Capture your National ID"
-              }
-            </h1>
+          <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
+            {
+              documentType === "passport"
+                ? "Capture Passport Photo page"
+                : "Capture your National ID"
+            }
+          </h1>
 
-          </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="grid flex-1 items-stretch grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
+      <div className="grid flex-1 items-stretch grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
 
-          <div className="flex flex-1 h-full min-h-[480px] flex-col justify-between rounded-3xl bg-[#13111C] p-5 text-white shadow-xl">
+        <div className="flex flex-1 h-full min-h-[480px] flex-col justify-between rounded-3xl bg-[#13111C] p-5 text-white shadow-xl">
 
-            <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1E1B2E] p-6">
+          <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1E1B2E] p-6">
 
-              {
-                isProcessing && (
+            {
+              isProcessing && (
 
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm p-4">
 
-                    <div className="w-full max-w-xs bg-white/20 rounded-full h-2 overflow-hidden mb-2">
+                  <div className="w-full max-w-xs bg-white/20 rounded-full h-2 overflow-hidden mb-2">
 
-                      <div
-                        className="bg-sfx-success h-full transition-all duration-300"
-                        style={{
-                          width: `${ocrProgress}%`,
-                        }}
-                      />
-
-                    </div>
-
-                    <p className="font-rh-sb text-xs text-white">
-                      Scanning details...
-                      {" "}
-                      {ocrProgress}
-                      %
-                    </p>
+                    <div
+                      className="bg-sfx-success h-full transition-all duration-300"
+                      style={{
+                        width: `${ocrProgress}%`,
+                      }}
+                    />
 
                   </div>
 
-                )
-              }
+                  <p className="font-rh-sb text-xs text-white">
+                    Scanning details...
+                    {" "}
+                    {ocrProgress}
+                    %
+                  </p>
 
-              {
-                capturedImage
+                </div>
 
-                  ? (
+              )
+            }
 
-                      isPdf
+            {
+              capturedImage
 
-                        ? (
+                ? (
 
-                            <div className="flex flex-col items-center justify-center text-center p-4">
+                    isPdf
 
-                              <MdPictureAsPdf
-                                className="size-16 text-red-400 mb-2"
-                              />
+                      ? (
 
-                              <span className="font-rh-sb text-sm text-white">
-                                PDF Document Uploaded
-                              </span>
+                          <div className="flex flex-col items-center justify-center text-center p-4">
 
-                            </div>
-
-                          )
-
-                        : (
-
-                            <img
-                              src={capturedImage}
-                              alt="Captured Document"
-                              className="h-full w-full rounded-xl object-contain"
+                            <MdPictureAsPdf
+                              className="size-16 text-red-400 mb-2"
                             />
 
-                          )
+                            <span className="font-rh-sb text-sm text-white">
+                              PDF Document Uploaded
+                            </span>
 
-                    )
+                          </div>
 
-                  : (
+                        )
 
-                      <div className="relative flex-1 w-full overflow-hidden rounded-xl">
+                      : (
 
-                        <Webcam
-                          ref={webcamRef}
-                          mirrored={false}
-                          audio={false}
-                          screenshotFormat="image/jpeg"
-                          videoConstraints={videoConstraints}
-                          onUserMediaError={(err) => {
-                            console.error(
-                              "Camera error:",
-                              err,
-                            );
+                          <img
+                            src={capturedImage}
+                            alt="Captured Document"
+                            className="h-full w-full rounded-xl object-contain"
+                          />
 
-                            toast.error(
-                              "Unable to access camera. Check browser permissions.",
-                            );
-                          }}
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
+                        )
 
-                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+                  )
 
-                          <div
-                            className={`
+                : (
+
+                    <div className="relative flex-1 w-full overflow-hidden rounded-xl">
+
+                      <Webcam
+                        ref={webcamRef}
+                        mirrored={false}
+                        audio={false}
+                        screenshotFormat="image/jpeg"
+                        videoConstraints={videoConstraints}
+                        onUserMediaError={(err) => {
+                          console.error(
+                            "Camera error:",
+                            err,
+                          );
+
+                          toast.error(
+                            "Unable to access camera. Check browser permissions.",
+                          );
+                        }}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+
+                        <div
+                          className={`
                               w-full max-w-xs aspect-[3/2]
                               rounded-2xl border-2 border-dashed
                               transition-all duration-300
                               flex items-center justify-center
 
                               ${
-                      docDetected
-                        ? "border-sfx-success bg-sfx-success/10"
-                        : "border-red-400/80 bg-red-500/5"
-                      }
+                    docDetected
+                      ? "border-sfx-success bg-sfx-success/10"
+                      : "border-red-400/80 bg-red-500/5"
+                    }
                             `}
-                          >
+                        >
 
-                            <span
-                              className={`
+                          <span
+                            className={`
                                 rounded-lg border px-3 py-1.5
                                 text-center font-rh-sb text-xs
                                 backdrop-blur-sm
 
                                 ${
-                      docDetected
-                        ? "border-emerald-500/30 bg-[#13111C]/90 text-sfx-success"
-                        : "border-red-500/30 bg-[#13111C]/90 text-red-400"
-                      }
+                    docDetected
+                      ? "border-emerald-500/30 bg-[#13111C]/90 text-sfx-success"
+                      : "border-red-500/30 bg-[#13111C]/90 text-red-400"
+                    }
                               `}
-                            >
+                          >
 
-                              {statusMessage}
+                            {statusMessage}
 
-                            </span>
-
-                          </div>
+                          </span>
 
                         </div>
 
                       </div>
 
-                    )
-              }
+                    </div>
+
+                  )
+            }
+
+          </div>
+
+          <div className="my-4 flex flex-wrap items-center justify-center gap-3 text-xs font-rh-r text-white/80 sm:gap-4">
+
+            {
+              Guide.map(item => (
+
+                <span
+                  key={item}
+                  className="flex items-center gap-1"
+                >
+
+                  <MdCheck className="size-4 text-sfx-success" />
+
+                  {item}
+
+                </span>
+
+              ))
+            }
+
+          </div>
+
+          <div className="pt-1">
+
+            {
+              capturedImage
+
+                ? (
+
+                    <div className="flex w-full gap-3">
+
+                      <Button
+                        onClick={handleRetake}
+                        variant="outline"
+                        className="flex-1 rounded-full border-white/20 bg-white/10 text-white hover:bg-white/20"
+                      >
+
+                        Retake
+
+                      </Button>
+
+                      <Button
+                        onClick={handleContinue}
+                        disabled={isProcessing}
+                        className="flex-1 rounded-full bg-sfx-primary font-rh-sb text-white hover:bg-sfx-primary/90"
+                      >
+
+                        Use Photo
+
+                      </Button>
+
+                    </div>
+
+                  )
+
+                : (
+
+                    <div className="grid grid-cols-3 items-center w-full px-2 sm:px-6">
+
+                      <label className="flex cursor-pointer items-center gap-1.5 text-xs text-white/80 hover:text-white">
+
+                        <MdUploadFile className="size-5" />
+
+                        <span className="hidden sm:inline">
+                          Upload file
+                        </span>
+
+                        <input
+                          type="file"
+                          accept={ALLOWED_TYPES.join(",")}
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+
+                      </label>
+
+                      <div className="flex justify-center">
+
+                        <button
+                          type="button"
+                          onClick={handleCapture}
+                          disabled={!docDetected || isProcessing}
+                          className={`
+                              flex size-16 items-center justify-center
+                              rounded-full shadow-lg transition-all
+
+                              ${
+                    docDetected
+                      ? "bg-emerald-400 hover:scale-105 cursor-pointer"
+                      : "bg-gray-400 opacity-40 cursor-not-allowed"
+                    }
+                            `}
+                        >
+
+                          <div className="size-14 rounded-full border-2 border-[#13111C]" />
+
+                        </button>
+
+                      </div>
+
+                      <div className="flex justify-end">
+
+                        <button
+                          type="button"
+                          onClick={toggleCamera}
+                          className="hidden pointer-coarse:flex items-center gap-1.5 text-xs text-white/80 hover:text-white"
+                        >
+
+                          <MdFlipCameraIos className="size-5" />
+
+                          <span className="hidden sm:inline">
+                            Flip camera
+                          </span>
+
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  )
+            }
+
+          </div>
+
+        </div>
+
+        <div className="flex-col justify-between rounded-2xl border border-sfx-primary-tint/30 bg-white/70 p-6 shadow-sm hidden lg:flex">
+
+          <div>
+
+            <div className="mb-3 flex items-center gap-2">
+
+              <MdFlipCameraIos className="size-5 text-sfx-primary" />
+
+              <h2 className="font-rh-b text-base text-sfx-ink">
+                Document Guidelines
+              </h2>
 
             </div>
 
-            <div className="my-4 flex flex-wrap items-center justify-center gap-3 text-xs font-rh-r text-white/80 sm:gap-4">
+            <p className="mb-6 font-rh-r text-sm leading-relaxed text-sfx-muted">
+
+              Take a clear photo of your original document.
+              Supported formats include JPG, PNG,
+              and PDF (up to
+              {" "}
+              {MAX_FILE_SIZE_MB}
+              {" "}
+              MB).
+
+            </p>
+
+            <div className="space-y-4">
 
               {
-                Guide.map(item => (
+                Tips.map((tip, index) => (
 
-                  <span
-                    key={item}
-                    className="flex items-center gap-1"
+                  <div
+                    key={tip.title}
+                    className="flex items-start gap-3 rounded-xl border border-sfx-primary-tint/20 bg-white p-3.5"
                   >
 
-                    <MdCheck className="size-4 text-sfx-success" />
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-sfx-primary-tint font-rh-b text-xs text-sfx-primary">
 
-                    {item}
+                      {index + 1}
 
-                  </span>
+                    </div>
+
+                    <div>
+
+                      <p className="font-rh-b text-xs text-sfx-ink sm:text-sm">
+
+                        {tip.title}
+
+                      </p>
+
+                      <p className="mt-0.5 font-rh-r text-xs text-sfx-muted">
+
+                        {tip.desc}
+
+                      </p>
+
+                    </div>
+
+                  </div>
 
                 ))
               }
 
             </div>
 
-            <div className="pt-1">
-
-              {
-                capturedImage
-
-                  ? (
-
-                      <div className="flex w-full gap-3">
-
-                        <Button
-                          onClick={handleRetake}
-                          variant="outline"
-                          className="flex-1 rounded-full border-white/20 bg-white/10 text-white hover:bg-white/20"
-                        >
-
-                          Retake
-
-                        </Button>
-
-                        <Button
-                          onClick={handleContinue}
-                          disabled={isProcessing}
-                          className="flex-1 rounded-full bg-sfx-primary font-rh-sb text-white hover:bg-sfx-primary/90"
-                        >
-
-                          Use Photo
-
-                        </Button>
-
-                      </div>
-
-                    )
-
-                  : (
-
-                      <div className="grid grid-cols-3 items-center w-full px-2 sm:px-6">
-
-                        <label className="flex cursor-pointer items-center gap-1.5 text-xs text-white/80 hover:text-white">
-
-                          <MdUploadFile className="size-5" />
-
-                          <span className="hidden sm:inline">
-                            Upload file
-                          </span>
-
-                          <input
-                            type="file"
-                            accept={ALLOWED_TYPES.join(",")}
-                            onChange={handleFileUpload}
-                            className="hidden"
-                          />
-
-                        </label>
-
-                        <div className="flex justify-center">
-
-                          <button
-                            type="button"
-                            onClick={handleCapture}
-                            disabled={!docDetected || isProcessing}
-                            className={`
-                              flex size-16 items-center justify-center
-                              rounded-full shadow-lg transition-all
-
-                              ${
-                      docDetected
-                        ? "bg-emerald-400 hover:scale-105 cursor-pointer"
-                        : "bg-gray-400 opacity-40 cursor-not-allowed"
-                      }
-                            `}
-                          >
-
-                            <div className="size-14 rounded-full border-2 border-[#13111C]" />
-
-                          </button>
-
-                        </div>
-
-                        <div className="flex justify-end">
-
-                          <button
-                            type="button"
-                            onClick={toggleCamera}
-                            className="hidden pointer-coarse:flex items-center gap-1.5 text-xs text-white/80 hover:text-white"
-                          >
-
-                            <MdFlipCameraIos className="size-5" />
-
-                            <span className="hidden sm:inline">
-                              Flip camera
-                            </span>
-
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                    )
-              }
-
-            </div>
-
           </div>
 
-          <div className="flex-col justify-between rounded-2xl border border-sfx-primary-tint/30 bg-white/70 p-6 shadow-sm hidden lg:flex">
+          <div className="pt-6">
 
-            <div>
+            <Button
+              onClick={handleContinue}
+              disabled={!capturedImage || isProcessing}
+              className="h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-base text-white shadow-brand hover:bg-sfx-ink/90 disabled:opacity-50"
+            >
 
-              <div className="mb-3 flex items-center gap-2">
+              Continue
 
-                <MdFlipCameraIos className="size-5 text-sfx-primary" />
-
-                <h2 className="font-rh-b text-base text-sfx-ink">
-                  Document Guidelines
-                </h2>
-
-              </div>
-
-              <p className="mb-6 font-rh-r text-sm leading-relaxed text-sfx-muted">
-
-                Take a clear photo of your original document.
-                Supported formats include JPG, PNG,
-                and PDF (up to
-                {" "}
-                {MAX_FILE_SIZE_MB}
-                {" "}
-                MB).
-
-              </p>
-
-              <div className="space-y-4">
-
-                {
-                  Tips.map((tip, index) => (
-
-                    <div
-                      key={tip.title}
-                      className="flex items-start gap-3 rounded-xl border border-sfx-primary-tint/20 bg-white p-3.5"
-                    >
-
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-sfx-primary-tint font-rh-b text-xs text-sfx-primary">
-
-                        {index + 1}
-
-                      </div>
-
-                      <div>
-
-                        <p className="font-rh-b text-xs text-sfx-ink sm:text-sm">
-
-                          {tip.title}
-
-                        </p>
-
-                        <p className="mt-0.5 font-rh-r text-xs text-sfx-muted">
-
-                          {tip.desc}
-
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                  ))
-                }
-
-              </div>
-
-            </div>
-
-            <div className="pt-6">
-
-              <Button
-                onClick={handleContinue}
-                disabled={!capturedImage || isProcessing}
-                className="h-button-h w-full rounded-button bg-sfx-primary font-rh-sb text-base text-white shadow-brand hover:bg-sfx-ink/90 disabled:opacity-50"
-              >
-
-                Continue
-
-              </Button>
-
-            </div>
+            </Button>
 
           </div>
 
@@ -794,5 +791,6 @@ export default function KycDocCapture() {
       </div>
 
     </div>
+
   );
 }

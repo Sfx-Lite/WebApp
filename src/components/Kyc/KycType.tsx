@@ -60,17 +60,20 @@ export default function KycType() {
   return (
     <section className="py-[25px] md:px-screen-x">
       <div className="space-y-[2rem]">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/kyc")}
-            className="p-[10px] rounded-full bg-sfx-card"
-          >
-            <MdArrowBack className="text-[20px]" />
-          </button>
-          <span className="inline-block font-rh-m">
-            Choose your document
-          </span>
-        </div>
+        <header className="py-2 mb-4">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/kyc")}
+              className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
+            >
+              <MdArrowBack className="size-6 text-sfx-ink" />
+            </button>
+
+            <h1 className="font-rh-sb text-lg sm:text-xl text-sfx-ink">
+              Choose your document
+            </h1>
+          </div>
+        </header>
 
         <div className="w-full md:max-w-[50%] mx-auto space-y-2">
           <div className="flex items-center justify-between">
