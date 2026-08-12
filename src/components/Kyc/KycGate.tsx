@@ -32,10 +32,12 @@ export default function KycGate() {
     case "verified":
     case "rejected":
       return (
-        <KycStatus
-          status={kycData.kycStatus}
-          submission={kycData.submission}
-        />
+        <div className="flex min-h-screen items-center justify-center">
+          <KycStatus
+            status={kycData.kycStatus}
+            submission={kycData.submission}
+          />
+        </div>
       );
 
     case "unverified":
