@@ -19,18 +19,15 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
   const dispatch = useAppDispatch();
   const buttonRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
-
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
 
   useEffect(() => {
     const google = getGoogle();
-
     if (!google) {
       console.error("Google SDK is not loaded");
       return;
     }
-
     if (!CLIENT_ID) {
       console.error("Google Client ID missing");
       return;
@@ -38,71 +35,72 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
 
     let cancelled = false;
 
-    const noncePromise = api.get("/auth/google/nonce");
-
-    const init = async () => {
+    const callback = async (googleResponse: any) => {
       try {
-        const nonceResponse = await noncePromise;
-        const nonce = nonceResponse.data.data.nonce;
-
-        if (cancelled)
+        const credential = googleResponse.credential;
+        if (!credential) {
+          console.error("No Google credential received");
           return;
-
-        google.accounts.id.initialize({
-          client_id: CLIENT_ID,
-          nonce,
-          callback: async (googleResponse: any) => {
-            try {
-              const credential = googleResponse.credential;
-              if (!credential) {
-                console.error("No Google credential received");
-                return;
-              }
-
-              const response = await api.post("/auth/google/verify", {
-                idToken: credential,
-              });
-
-              const { accessToken, refreshToken, user, isNewUser, isPin } = response.data?.data ?? {};
-
-              if (accessToken && refreshToken && user) {
-                dispatch(credentialsSet({ accessToken, refreshToken, user }));
-                if (isNewUser) {
-                  trackEvent("signup_completed", { method: "google" });
-                }
-                else {
-                  trackEvent("login_succeeded");
-                }
-                toast.success("Logged in successfully!");
-                onSuccessRef.current(Boolean(isPin));
-              }
-              else {
-                toast.error("Sign-in succeeded but session data was missing.");
-              }
-            }
-            catch (error) {
-              console.error("Google verification failed:", error);
-              toast.error("Account verification failed.");
-            }
-          },
+        }
+        const response = await api.post("/auth/google/verify", {
+          idToken: credential,
         });
-
-        if (buttonRef.current) {
-          google.accounts.id.renderButton(buttonRef.current, {
-            theme: "outline",
-            size: "large",
-            width: buttonRef.current.offsetWidth,
-          });
-          setReady(true);
+        const { accessToken, refreshToken, user, isNewUser, isPin } = response.data?.data ?? {};
+        if (accessToken && refreshToken && user) {
+          dispatch(credentialsSet({ accessToken, refreshToken, user }));
+          if (isNewUser) {
+            trackEvent("signup_completed", { method: "google" });
+          }
+          else {
+            trackEvent("login_succeeded");
+          }
+          toast.success("Logged in successfully!");
+          onSuccessRef.current(Boolean(isPin));
+        }
+        else {
+          toast.error("Sign-in succeeded but session data was missing.");
         }
       }
       catch (error) {
-        console.error("Google init failed:", error);
-        toast.error("Failed to connect to Google.");
+        console.error("Google verification failed:", error);
+        toast.error("Account verification failed.");
       }
     };
 
-    init();
+    // Initialize Google immediately so the button doesn't wait for the nonce request.
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback,
+    });
+
+    if (buttonRef.current) {
+      setReady(true);
+      google.accounts.id.renderButton(buttonRef.current, {
+        theme: "outline",
+        size: "large",
+        width: buttonRef.current.offsetWidth || 200,
+        borderRadius: 9999,
+      });
+    }
+    // fetches the nonce in parallel and add it when available.
+    // keeps the UI responsive while providing additional replay protection during authentication.
+    api.get("/auth/google/nonce")
+      .then((res) => {
+        if (cancelled)
+          return;
+        const nonce = res.data?.data?.nonce;
+        if (!nonce)
+          return;
+        // Reinitialize Google Auth with the nonce for subsequent sign-ins.
+        google.accounts.id.initialize({
+          client_id: CLIENT_ID,
+          nonce,
+          callback,
+        });
+      })
+      .catch((error) => {
+        console.warn("Google nonce fetch failed; continuing without replay protection.", error);
+      });
 
     return () => {
       cancelled = true;
@@ -114,7 +112,7 @@ export default function GoogleAuth({ onSuccess }: GoogleAuthProps) {
       {!ready && (
         <div className="h-10 w-full max-w-[240px] animate-pulse rounded-md bg-muted" />
       )}
-      <div ref={buttonRef} className={ready ? "w-full flex justify-center" : "hidden"} />
+      <div ref={buttonRef} className={ready ? "w-fit flex justify-center" : "hidden"} />
     </div>
   );
 }
