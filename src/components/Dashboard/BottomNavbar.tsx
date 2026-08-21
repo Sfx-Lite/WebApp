@@ -1,11 +1,13 @@
-import { FaRegClock } from "react-icons/fa";
+// import { FaRegClock } from "react-icons/fa";
+import { FiClock } from "react-icons/fi";
+
 import { MdHome, MdSettings, MdTrendingUp } from "react-icons/md";
 import { NavLink } from "react-router";
 
 const navItems = [
   { to: "/", label: "Home", icon: MdHome },
   { to: "/rates", label: "Rates", icon: MdTrendingUp },
-  { to: "/history", label: "History", icon: FaRegClock },
+  { to: "/history", label: "History", icon: FiClock },
   { to: "/settings", label: "Settings", icon: MdSettings },
 ];
 
@@ -17,11 +19,11 @@ export default function BottomNavbar() {
           key={to}
           to={to}
           className={({ isActive }) =>
-            `flex-1 text-center text-[10.5px] font-rh-m flex flex-col items-center gap-0.5 transition-colors ${
+            `flex-1 text-center text-[15px] font-rh-m flex flex-col items-center gap-0.5 transition-colors ${
               isActive ? "text-sfx-primary-strong" : "text-[#A49DBB]"
             }`}
         >
-          <Icon className="w-[25px] h-[30px]" />
+          <Icon className="w-[30px] h-[30px]" />
           {label}
         </NavLink>
       ))}

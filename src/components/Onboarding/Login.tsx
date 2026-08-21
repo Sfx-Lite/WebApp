@@ -73,7 +73,7 @@ export default function Login({ onSuccess, onGoogleSuccess }: LoginProps) {
 
   return (
     <section
-      className="flex  md:gap-[0rem] lg:gap-[10rem] pb-[3rem]"
+      className="flex md:gap-[0rem] lg:gap-[10rem] pb-[7rem]"
     >
       <div className="w-full md:w-[50%] lg:w-[40%]">
         <div className="space-y-[2.25rem]">

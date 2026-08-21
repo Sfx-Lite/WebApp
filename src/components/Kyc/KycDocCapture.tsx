@@ -55,6 +55,7 @@ export default function KycDocCapture() {
   const dispatch = useAppDispatch();
 
   const webcamRef = useRef<Webcam | null>(null);
+  const cameraErrorShownRef = useRef(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const documentType = useAppSelector(
@@ -418,16 +419,17 @@ export default function KycDocCapture() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-between p-4 sm:p-6 lg:max-w-5xl lg:p-8">
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-between sm:p-6 lg:max-w-5xl lg:p-8">
 
       <header className="mb-4 py-2">
         <div className="flex items-center gap-2">
 
           <Link
             to="/kyc/type"
-            className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
+            className="flex size-10 items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm transition-colors hover:bg-slate-50"
+            aria-label="Back"
           >
-            <MdArrowBack className="size-6 text-sfx-ink" />
+            <MdArrowBack className="size-5 text-sfx-ink" />
           </Link>
 
           <h1 className="font-rh-sb text-lg text-sfx-ink sm:text-xl">
@@ -443,9 +445,9 @@ export default function KycDocCapture() {
 
       <div className="grid flex-1 items-stretch grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
 
-        <div className="flex flex-1 h-full min-h-[480px] flex-col justify-between rounded-3xl bg-[#13111C] p-5 text-white shadow-xl">
+        <div className="flex flex-1 h-full min-h-[800px] flex-col justify-between rounded-3xl bg-[#13111C] p-5 text-white shadow-xl">
 
-          <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1E1B2E] p-6">
+          <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1E1B2E]">
 
             {
               isProcessing && (
@@ -520,15 +522,12 @@ export default function KycDocCapture() {
                         audio={false}
                         screenshotFormat="image/jpeg"
                         videoConstraints={videoConstraints}
-                        onUserMediaError={(err) => {
-                          console.error(
-                            "Camera error:",
-                            err,
-                          );
+                        onUserMediaError={() => {
+                          if (cameraErrorShownRef.current)
+                            return;
 
-                          toast.error(
-                            "Unable to access camera. Check browser permissions.",
-                          );
+                          cameraErrorShownRef.current = true;
+                          toast.error("Unable to access your camera");
                         }}
                         className="absolute inset-0 h-full w-full object-cover"
                       />
@@ -772,7 +771,7 @@ export default function KycDocCapture() {
 
           </div>
 
-          <div className="pt-6">
+          {/* <div className="pt-6">
 
             <Button
               onClick={handleContinue}
@@ -784,7 +783,7 @@ export default function KycDocCapture() {
 
             </Button>
 
-          </div>
+          </div> */}
 
         </div>
 

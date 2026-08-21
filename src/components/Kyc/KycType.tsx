@@ -2,7 +2,11 @@ import type { RootState } from "@/store";
 import { useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { AiOutlineScan, AiOutlineUser } from "react-icons/ai";
-import { MdArrowBack, MdCheckCircle, MdInfoOutline } from "react-icons/md";
+import {
+  MdArrowBack,
+  MdCheckCircle,
+  MdInfoOutline,
+} from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { setDocumentType } from "@/store/kycSlice";
@@ -35,12 +39,21 @@ const Docs: {
   },
 ];
 
-function CountryFlag({ alpha2Code, label }: { alpha2Code: string; label: string }) {
+function CountryFlag({
+  alpha2Code,
+  label,
+}: {
+  alpha2Code: string;
+  label: string;
+}) {
   return (
     <ReactCountryFlag
       countryCode={alpha2Code}
       svg
-      style={{ width: "1.25rem", height: "1.25rem" }}
+      style={{
+        width: "1.25rem",
+        height: "1.25rem",
+      }}
       aria-label={label}
     />
   );
@@ -49,8 +62,12 @@ function CountryFlag({ alpha2Code, label }: { alpha2Code: string; label: string 
 export default function KycType() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [selected, setSelected] = useState<DocumentId>("passport");
-  const country = useSelector((state: RootState) => state.kyc.country);
+
+  const country = useSelector(
+    (state: RootState) => state.kyc.country,
+  );
 
   const handleContinue = () => {
     dispatch(setDocumentType(selected));
@@ -58,103 +75,133 @@ export default function KycType() {
   };
 
   return (
-    <section className="py-[25px] md:px-screen-x">
-      <div className="space-y-[2rem]">
-        <header className="py-2 mb-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate("/kyc")}
-              className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
-            >
-              <MdArrowBack className="size-6 text-sfx-ink" />
-            </button>
+    <div className="mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden px-4">
+      <header className="shrink-0 pt-1">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/kyc")}
+            className="flex size-10 items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm transition-colors hover:bg-slate-50"
+            aria-label="Back"
+          >
+            <MdArrowBack className="size-5 text-sfx-ink" />
+          </button>
 
-            <h1 className="font-rh-sb text-lg sm:text-xl text-sfx-ink">
-              Choose your document
-            </h1>
-          </div>
-        </header>
+          <h1 className="font-rh-sb text-lg text-sfx-ink">
+            Choose your document
+          </h1>
+        </div>
+      </header>
 
-        <div className="w-full md:max-w-[50%] mx-auto space-y-2">
+      <main className="flex min-h-0 flex-1 flex-col pt-7 pb-7">
+        <div>
           <div className="flex items-center justify-between">
-            <span className="inline-block uppercase text-[16px] font-rh-m text-sfx-muted">
-              Issued in
-              {" "}
-              <CountryFlag alpha2Code={country.alpha2Code} label={country.label} />
-              {" "}
-              {country.label}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-rh-m text-xs uppercase text-sfx-muted">
+                Issued in
+              </span>
 
-            <button className="text-[15px] font-rh-m text-sfx-primary-strong underline">
+              <CountryFlag
+                alpha2Code={country.alpha2Code}
+                label={country.label}
+              />
+
+              <span className="font-rh-m text-xs text-sfx-muted">
+                {country.label}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="font-rh-m text-xs text-sfx-primary-strong underline"
+            >
               Change
             </button>
           </div>
 
-          <p className="text-[15px] leading-[18px] text-sfx-muted">
-            Select an official identity document issued by the government.
-          </p>
+          <div className="mt-4 space-y-3">
+            {Docs.map(
+              ({
+                id,
+                Icon,
+                title,
+                description,
+                iconBg,
+                iconColor,
+              }) => {
+                const isSelected = selected === id;
 
-          <div className="w-full space-y-4 pt-2">
-            {Docs.map(({ id, Icon, title, description, iconBg, iconColor }) => {
-              const isSelected = selected === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setSelected(id)}
+                    className={`w-full rounded-xl border bg-white p-3 text-left shadow-brand transition-all ${
+                      isSelected
+                        ? "border-sfx-primary ring-2 ring-sfx-primary/20"
+                        : "border-sfx-primary-tint/20 hover:border-sfx-primary/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div
+                          className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${iconBg}`}
+                        >
+                          <Icon
+                            className={`size-6 ${iconColor}`}
+                          />
+                        </div>
 
-              return (
-                <button
-                  key={id}
-                  onClick={() => setSelected(id)}
-                  className={`w-full p-(--spacing-card-pad) bg-sfx-card rounded-card transition-colors ${
-                    isSelected ? "ring-2 ring-sfx-primary-strong" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex size-14 items-center justify-center rounded-2xl sm:size-16 ${iconBg}`}
-                      >
-                        <Icon className={`size-6 sm:size-8 ${iconColor}`} />
+                        <div className="min-w-0">
+                          <h3 className="font-rh-b text-sm leading-tight text-sfx-ink">
+                            {title}
+                          </h3>
+
+                          <p className="mt-1 font-rh-r text-[10px] leading-relaxed text-sfx-muted">
+                            {description}
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1 text-left">
-                        <h3 className="font-rh-b text-[16px] leading-[16px]">
-                          {title}
-                        </h3>
-                        <p className="text-[15px] leading-[18px] text-sfx-muted">
-                          {description}
-                        </p>
-                      </div>
+
+                      {isSelected
+                        ? (
+                            <MdCheckCircle className="size-5 shrink-0 text-sfx-primary-strong" />
+                          )
+                        : (
+                            <div className="size-5 shrink-0 rounded-full border border-sfx-ink/50" />
+                          )}
                     </div>
-
-                    {isSelected
-                      ? (
-                          <MdCheckCircle className="size-6 shrink-0 text-sfx-primary-strong" />
-                        )
-                      : (
-                          <div className="size-6 shrink-0 rounded-full border border-sfx-ink" />
-                        )}
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              },
+            )}
           </div>
 
-          <div className="mt-4 flex items-start gap-2.5 rounded-card bg-sfx-card p-(--spacing-card-pad)">
-            <MdInfoOutline className="size-5 shrink-0 text-sfx-primary mt-0.5" />
-            <p className="text-[13px] leading-relaxed text-sfx-muted">
+          <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-sfx-primary-tint/20 bg-white p-3 shadow-sm">
+            <MdInfoOutline className="mt-0.5 size-5 shrink-0 text-sfx-primary" />
+
+            <p className="font-rh-r text-xs leading-relaxed text-sfx-muted">
               Make sure your document is
               {" "}
-              <strong className="font-rh-b text-sfx-ink">valid and not expired.</strong>
+              <strong className="font-rh-b text-sfx-ink">
+                valid and not expired.
+              </strong>
               {" "}
               Blurry or cropped photos are the most common rejection reason.
             </p>
           </div>
+        </div>
 
+        <div className="mt-auto px-2 pb-10 pt-6 sm:px-0 sm:pb-6">
           <button
+            type="button"
             onClick={handleContinue}
-            className="h-button-h rounded-button w-full bg-sfx-primary text-base font-rh-sb text-white shadow-brand button__hover mt-[35px]"
+            className="h-12 w-full rounded-full bg-sfx-primary text-sm font-rh-sb text-white shadow-brand button__hover"
           >
             Continue
           </button>
         </div>
-      </div>
-    </section>
+      </main>
+    </div>
   );
 }
