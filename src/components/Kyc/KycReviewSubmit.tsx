@@ -109,26 +109,22 @@ export default function KycReviewSubmit() {
   };
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-sfx-primary-tint">
+    <div>
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col p-4 sm:p-6 lg:p-8">
         <header className="mb-8">
           <div className="flex items-center gap-2">
             <Link
               to="/kyc/selfie"
-              className="rounded-lg p-1 transition hover:bg-sfx-primary/10"
+              className="flex size-10 items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm transition-colors hover:bg-slate-50"
+              aria-label="Back"
             >
-              <MdArrowBack className="size-6 text-sfx-ink" />
+              <MdArrowBack className="size-5 text-sfx-ink" />
             </Link>
 
             <h1 className="font-rh-sb text-xl text-sfx-ink sm:text-2xl">
               Review & Submit
             </h1>
           </div>
-
-          <p className="mt-2 font-rh-r text-sm text-sfx-muted">
-            Review your uploaded document and selfie before submitting them for
-            verification.
-          </p>
         </header>
 
         <div className="flex-1 space-y-5">
@@ -145,7 +141,6 @@ export default function KycReviewSubmit() {
                 bg-white
                 p-5
                 shadow-sm
-
                 md:flex-row
                 md:items-center
               "
@@ -264,7 +259,6 @@ export default function KycReviewSubmit() {
         </div>
       </div>
 
-      {/* Preview Modal */}
       {/* Preview Modal */}
       {previewImage && (
         <div

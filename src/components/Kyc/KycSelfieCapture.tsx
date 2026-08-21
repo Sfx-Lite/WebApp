@@ -135,14 +135,15 @@ export default function KycSelfieCapture() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-between sm:p-6 lg:max-w-5xl lg:p-8">
       <header className="py-2 mb-4">
         <div className="flex items-center gap-2">
           <Link
             to="/kyc/doc"
-            className="rounded-lg p-1 transition-colors hover:bg-sfx-primary/10"
+            className="flex size-10 items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm transition-colors hover:bg-slate-50"
+            aria-label="Back"
           >
-            <MdArrowBack className="size-6 text-sfx-ink" />
+            <MdArrowBack className="size-5 text-sfx-ink" />
           </Link>
 
           <h1 className="font-rh-sb text-lg sm:text-xl text-sfx-ink">
@@ -151,9 +152,9 @@ export default function KycSelfieCapture() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,440px)_minmax(0,440px)] lg:justify-center lg:gap-10">
-        <div className="flex w-full flex-col rounded-3xl bg-[#13111C] p-5 text-white shadow-xl">
-          <div className="relative flex h-[380px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-[#1E1B2E] p-6 sm:h-[420px]">
+      <div className="grid flex-1 items-stretch grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
+        <div className="flex flex-1 h-full min-h-[800px] flex-col justify-between rounded-3xl bg-[#13111C] p-5 text-white shadow-xl">
+          <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1E1B2E]">
             {capturedImage
               ? (
                   <img
@@ -184,7 +185,7 @@ export default function KycSelfieCapture() {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div
                           className="
-                            w-55
+                            w-70
                             aspect-3/4
                             rounded-[50%]
                             border-2
@@ -308,7 +309,7 @@ export default function KycSelfieCapture() {
             </div>
           </div>
 
-          {/* Desktop Action Backup */}
+          {/* Desktop Action Backup
           <div className="pt-6 hidden lg:block">
             <Button
               onClick={() => navigate("/kyc/submit")}
@@ -317,7 +318,7 @@ export default function KycSelfieCapture() {
             >
               Continue
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
