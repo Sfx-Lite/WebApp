@@ -1,19 +1,16 @@
-// import { FaRegClock } from "react-icons/fa";
-import { FiClock } from "react-icons/fi";
-
-import { MdHome, MdSettings, MdTrendingUp } from "react-icons/md";
+import { History, Home, Settings, TrendingUp } from "lucide-react";
 import { NavLink } from "react-router";
 
 const navItems = [
-  { to: "/", label: "Home", icon: MdHome },
-  { to: "/rates", label: "Rates", icon: MdTrendingUp },
-  { to: "/history", label: "History", icon: FiClock },
-  { to: "/settings", label: "Settings", icon: MdSettings },
+  { to: "/", label: "Home", icon: Home },
+  { to: "/rates", label: "Rates", icon: TrendingUp },
+  { to: "/history", label: "History", icon: History },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function BottomNavbar() {
   return (
-    <nav className="w-full flex bg-sfx-card p-2">
+    <nav className="w-full flex flex-row gap-0.5 bg-sfx-card p-2">
       {navItems.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
@@ -23,7 +20,7 @@ export default function BottomNavbar() {
               isActive ? "text-sfx-primary-strong" : "text-[#A49DBB]"
             }`}
         >
-          <Icon className="w-[30px] h-[30px]" />
+          <Icon className="w-[20px] h-[20px]" />
           {label}
         </NavLink>
       ))}
