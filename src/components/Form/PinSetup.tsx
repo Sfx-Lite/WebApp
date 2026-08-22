@@ -290,7 +290,7 @@ export default function PinSetup({
 
   return (
     <div className="w-full">
-      <div className="space-y-[2.25rem]">
+      <div className="space-y-[7rem]">
         <div>
           {onBack && (
             <button
@@ -309,7 +309,7 @@ export default function PinSetup({
           </p>
         </div>
 
-        <div className="space-y-3 flex flex-col items-center">
+        <div className="flex flex-col items-center">
           <div className="flex gap-3">
             {digits.map((digit, index) => (
               <input

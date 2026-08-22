@@ -75,7 +75,7 @@ export default function KycType() {
   };
 
   return (
-    <div className="mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden px-4">
+    <div className="mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden">
       <header className="shrink-0 pt-1">
         <div className="flex items-center gap-3">
           <button

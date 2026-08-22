@@ -10,7 +10,7 @@ export default function ProfileCard() {
 
   const navigate = useNavigate();
 
-  const initial = user?.lastName?.charAt(0).toUpperCase() ?? "A";
+  const initial = user?.firstName?.charAt(0).toUpperCase() ?? "A";
 
   const isVerified = user?.kycStatus === "verified";
 

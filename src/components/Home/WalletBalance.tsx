@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Plus, Send } from "lucide-react";
+import { ArrowUpRight, Eye, EyeOff, Plus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useGetWalletBalanceQuery } from "@/api/wallet";
@@ -39,7 +39,7 @@ export default function WalletBalance() {
             {isVisible ? balanceDisplay : "******"}
           </h1>
           <span className="uppercase tracking-tight text-sfx-muted">
-            {data?.asset ?? "USDC"}
+            {data?.asset ?? "USD"}
           </span>
         </div>
         <div className="flex items-end gap-0.5">
@@ -76,7 +76,7 @@ export default function WalletBalance() {
           onClick={() => navigate("/sendmoney")}
           className="w-1/2 py-[12px] px-[25px] flex items-center justify-center gap-1 rounded-full bg-sfx-card border border-sfx-primary hover:scale-95 transition-transform duration-300"
         >
-          <Send className="w-[20px] text-sfx-primary" />
+          <ArrowUpRight className="w-[20px] text-sfx-primary" />
           <span className="text-sfx-primary font-rh-m">
             Send
           </span>
