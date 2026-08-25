@@ -212,7 +212,7 @@ export default function ChatThread() {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Ask a question…"
-              className="min-w-0 flex-1 resize-none overflow-y-auto rounded-2xl bg-white px-4 py-3 font-rh-m text-[15px] text-sfx-ink outline-none placeholder:text-sfx-muted focus:ring-2 focus:ring-sfx-primary/30"
+              className="min-w-0 flex-1 resize-none overflow-y-auto rounded-2xl bg-white px-4 py-3 font-rh-m text-[15px] text-sfx-ink outline-none placeholder:text-sfx-muted focus:ring-inset focus:ring-2 focus:ring-sfx-primary/30"
             />
             <button
               type="submit"
