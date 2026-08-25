@@ -192,7 +192,7 @@ export default function KycType() {
           </div>
         </div>
 
-        <div className="mt-auto px-2 pb-10 pt-6 sm:px-0 sm:pb-6">
+        <div className="mt-auto px-2 pb-10 pt-6 sm:px-0 sm:pb-6 md:pb-16 lg:pb-14 ">
           <button
             type="button"
             onClick={handleContinue}
