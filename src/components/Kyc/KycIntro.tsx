@@ -84,7 +84,7 @@ export default function KycIntro() {
           </div>
         </div>
 
-        <div className="mt-auto px-2 pb-10 sm:px-0 sm:pb-6">
+        <div className="mt-auto px-2 pb-10 sm:px-0 sm:pb-6 md:pb-16 lg:pb-14">
           {" "}
           <Button
             onClick={() => {
