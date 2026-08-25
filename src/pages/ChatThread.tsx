@@ -37,8 +37,8 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   if (isUser) {
     return (
-      <div className="flex justify-end">
-        <div className="max-w-[85%] md:max-w-[70%] rounded-3xl bg-sfx-primary px-4 py-3 text-[15px] leading-[20px] text-white">
+      <div className="flex min-w-0 justify-end">
+        <div className="min-w-0 max-w-[85%] whitespace-pre-wrap break-words [overflow-wrap:anywhere] rounded-3xl bg-sfx-primary px-4 py-3 text-[15px] leading-[20px] text-white md:max-w-[70%]">
           {message.content}
         </div>
       </div>
@@ -46,9 +46,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   }
 
   return (
-    <div className="flex justify-start">
-      <div className="max-w-[85%] md:max-w-[70%] rounded-3xl bg-white px-4 py-3 text-[15px] leading-[20px] text-sfx-ink space-y-2">
-        <p>{message.content}</p>
+    <div className="flex min-w-0 justify-start">
+      <div className="min-w-0 max-w-[85%] space-y-2 rounded-3xl bg-white px-4 py-3 text-[15px] leading-[20px] text-sfx-ink md:max-w-[70%]">
+        <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{message.content}</p>
         {"source" in message && (message as any).source && (
           <p className="pt-1.5 border-t border-sfx-muted/15 text-[12px] text-sfx-muted">
             Source:
@@ -84,6 +84,7 @@ export default function ChatThread() {
   const [input, setInput] = useState("");
   const [activeConversationId, setActiveConversationId] = useState(conversationId);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null); //  to measure the textarea height and resize it as the user types.
   const hasHydratedRef = useRef(false);
 
   useEffect(() => {
@@ -96,6 +97,15 @@ export default function ChatThread() {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isSending]);
+
+  useEffect(() => {
+    const textarea = inputRef.current;
+    if (!textarea)
+      return;
+
+    textarea.style.height = "auto";// Reset height first so the textarea can shrink when text is deleted.
+    textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 44), 128)}px`;
+  }, [input]);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -195,12 +205,14 @@ export default function ChatThread() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex items-center gap-2">
-            <input
+          <form onSubmit={handleSubmit} className="flex items-end gap-2">
+            <textarea
+              ref={inputRef}
+              rows={1}
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Ask a question…"
-              className="flex-1 min-w-0 px-4 py-3 rounded-full bg-white font-rh-m text-[15px] outline-none focus:ring-2 focus:ring-sfx-primary/30 text-sfx-ink placeholder:text-sfx-muted"
+              className="min-w-0 flex-1 resize-none overflow-y-auto rounded-2xl bg-white px-4 py-3 font-rh-m text-[15px] text-sfx-ink outline-none placeholder:text-sfx-muted focus:ring-2 focus:ring-sfx-primary/30"
             />
             <button
               type="submit"
